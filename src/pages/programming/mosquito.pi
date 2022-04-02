@@ -1,0 +1,4 @@
+{ title: Mosquito ALU, section: programming, created: 2022-03-27, updated: 2022-03-27 }
+  A 4-bit ALU implemented in Scratch. I originally mapped the gate logic in Logisim (basic logic gates only) but then decided it would be too frustrating to recreate that in Scratch and instead settled for a sloppier softly simulation.
+
+  [[https://scratch.mit.edu/projects/245228694/][Mosquito 4-bit ALU]]

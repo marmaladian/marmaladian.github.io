@@ -1,0 +1,75 @@
+body {
+    line-height: 1.25;
+    width: 40em;
+    margin: 50px;
+}
+
+p {
+    margin: 1em 0em;
+}
+
+h1 { 
+    font-size: 2em;
+    font-weight: normal;
+    font-style: italic;
+    margin-bottom: 1.25em;
+    margin-top: 2em;
+}
+
+h2 { 
+    font-size: 1.3em;
+    font-style: italic;
+    font-weight: normal;
+    margin-bottom: 0.25em;
+    margin-top: 1.5em;
+}
+
+h3 {
+    font-size: 1.125em;
+    font-style: italic;
+    margin-bottom: 0.25em;
+    margin-top: 1.5em;
+    font-weight: normal;
+}
+
+h4 {
+    font-size: 1em;
+    font-style: italic;
+    margin-bottom: 0.25em;
+    margin-top: 1.5em;
+}
+
+figure {
+    margin: 2em 0 2em 0;
+    max-width: 100%;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.8em;
+    margin-top: 0.25em;
+}
+
+img {
+    max-width: 100%;
+}
+
+ul, ol {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+div.rule {
+    height: 1px;
+    background: rgb(0, 0, 0);
+    margin: 4em 0em 1em 0em;
+}
+hr {
+    display: none;
+}
+
+.footer {
+    font-size: 0.8em;
+    font-style: italic;
+    line-height: 0.5;
+}
