@@ -1,4 +1,5 @@
 package src;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.FileWriter;
@@ -35,7 +36,8 @@ public class Page {
                 e.printStackTrace();
             }
         }
-        setIDfromFilename();
+        setIDFromFilename();
+        setSectionFromFilename();
         this.createdDate = LocalDate.now();
         this.updatedDate = LocalDate.now();
         parsePiHeader(body[0]);
@@ -50,7 +52,7 @@ public class Page {
         parsePiHeader(body[0]);
     }
 
-    private void setIDfromFilename() {
+    private void setIDFromFilename() {
         // returns filename without extension
         String fileName = file.getName();
         int pos = fileName.lastIndexOf(".");
@@ -58,6 +60,10 @@ public class Page {
             fileName = fileName.substring(0, pos);
         }
         id = fileName;
+    }
+
+    private void setSectionFromFilename() {
+        section = file.getParentFile().getName();
     }
 
     public void setBody(String[] body) {
@@ -102,12 +108,6 @@ public class Page {
             switch (kv[0].trim()) {
                 case "title":
                     setTitle(kv[1].trim());
-                    break;
-                case "id": //    TODO rename topic to short name or something like that.
-                    setID(kv[1].trim());
-                    break;
-                case "section":
-                    setSection(kv[1].trim());
                     break;
                 default:
                     System.out.println("Header key " + kv[0].trim() + " refers to non-existent page property.");
@@ -275,7 +275,7 @@ public class Page {
         return String.format(str, title, settings.siteName, title);
     }
 
-    private String HTMLFigure(String filename, String extension, String path, String caption) {
+    public static String HTMLFigure(String filename, String extension, String path, String caption) {
         //  TODO add check to see if image file actually exists or id is "---"
         //  TODO add date back to caption?
         //  path = "../media/log/"
@@ -293,7 +293,7 @@ public class Page {
         final String NL = System.getProperty("line.separator");
 
         String str = NL + "      <div class=\"rule\"></div><hr>" + NL +
-        "<div class=\"footer\"><p>name: " + id + "</p>" + NL +
+        "<div class=\"footer\"><p>id: " + id + "</p>" + NL +
         String.format("       <p>created: %s</p>\n", createdDate.toString()) + NL +
         String.format("       <p>updated: %s</p>\n", updatedDate.toString()) + NL +
         "      </div>" + NL +
@@ -311,7 +311,11 @@ public class Page {
         for (LogEntry l : logs) {
             System.out.println("\t" + l.toString());
             if (!l.getPic().equals("---")) {
-                s += HTMLFigure(l.getPic(), "jpg", "../media/log/", l.getCaption());
+                if (l.getID().equals("index")) {
+                    s += HTMLFigure(l.getPic(), "jpg", "./media/log/", l.getCaption());
+                } else {
+                    s += HTMLFigure(l.getPic(), "jpg", "../media/log/", l.getCaption());
+                }
                 l.setProcessed(true);
                 break;
             }
@@ -333,14 +337,21 @@ public class Page {
 
         // add remaining captions
         if (logs.size() > 0) {
-            s += "<ul>" + NL;
+            boolean logsToDisplay = false;
             for (LogEntry l : logs) {
                 if (l.getCaption().length() > 0 && l.getProcessed() == false) {
+                    if (logsToDisplay == false) {
+                        logsToDisplay = true;
+                        s += "<h2>Log entries</h2>" + NL;
+                        s += "<ul>" + NL;
+                    }
                     s += "<li>" + l.getCaption() + " &#8211; " + l.getDate()+ "</li>" + NL;
                     l.setProcessed(true);
                 }
             }
-            s += "</ul>" + NL;
+            if (logsToDisplay == true) {
+                s += "</ul>" + NL;
+            }
         }
 
         s += HTMLFooter();

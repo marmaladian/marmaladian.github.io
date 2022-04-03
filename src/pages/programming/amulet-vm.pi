@@ -1,4 +1,4 @@
-{ title: Amulet VM, section: programming, created: 2022-03-27, updated: 2022-03-27 }
+{ title: Amulet VM }
   After making some very simple 4 and 8-bit processors in Logisim, I was getting frustrated at the difficulty of
   exploring processor designs - making changes required a lot of tedious rerouting and reconnecting and I wouldn't
   be sure an idea would even work. @neauoire had much better results starting with a VM, and so I decided to give it a try.

@@ -1,4 +1,4 @@
-{ title: Nifty, section: programming, created: 2022-03-27, updated: 2022-03-27 }
+{ title: Nifty }
   Nifty is a tiny paint tool that uses NES/[[https://wiki.xxiivv.com/site/nasu.html][Nasu]] .chr files as paint brushes.
 
   It is still in development but you can compile the source ([[https://github.com/bg3/nifty]]) yourself.

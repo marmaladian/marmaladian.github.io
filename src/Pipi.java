@@ -3,6 +3,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Pipi {
 
@@ -37,10 +38,18 @@ public class Pipi {
       return getFileExtension(f).equals(extension);
    }
 
-   private static boolean addID(String id) {
-      // TODO check 
-      ids.add(id);
-      return true;
+   private static void addID(String id) {
+      if (!ids.contains(id)) {
+         ids.add(id);
+      }
+   }
+
+   private static void deleteFilesInDir(File dir) {
+      for (File file: dir.listFiles()) {
+            if (file.isDirectory())
+               deleteFilesInDir(dir);
+            file.delete();
+      }  
    }
 
    public static void main(String[] args) {
@@ -52,6 +61,7 @@ public class Pipi {
 
       // parse log file
       File log = new File(settings.logPath);
+      LogEntry mostRecentImage = null;
       try(BufferedReader br = new BufferedReader(new FileReader(log))) {
          int numLines = 1;
          br.readLine(); // skip header row
@@ -74,6 +84,14 @@ public class Pipi {
                    caption = tokens[3];
                }
                LogEntry l = new LogEntry(date, pic, id, caption);
+               System.out.println("!!\t" + id);
+
+               if (mostRecentImage == null && !(l.getPic().equals("---"))) {
+                  // FIXME ugh, using date below.
+                  // we're creaitng this so we can add it as a log to the index page later.
+                  // but it doesn't work, because the index page is already at the root dir...
+                  mostRecentImage = new LogEntry(date, l.getPic(), "index", l.getCaption());
+               }
 
                // iterate through pages and find one with matching topic
                for (Page p : pages) {
@@ -90,8 +108,10 @@ public class Pipi {
          }
       } catch (Exception e) {
          e.printStackTrace();
-     }
+      }
 
+      // delete old pages
+      deleteFilesInDir(new File(settings.outputPath));
 
       // generate pages
       for (Page p : pages) {
@@ -127,14 +147,25 @@ public class Pipi {
       }
       //    all
       //    create h2s for sections
-      //    create <p>s for pages;
-      body += "2 All" + NL;
-      for (Page p : pages) {
-         body += "- [[" + settings.outputPath + "/" + p.getID() + ".html" + "][" + p.getTitle() + "]]" + NL;
+      List<String> sectionList = new ArrayList<String>(settings.sections.keySet());
+      for (String section : sectionList) {
+         body += "2 " + settings.sections.get(section) + NL;
+         for (Page p : pages) {
+            if (p.getSection().equals(section)) {
+               body += "- [[" + settings.outputPath + "/" + p.getID() + ".html" + "][" + p.getTitle() + "]]" + NL;
+            }
+         }
+         body += NL;
       }
+
+      //    create <p>s for pages;
+
+
+      // now put all this into a special index page
       Page index = new Page(body.split("\n"), settings);
       index.setID("index");
       index.setTitle("Park Imminent");
+      index.addLogEntry(mostRecentImage);
       index.toFile();
   }
 }

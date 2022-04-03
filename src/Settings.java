@@ -1,4 +1,7 @@
 package src;
+
+import java.util.HashMap;
+
 public class Settings {
     public final String siteName = "Park Imminent";
     public final String logPath = "./src/data/log";
@@ -8,4 +11,17 @@ public class Settings {
     public final char LC_PARA = ' ';
     public final String imagePath = "img/";
     public final int recentItems = 6;
+    public final HashMap<String, String> sections = new HashMap<String, String>();
+
+    public Settings() {
+        sections.put("craft", "Craft");
+        sections.put("games", "Games");
+        sections.put("languages", "Languages");
+        sections.put("misc", "Miscellaneous");
+        sections.put("programming", "Programming");
+        sections.put("recipes", "Recipes");
+        sections.put("tempo", "Tempo");
+        sections.put("travel", "Travel");
+        sections.put("design", "Design");
+    }
 }

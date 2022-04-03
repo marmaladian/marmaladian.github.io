@@ -1,3 +1,4 @@
+# Generator
 - start writing a simple html format (line based, except for tables + lists which will be mode based)
     - other inline
         ~~strong~~
@@ -7,22 +8,25 @@
     - tables (ayeeeee)
     - ~~ordered lists~~
     - ~~unordered lists~~
+    - nested lists
     - quotes
     - literal lines (i.e. ignore and place the exact html)
-- ~~fix blank lines after anything but paras~~
-- ~~build index~~
+
 - build nav pages?
 - build section indexes?
     - could give each page a parent to build a tree?
 - internal links
-- ~~get id from filename~~
-- get section from folder name
+- ~~get section from folder name~~
+    - ~~get folder-to-section-title mapping from settings~~
+- ~~add most recent photo to the index page~~
 - sort pages based on most recent order in the log
     - ~~go through logs, if there's an unseen ID add it to a list.~~
     - ~~then pick top X for recent~~
     - show the last date?
-    - then put the rest under the sections in that order
+    - ~~then put the rest under the sections in that order~~
+    - error when finding a section that's not in the settings, or vice versa.
     - sections appear in a predefined order (unless they're missing, in which case they appear at the end).
+    - nested folder/sections - e.g. food>recipes>bread>focaccia, farinata, bread, cornbread?
 - set last activity for a page based on the log (respecting the display flag), get rid of created/updated dates.
 - get created date from the first entry in the logs.
 - create photo file (filename, corresponding page, date, caption)
@@ -30,7 +34,7 @@
     - ~~show most recent photo at the top of the page, show rest at the bottom~~
     - ~~show captions below photos~~
     - build warning if missing caption
-- convert the header info to a series of key/vals, so some can be optional.
+- ~~convert the header info to a series of key/vals, so some can be optional.~~
 - allow unicode
 - make the generated HTML pretty
 - change sections to be based on folders instead of listing in front matter
@@ -40,6 +44,10 @@
 - add flag to text only log entries indicating whether they should be displayed at the end of the topic
 - abstract the figure/img/caption creation into a function (accepts img, or img and caption)
 - put the caption date on a new line (p or li tags inside figcaption?)
+- ~~get id from filename~~
+- ~~clear the site folder when rebuilding~~
+- ~~fix blank lines after anything but paras~~
+- ~~build index~~
 
 # Errors
 - how to log errors to a 'global' error db?
