@@ -278,7 +278,7 @@ public class Page {
         "   <body>" + NL +
         "       <div class=\"header\"><h1>%s</h1>" + NL;
         if (!isIndex) {
-            str += "<div class=\"homelink\"><a href=\"../index.html\">Home</a></div>" + NL;
+            str += "<div class=\"homelink\"><a href=\"../index.html\">Index</a></div>" + NL;
         }
         str += "</div>";
         // str += "<div style=\"clear: both; line-height: 0\"></div>";
