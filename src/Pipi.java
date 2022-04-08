@@ -163,8 +163,9 @@ public class Pipi {
 
       // now put all this into a special index page
       Page index = new Page(body.split("\n"), settings);
-      index.setID("index");
       index.setTitle("Park Imminent");
+      index.setID("index");
+      index.setIsIndex(true);
       index.addLogEntry(mostRecentImage);
       index.toFile();
   }

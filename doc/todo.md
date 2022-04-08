@@ -19,6 +19,9 @@
 - ~~get section from folder name~~
     - ~~get folder-to-section-title mapping from settings~~
 - ~~add most recent photo to the index page~~
+
+git remote set-url origin https://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@github.com/marmaladian/marmaladian.github.io.git
+
 - sort pages based on most recent order in the log
     - ~~go through logs, if there's an unseen ID add it to a list.~~
     - ~~then pick top X for recent~~
@@ -62,6 +65,11 @@
 ## Standard page
 { header }
 content
+
+## Color
+bg /* 224, 15, 23 */
+fg /* 20, 6, 6 */
+
 
 ## Log data
 yyyymmdd project/page time-spent

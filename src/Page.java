@@ -18,6 +18,7 @@ public class Page {
     private LocalDate updatedDate;
     private ArrayList<LogEntry> logs = new ArrayList<LogEntry>();
     private String section;
+    private boolean isIndex = false;
     final String NL = System.getProperty("line.separator");
 
     public Page(File f, Settings s) {
@@ -50,6 +51,10 @@ public class Page {
         this.createdDate = LocalDate.now();
         this.updatedDate = LocalDate.now();
         parsePiHeader(body[0]);
+    }
+
+    public void setIsIndex(boolean isIndex) {
+        this.isIndex = isIndex;
     }
 
     private void setIDFromFilename() {
@@ -187,9 +192,9 @@ public class Page {
                         String[] tokens = line.substring(2).split(" / ");
                         String[] filename = tokens[0].split("\\.");
                         if (tokens.length > 1) {
-                            s += HTMLFigure(filename[0], filename[1], "../media/other/", tokens[1]);    
+                            s += HTMLFigure(filename[0], filename[1], "../media/other/", tokens[1], null);    
                         } else {
-                            s += HTMLFigure(filename[0], filename[1], "../media/other/", "");
+                            s += HTMLFigure(filename[0], filename[1], "../media/other/", "", null);
                         }
                         s += NL;
                         break;
@@ -268,14 +273,19 @@ public class Page {
         String str = "<!DOCTYPE html>" + NL +
         "   <head>"  + NL +
         "       <title>%s - %s</title>" + NL +
-        (this.getID().equals("index") ? "       <link rel=\"stylesheet\" href=\"css\\main.css\">" : "       <link rel=\"stylesheet\" href=\"..\\css\\main.css\">") + NL +
+        (isIndex ? "       <link rel=\"stylesheet\" href=\"css\\main.css\">" : "       <link rel=\"stylesheet\" href=\"..\\css\\main.css\">") + NL +
         "   </head>" + NL +
         "   <body>" + NL +
-        "       <h1>%s</h1>" + NL;
+        "       <div class=\"header\"><h1>%s</h1>" + NL;
+        if (!isIndex) {
+            str += "<div class=\"homelink\"><a href=\"../index.html\">Home</a></div>" + NL;
+        }
+        str += "</div>";
+        // str += "<div style=\"clear: both; line-height: 0\"></div>";
         return String.format(str, title, settings.siteName, title);
     }
 
-    public static String HTMLFigure(String filename, String extension, String path, String caption) {
+    public static String HTMLFigure(String filename, String extension, String path, String caption, String date) {
         //  TODO add check to see if image file actually exists or id is "---"
         //  TODO add date back to caption?
         //  path = "../media/log/"
@@ -283,7 +293,12 @@ public class Page {
         //  filename = picid or image
         String s = "<figure><img src=\"" + path + filename + "." + extension + "\">";
         if (caption != null && !caption.equals("")) {
-            s += "<figcaption>" + caption + "</figcaption>";
+            if (date == null) {
+                s += "<figcaption>" + caption + "</figcaption>";
+            } else {
+                s += "<figcaption>" + caption + " | " + date + "</figcaption>";
+            }
+            
         }
         s += "</figure>";
         return s;
@@ -291,11 +306,10 @@ public class Page {
 
     private String HTMLFooter() {
         final String NL = System.getProperty("line.separator");
-
         String str = NL + "      <div class=\"rule\"></div><hr>" + NL +
-        "<div class=\"footer\"><p>id: " + id + "</p>" + NL +
-        String.format("       <p>created: %s</p>\n", createdDate.toString()) + NL +
-        String.format("       <p>updated: %s</p>\n", updatedDate.toString()) + NL +
+        "<div class=\"footer\"><p>id: " + id + " | " +
+        String.format("created: %s | ", createdDate.format(settings.dateFormat)) +
+        String.format("updated: %s", updatedDate.format(settings.dateFormat)) + NL +
         "      </div>" + NL +
         "   </body>" + NL +
         "</html>";
@@ -311,10 +325,11 @@ public class Page {
         for (LogEntry l : logs) {
             System.out.println("\t" + l.toString());
             if (!l.getPic().equals("---")) {
-                if (l.getID().equals("index")) {
-                    s += HTMLFigure(l.getPic(), "jpg", "./media/log/", l.getCaption());
+                String date = l.getDate().format(settings.dateFormat);
+                if (isIndex) {
+                    s += HTMLFigure(l.getPic(), "jpg", "./media/log/", l.getCaption(), date);
                 } else {
-                    s += HTMLFigure(l.getPic(), "jpg", "../media/log/", l.getCaption());
+                    s += HTMLFigure(l.getPic(), "jpg", "../media/log/", l.getCaption(), date);
                 }
                 l.setProcessed(true);
                 break;
@@ -330,7 +345,7 @@ public class Page {
         for (LogEntry l : logs) {
             System.out.println("\t" + l.toString());
             if (!l.getPic().equals("---")  && l.getProcessed() == false) {
-                s += HTMLFigure(l.getPic(), "jpg", "../media/log/", l.getCaption());
+                s += HTMLFigure(l.getPic(), "jpg", "../media/log/", l.getCaption(), l.getDate().toString());
                 l.setProcessed(true);
             }
         }
@@ -361,12 +376,11 @@ public class Page {
     public void toFile() {
         System.out.println("Generating " + this.getID());
         try {
-            String path = this.getID().equals("index") ? "./" : settings.outputPath;    //  put the index in the root directory
+            String path = isIndex ? "./" : settings.outputPath;    //  put the index in the root directory
             FileWriter fw = new FileWriter(path + "/" + getID() + ".html");
             // FIXME    handle crash if /site subdir does not exist.
             fw.write(toHTMLString());
             fw.close();
-            //System.out.println("Successfully wrote to the file.");
         } catch (IOException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();

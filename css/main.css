@@ -1,8 +1,8 @@
 body {
-    font-size: 1.15em;
+    font-size: 1.15rem;
     line-height: 1.5;
     width: 40em;
-    margin: 50px;
+    margin: 5rem 1rem 5rem 8rem;
     color:rgb(53, 53, 53);
 }
 
@@ -11,7 +11,7 @@ p {
 }
 
 a:link {
-    color: rgb(35, 167, 101);
+    color: rgb(255, 0, 242);
 }
 
 a:hover, a:active {
@@ -19,7 +19,7 @@ a:hover, a:active {
 }
 
 a:visited {
-    color: rgb(92, 110, 102);
+    color: rgb(149, 103, 145);
 }
 
 h1 { 
@@ -27,7 +27,17 @@ h1 {
     font-weight: normal;
     font-style: italic;
     margin-bottom: 1.25em;
-    margin-top: 2em;
+    margin-top: 2rem;
+    margin-left: -5rem;
+    margin: 2rem 0rem 1.5rem -5rem;
+}
+
+.homelink {
+    font-family: Helvetica, Arial, sans-serif;
+    color: #999;
+    font-size: 0.8em;        
+    line-height: 0.5;
+    margin: 2rem 0rem 1.5rem -5rem;
 }
 
 h2 { 
@@ -54,12 +64,13 @@ h4 {
 }
 
 figure {
-    margin: 2em 0 2em 0;
-    max-width: 100%;
+    margin: 2em 0 2em -5em;
+    max-width: calc(100% + 5em);
 }
 
 figcaption {
-    font-style: italic;
+    font-family: Helvetica, Arial, sans-serif;
+    /* font-style: italic; */
     color: #999;
     font-size: 0.8em;
     margin-top: 0.25em;
@@ -79,13 +90,15 @@ div.rule {
     background: rgb(0, 0, 0);
     margin: 4em 0em 1em 0em;
 }
+
 hr {
     display: none;
 }
 
 .footer {
-    font-size: 0.8em;
-    font-style: italic;
+    font-family: Helvetica, Arial, sans-serif;
+    color: #999;
+    font-size: 0.8em;    
     line-height: 0.5;
     text-align: right;
 }

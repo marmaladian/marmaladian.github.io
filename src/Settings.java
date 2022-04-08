@@ -1,6 +1,7 @@
 package src;
 
 import java.util.HashMap;
+import java.time.format.DateTimeFormatter;
 
 public class Settings {
     public final String siteName = "Park Imminent";
@@ -12,6 +13,7 @@ public class Settings {
     public final String imagePath = "img/";
     public final int recentItems = 6;
     public final HashMap<String, String> sections = new HashMap<String, String>();
+    public final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("MMMM d, yyyy");
 
     public Settings() {
         sections.put("craft", "Craft");
