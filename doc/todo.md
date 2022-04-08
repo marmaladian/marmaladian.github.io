@@ -1,4 +1,5 @@
 # Generator
+- is there a bug where the most recent log entry (087.jpg starflake) won't be added to its page (mockups)
 - start writing a simple html format (line based, except for tables + lists which will be mode based)
     - other inline
         ~~strong~~
