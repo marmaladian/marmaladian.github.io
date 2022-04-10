@@ -10,7 +10,6 @@ public class Settings {
     public final String outputPath = "./site";
     public final int numHeaderLines = 1;    // title, (code)name, section, created, updated, ----
     public final char LC_PARA = ' ';
-    public final String imagePath = "img/";
     public final int recentItems = 6;
     public final HashMap<String, String> sections = new HashMap<String, String>();
     public final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("MMMM d, yyyy");

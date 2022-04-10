@@ -287,7 +287,6 @@ public class Page {
 
     public static String HTMLFigure(String filename, String extension, String path, String caption, String date) {
         //  TODO add check to see if image file actually exists or id is "---"
-        //  TODO add date back to caption?
         //  path = "../media/log/"
         //  extension = "jpg"
         //  filename = picid or image
@@ -321,9 +320,9 @@ public class Page {
         s += HTMLHeader();
 
         // add header image, if one exists in logs
-        System.out.println("\t" + logs.size() + " logs");
+        System.out.println(logs.size() + " logs");
         for (LogEntry l : logs) {
-            System.out.println("\t" + l.toString());
+            //System.out.println("\t" + l.toString());
             if (!l.getPic().equals("---")) {
                 String date = l.getDate().format(settings.dateFormat);
                 if (isIndex) {
@@ -343,7 +342,7 @@ public class Page {
         //  add remaining images
         //  TODO change this to use an iterator https://www.java67.com/2018/12/how-to-remove-objects-or-elements-while-iterating-Arraylist-java.html
         for (LogEntry l : logs) {
-            System.out.println("\t" + l.toString());
+            //System.out.println("\t" + l.toString());
             if (!l.getPic().equals("---")  && l.getProcessed() == false) {
                 s += HTMLFigure(l.getPic(), "jpg", "../media/log/", l.getCaption(), l.getDate().toString());
                 l.setProcessed(true);
@@ -374,7 +373,7 @@ public class Page {
     }
 
     public void toFile() {
-        System.out.println("Generating " + this.getID());
+        System.out.print("Generating " + this.getID() + ".html, ");
         try {
             String path = isIndex ? "./" : settings.outputPath;    //  put the index in the root directory
             FileWriter fw = new FileWriter(path + "/" + getID() + ".html");

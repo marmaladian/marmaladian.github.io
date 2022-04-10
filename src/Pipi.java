@@ -63,46 +63,53 @@ public class Pipi {
       File log = new File(settings.logPath);
       LogEntry mostRecentImage = null;
       try(BufferedReader br = new BufferedReader(new FileReader(log))) {
-         int numLines = 1;
+         System.out.println("Parsing log file");
+         System.out.println("----------------");
          br.readLine(); // skip header row
+         int numLines = 1;
          for(String line; (line = br.readLine()) != null; ) {
             ++numLines;
-            // read log, generate list of photos+captions, or just captions with matching pages.
-            // add those to the pages and also the 'timeline' page.
-            // TODO skip adding log entries that don't have an x in the 'display' column
+            boolean found = false;
             String[] tokens = line.split("\t");
 
-            if (tokens.length > 2) {
+            if (tokens.length > 3) {
                String date = tokens[0];
-               String pic = tokens[1];
-               String id = tokens[2];
+               boolean visible = tokens[1].equals("+");
+               String pic = tokens[2];
+               String id = tokens[3];
                if (!ids.contains(id)) {
                   ids.add(id);
                }
                String caption = "";
-               if (tokens.length > 3) {
-                   caption = tokens[3];
-               }
-               LogEntry l = new LogEntry(date, pic, id, caption);
-               System.out.println("!!\t" + id);
-
-               if (mostRecentImage == null && !(l.getPic().equals("---"))) {
-                  // FIXME ugh, using date below.
-                  // we're creaitng this so we can add it as a log to the index page later.
-                  // but it doesn't work, because the index page is already at the root dir...
-                  mostRecentImage = new LogEntry(date, l.getPic(), "index", l.getCaption());
+               if (tokens.length > 4) {
+                   caption = tokens[4];
                }
 
-               // iterate through pages and find one with matching topic
-               for (Page p : pages) {
-                  if (p.getID().equals(l.getID())) {
-                     System.out.println("Adding " + l.getID() + " to " + p.getID());
-                     p.addLogEntry(l);
-                     break;
+               if (visible) {
+                  LogEntry l = new LogEntry(date, pic, id, caption);
+                  if (mostRecentImage == null && !(l.getPic().equals("---"))) {
+                     // FIXME ugh, using date below.
+                     // we're creaitng this so we can add it as a log to the index page later.
+                     // but it doesn't work, because the index page is already at the root dir...
+                     System.out.println("Setting " + l.getPic() + " as most recent image.");
+                     mostRecentImage = new LogEntry(date, l.getPic(), "index", l.getCaption());
+                  }
+   
+                  // iterate through pages and find one with matching topic
+                  for (Page p : pages) {
+                     if (p.getID().equals(l.getID())) {
+                        //System.out.println("Adding [" + l.getPic() + " " + l.getCaption() + "] to " + p.getID());
+                        p.addLogEntry(l);
+                        found = true;
+                        break;
+                     }
+                  }
+                  if (!found) {
+                     System.out.printf("WARNING\tNo page found for log id %s (%s)\n", id, date);
                   }
                }
             } else {
-               System.out.print("ERROR\t  Invalid log entry, line " + numLines + ".");
+               System.out.print("ERROR\tInvalid log entry, line " + numLines + ".");
             }
 
          }
@@ -114,11 +121,16 @@ public class Pipi {
       deleteFilesInDir(new File(settings.outputPath));
 
       // generate pages
+
+      System.out.println("\nGenerating pages");
+      System.out.println("----------------");
       for (Page p : pages) {
          p.toFile();
       }
 
       // generate index
+      System.out.println("\nBuilding index data");
+      System.out.println("----------------");
       final String NL = System.getProperty("line.separator");
       // header
       String body = "{ title: Park Imminent, section: root, created: 1982-06-28, updated: 1982-06-28 }" + NL;
@@ -130,11 +142,10 @@ public class Pipi {
       System.out.println("Finding recently logged pages...");
       int found = 0;
       for (int i = 0; i < ids.size(); ++i) {
-         System.out.println(ids.get(i));
          for (Page p : pages) {
-            System.out.println("\t" + p.getID());
             if (p.getID().equals(ids.get(i))) {
                body += "- [[" + settings.outputPath + "/" + p.getID() + ".html" + "][" + p.getTitle() + "]]" + NL;
+               System.out.println("\t" + p.getID());
                ++found;
             }
             if (found >= settings.recentItems) {

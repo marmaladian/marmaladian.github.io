@@ -1,25 +1,26 @@
 # Generator
-- is there a bug where the most recent log entry (087.jpg starflake) won't be added to its page (mockups)
+- ~~is there a bug where the most recent log entry (087.jpg starflake) won't be added to its page (mockups)~~
 - start writing a simple html format (line based, except for tables + lists which will be mode based)
     - other inline
         ~~strong~~
         ~~emphasis~~
         ~~strikethrough~~
-        - ?
+        - distinguish bold vs strong and i vs em.
     - tables (ayeeeee)
     - ~~ordered lists~~
     - ~~unordered lists~~
     - nested lists
     - quotes
     - literal lines (i.e. ignore and place the exact html)
-
-- build nav pages?
+- build a nav section?
 - build section indexes?
     - could give each page a parent to build a tree?
 - internal links
 - ~~get section from folder name~~
     - ~~get folder-to-section-title mapping from settings~~
 - ~~add most recent photo to the index page~~
+- ~~log when there is no page for a log entry~~
+- add erorr for missing folder<>section title mapping in Settings.java
 
 git remote set-url origin https://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@github.com/marmaladian/marmaladian.github.io.git
 
@@ -41,13 +42,13 @@ git remote set-url origin https://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@githu
 - ~~convert the header info to a series of key/vals, so some can be optional.~~
 - allow unicode
 - make the generated HTML pretty
-- change sections to be based on folders instead of listing in front matter
-- delete old pages from the site build folder!
-- add dates to log captions (with images and solo)
+- ~~change sections to be based on folders instead of listing in front matter~~
+- ~~delete old pages from the site build folder!~~
+- ~~add dates to log captions (with images and solo)~~
+  - put wider space between caption and date
 - check duplicate source files (had two dnd.pis)
-- add flag to text only log entries indicating whether they should be displayed at the end of the topic
+- ~~add flag to text only log entries indicating whether they should be displayed at the end of the topic~~
 - abstract the figure/img/caption creation into a function (accepts img, or img and caption)
-- put the caption date on a new line (p or li tags inside figcaption?)
 - ~~get id from filename~~
 - ~~clear the site folder when rebuilding~~
 - ~~fix blank lines after anything but paras~~
@@ -61,6 +62,7 @@ git remote set-url origin https://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@githu
 
 # CSS
 - make page size consistent (seems to shrink in dev tools mode)
+- make it responsive for mobile devices
 
 # Format
 ## Standard page
