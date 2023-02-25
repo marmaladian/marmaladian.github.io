@@ -1,0 +1,106 @@
+/*  background-color: #CAC6BC;
+    color: #3C3A37;
+
+    color: #333338;
+    background-color: #fffff8;
+*/
+
+body {
+  margin: 6em auto;
+  width: 66em;
+  color: #333338;
+  background-color: #fffff8;
+  line-height: 1.25;
+}
+
+a {
+  color: #83a697;
+}
+
+a:visited {
+  color: rgb(176, 196, 179);
+}
+
+article {
+  width: 66em;
+}
+
+section {
+  width: 40em;
+}
+
+h1, h2, h3, h4 {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+h1 {
+  font-size: largest;
+  font-weight: normal;
+  margin-bottom: 2em;
+}
+
+h2 {
+  font-size: large;
+  font-weight: normal;
+  margin-top: 2em;
+  margin-bottom: 1em;
+}
+
+h3 {
+  font-size: medium;
+  font-weight: normal;
+  margin-top: 2em;
+  margin-bottom: 1em;
+}
+
+h2 + p {
+  margin-top: 0.5em;
+}
+
+.left {
+  width: 40em;
+  float: left;
+}
+
+.right {
+  /* font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; */
+  width: 22em;
+  font-size: small; 
+  float: right;
+  clear: right;
+  margin-bottom: 2em;
+  margin-right: -26em;
+  vertical-align: baseline;
+  position: relative;
+}
+
+figure {
+  margin: 0 0 2em 0;
+}
+
+figcaption {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-style: italic;
+  font-size: small;
+  width: 70%;
+}
+
+img {
+  max-width: 100%;
+}
+
+figure.fullwidth img {
+  width: 100%;
+}
+
+.fullwidth {
+  width: 61em;
+  float: left;
+  clear: both;
+}
+
+.poem {
+  margin: 2em;
+  background-color: #f0f0e8;
+  padding: 1em 2em;
+}
