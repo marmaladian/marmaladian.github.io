@@ -1,4 +1,3 @@
-# TODO allow image captions to span multiple lines
 # TODO implement inline links as commands
 # TODO implement inline asides
 # TODO display inline asides correctly?
