@@ -13,6 +13,7 @@
 # TODO make asides styled with background when placed inline (small screen)
 # TODO fix bug where files require a last blank line (log.pi)
 # TODO build categories (use numbers to order, trim numbers)
+# TODO generate toc for longer pages.
 
 # NOTE commands
 #      --------
