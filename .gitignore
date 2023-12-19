@@ -1,0 +1,11 @@
+# Ignore installed npm modules
+node_modules/
+
+
+# Ignore folders from source code editors
+.vscode
+.idea
+
+# Ignore eleventy output when doing manual tests
+public/
+dist/
