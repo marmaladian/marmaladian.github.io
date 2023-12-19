@@ -1,0 +1,12 @@
+{% extends "layouts/base.html" %} 
+{% block content %}
+  <article>
+    {{ content | safe }}
+    {% if tags %}
+      {% set comma = joiner(', ') %}
+      {% for tag in tags -%}
+        {{ comma() }}<a href="/tags/{{ tag }}">{{ tag }}</a>
+      {%- endfor %}
+    {% endif %}
+  </article>
+{% endblock %}

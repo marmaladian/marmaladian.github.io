@@ -1,0 +1,24 @@
+<!-- <a class="[ skip-link ] [ button ]" href="#main-content">Skip to content</a> -->
+<header role="banner" class="site-head">
+  <div class="wrapper">
+    <div class="header strike">
+      <span class="right-pad-1em"><a href="/">{{site.name}}</a></span>
+      {% if category %}
+      <span class="right-pad-1em left-pad-1em">{{ category }}</span>
+      {% endif %}
+      <span class="left-pad-1em">{{ title }}</span>
+    </div>
+    <!-- <div>
+      <nav class="nav-columns" aria-label="Primary">
+        <ul class="nav__list">
+          {% for item in collections.allpages %}
+          <li>
+            <a href="{{ item.url }}" {{ helpers.getLinkActiveState(item.url, page.url) | safe }}
+              >{{ item.data.title }}</a
+            >
+          </li>
+          {% endfor %}
+        </ul>        
+    </div> -->
+  </div>
+</header>

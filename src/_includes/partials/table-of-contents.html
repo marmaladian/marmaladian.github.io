@@ -1,0 +1,6 @@
+{% for page in collections.allpages %}
+<div class="header strike">
+  <span class="right-pad-1em"><a href={{page.url}}>{{ page.data.title }}</a></span>
+  <span class="left-pad-1em">{{ page.date.toLocaleDateString("en-GB", {day:"2-digit", month: "short", year: "2-digit"}) }}</span>
+</div>
+{% endfor %}
