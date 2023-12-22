@@ -97,6 +97,7 @@ tr + tr { border-top: 0.1em solid #333; }
     background-color: white;
     padding: 0 10px;
 }
+
 img {
     width: 100%;
     height: auto;
@@ -131,6 +132,9 @@ h1, h2 {
 
 h3 {
     font-size: 0.8rem;
+    margin-top: 1rem;
+    margin-bottom: 0.25rem;
+
 }
 
 article {
