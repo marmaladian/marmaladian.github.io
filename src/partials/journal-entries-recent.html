@@ -1,9 +1,0 @@
-<div class="journal-entries">
-    {% set ordered_journal = collections.journal %}
-    {% for item in ordered_journal.slice(0, 3) %}
-      <article>
-        <p class="journal-date">{{ item.date.toLocaleDateString("en-GB", {day:"2-digit", month: "short", year: "2-digit"}) }}</p>
-        {{ item.content | safe }}
-      </article>
-    {% endfor %}
-</div>
