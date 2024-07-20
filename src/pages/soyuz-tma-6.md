@@ -1,6 +1,7 @@
-title: Soyuz TMA-6 and система жизнеобеспечения
+title: Soyuz TMA-6 and система жизнеобеспечения (test page)
 fg: #333
 bg: #fff
+category: Miscellaneous
 ---
     
 Soyuz (Russian: Союз, IPA: [sɐˈjus], lit. 'Union') is a series of spacecraft which has been in service since the 1960s, having made more than 140 flights. It was designed for the Soviet space program by the Korolev Design Bureau (now Energia). The Soyuz succeeded the Voskhod spacecraft and was originally built as part of the Soviet crewed lunar programs. It is launched on a Soyuz rocket from the Baikonur Cosmodrome in Kazakhstan. Between the 2011 retirement of the Space Shuttle and the 2020 demo flight of SpaceX Crew Dragon, the Soyuz served as the only means to ferry crew to or from the International Space Station, for which it remains heavily used. Although China did launch crewed Shenzhou flights during this time, none of them docked with the ISS.

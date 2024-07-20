@@ -1,6 +1,8 @@
 title: Bread
 fg: #0f0
 bg: #f0f
+category: Recipes
+---
 
 ## Ingredients
 - 3 cups flour

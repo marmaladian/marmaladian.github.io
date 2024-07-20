@@ -1,4 +1,6 @@
 title: Black-eyed peas in coconut sauce
+category: Recipes
+---
 
 This recipe is from [Natlicious food](https://natliciousfood.com/recipes/black-eyed-peas-in-creamy-coconut-sauce/). My friend Ryan described it as a revelation, "it's as though I've never eaten beans before".
 

@@ -1,4 +1,6 @@
 title: Books
+category: Miscellaneous
+---
 
 My favourite book each year is marked in bold. I am partway through books in italics. Books that I chose not to finish are struck out. I have not included textbooks that I read for university.
 

@@ -1,4 +1,5 @@
 title: Oyakodon 親子丼
+---
 
 This is a vegan version of oyakodon I found [here](https://www.youtube.com/watch?v=F58g2R0oAOs).
 
