@@ -1,0 +1,18 @@
+body {
+	padding: 1em;
+	background-color: #E8E8E4;
+	color: #191919;
+	width: 40em;
+}
+
+h2 {
+	font-size: 1em;
+}
+
+p {
+	line-height: 1.25;
+}
+
+pre {
+	color: darkslategrey;
+}
