@@ -9,10 +9,10 @@ h2 {
 	font-size: 1em;
 }
 
-p {
-	line-height: 1.25;
+p, li {
+	line-height: 1.35;
 }
 
 pre {
 	color: darkslategrey;
-}
+} 
