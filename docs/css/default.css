@@ -5,8 +5,13 @@ body {
 	width: 40em;
 }
 
+h1 {
+	letter-spacing: -0.1em;
+}
+
 h2 {
-	font-size: 1em;
+	font-size: 1.25em;
+	letter-spacing: -0.1em;
 }
 
 p, li {
@@ -15,4 +20,8 @@ p, li {
 
 pre {
 	color: darkslategrey;
-} 
+}
+
+img.sticker {
+	max-width: 30%;
+}
