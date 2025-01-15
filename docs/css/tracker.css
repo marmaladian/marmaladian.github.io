@@ -14,10 +14,22 @@ td {
 }
 
 tr.week {
+	border-top: 1px solid lightgrey;
+}
+
+tr.fortnight {
 	border-top: 1px solid black;
 }
 
 th.daterow {
 	vertical-align: top;
 	font-weight: normal;
+}
+
+
+.sideways-text {
+	writing-mode: vertical-lr;
+	text-align: right;
+	padding-bottom: 1em;
+	/* transform: rotate(270deg); */
 }
