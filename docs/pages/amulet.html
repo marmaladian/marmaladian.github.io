@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/style.css">
+    <!-- google fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baskervville:ital,wght@0,400..700;1,400..700&display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+        rel="stylesheet">
+    <title>Amulet &mdash; Benjamin Grayland</title>
+</head>
+
+<body>
+    <div class="wrapper-page">
+        <header>
+        <h1>Amulet</h1>
+        <div class="home-link">
+            <!-- ⇤ -->
+            <a href="../index.html">↩</a>
+        </div>
+        </header>
+
+        <p>A fantasy console.</p>
+        <p>This is a work in progress, spec is not finalised.</p>
+
+        <h2>Overview</h2>
+        <p>Stack-machine, 8-bit ALU, 16-bit addresses (MMU allows access to 1MB). PPU with internal VRAM. Tile based
+            display.</p>
+
+        <h2>Instruction set</h2>
+        <p>Stack effect notation <code>(a b -- c)</code> shows inputs before the dash, outputs after.</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Code</th>
+                    <th>Syntax</th>
+                    <th>Stack Effect</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td rowspan="3" style="vertical-align: top;">System</td>
+                    <td>00</td>
+                    <td>ZZZ</td>
+                    <td>( -- )</td>
+                    <td>No operation.</td>
+                </tr>
+                <tr>
+                    <td>01</td>
+                    <td>SYS n</td>
+                    <td>varies</td>
+                    <td>Call system routine n, e.g. dump, trace.</td>
+                </tr>
+                <tr>
+                    <td>0F</td>
+                    <td>HLT</td>
+                    <td>( -- )</td>
+                    <td>Halt system.</td>
+                </tr>
+                <!-- Stack operations -->
+                <tr>
+                    <td rowspan="7">Stack operations</td>
+                    <td>20</td>
+                    <td>POP</td>
+                    <td>(a -- )</td>
+                    <td>Discard top of stack</td>
+                </tr>
+                <tr>
+                    <td>21</td>
+                    <td>DUP</td>
+                    <td>(a -- a a)</td>
+                    <td>Duplicate top item</td>
+                </tr>
+                <tr>
+                    <td>22</td>
+                    <td>SWP</td>
+                    <td>(a b -- b a)</td>
+                    <td>Swap top two items</td>
+                </tr>
+                <tr>
+                    <td>23</td>
+                    <td>OVR</td>
+                    <td>(a b -- a b a)</td>
+                    <td>Copy 2nd item to top</td>
+                </tr>
+                <tr>
+                    <td>24</td>
+                    <td>ROT</td>
+                    <td>(a b c -- b c a)</td>
+                    <td>Rotate top three left; use <code class="purple">ROT ROT</code> for right rotation</td>
+                </tr>
+                <tr>
+                    <td>25</td>
+                    <td>NIP</td>
+                    <td>(a b -- b)</td>
+                    <td>Drop 2nd item; equivalent to <code class="purple">SWP POP</code></td>
+                </tr>
+                <tr>
+                    <td>26</td>
+                    <td>TUC</td>
+                    <td>(a b -- b a b)</td>
+                    <td>Tuck copy of top under 2nd; equivalent to <code class="purple">SWP OVR</code></td>
+                </tr>
+
+                <!-- Literals & addressing -->
+                <tr>
+                    <td rowspan="6">Literals &amp; addressing</td>
+                    <td>30</td>
+                    <td>ST1</td>
+                    <td>(a lo hi -- )</td>
+                    <td>Store byte <i>a</i> at address (lo hi)</td>
+                </tr>
+                <tr>
+                    <td>31</td>
+                    <td>ST2</td>
+                    <td>(a lo hi -- )</td>
+                    <td>Store 16-bit value <i>a</i> at address (lo hi)</td>
+                </tr>
+                <tr>
+                    <td>32</td>
+                    <td>LD1</td>
+                    <td>(lo hi -- a)</td>
+                    <td>Load byte from address (lo hi)</td>
+                </tr>
+                <tr>
+                    <td>33</td>
+                    <td>LD2</td>
+                    <td>(lo hi -- a)</td>
+                    <td>Load 16-bit value from address (lo hi)</td>
+                </tr>
+                <tr>
+                    <td>34</td>
+                    <td>IM1 n</td>
+                    <td>( -- n)</td>
+                    <td>Push next byte literal</td>
+                </tr>
+                <tr>
+                    <td>35</td>
+                    <td>IM2 n16</td>
+                    <td>( -- lo hi)</td>
+                    <td>Push next 2-byte literal</td>
+                </tr>
+
+                <!-- ALU -->
+                <tr>
+                    <td rowspan="8">ALU (8-bit unless noted)</td>
+                    <td>40</td>
+                    <td>ADD</td>
+                    <td>(a b -- c)</td>
+                    <td>Add a + b (wraparound)</td>
+                </tr>
+                <tr>
+                    <td>41</td>
+                    <td>SUB</td>
+                    <td>(a b -- c)</td>
+                    <td>Subtract a − b</td>
+                </tr>
+                <tr>
+                    <td>42</td>
+                    <td>AND</td>
+                    <td>(a b -- c)</td>
+                    <td>Bitwise AND</td>
+                </tr>
+                <tr>
+                    <td>43</td>
+                    <td>IOR</td>
+                    <td>(a b -- c)</td>
+                    <td>Bitwise OR</td>
+                </tr>
+                <tr>
+                    <td>44</td>
+                    <td>XOR</td>
+                    <td>(a b -- c)</td>
+                    <td>Bitwise XOR</td>
+                </tr>
+                <tr>
+                    <td>45</td>
+                    <td>NOT</td>
+                    <td>(a -- ~a)</td>
+                    <td>Bitwise NOT</td>
+                </tr>
+                <tr>
+                    <td>46</td>
+                    <td>BSL</td>
+                    <td>(a n -- c)</td>
+                    <td>Shift a left by n bits</td>
+                </tr>
+                <tr>
+                    <td>47</td>
+                    <td>BRL</td>
+                    <td>(a n -- c)</td>
+                    <td>Rotate a left by n bits</td>
+                </tr>
+
+                <!-- Control flow -->
+                <tr>
+                    <td rowspan="9">Control flow</td>
+                    <td>50</td>
+                    <td>CAL addr16</td>
+                    <td>( -- )</td>
+                    <td>Call subroutine (like JSR)</td>
+                </tr>
+                <tr>
+                    <td>51</td>
+                    <td>RTN</td>
+                    <td>(cond -- )</td>
+                    <td>Return if non-zero</td>
+                </tr>
+                <tr>
+                    <td>52</td>
+                    <td>RTZ</td>
+                    <td>(cond -- )</td>
+                    <td>Return if zero</td>
+                </tr>
+                <tr>
+                    <td>53</td>
+                    <td>RET</td>
+                    <td>( -- )</td>
+                    <td>Unconditional return</td>
+                </tr>
+                <tr>
+                    <td>54</td>
+                    <td>HOP rel8</td>
+                    <td>( -- )</td>
+                    <td>Relative jump (signed offset)</td>
+                </tr>
+                <tr>
+                    <td>55</td>
+                    <td>SKP</td>
+                    <td>(addr -- )</td>
+                    <td>Jump to address on stack</td>
+                </tr>
+                <tr>
+                    <td>56</td>
+                    <td>JMP addr16</td>
+                    <td>( -- )</td>
+                    <td>Absolute jump</td>
+                </tr>
+                <tr>
+                    <td>57</td>
+                    <td>RSW</td>
+                    <td>(a -- )</td>
+                    <td>Push a to return stack</td>
+                </tr>
+                <tr>
+                    <td>58</td>
+                    <td>RSR</td>
+                    <td>( -- a)</td>
+                    <td>Pop from return stack</td>
+                </tr>
+
+                <!-- IO & timing -->
+                <tr>
+                    <td rowspan="4">System, I/O &amp; timing</td>
+                    <td>60</td>
+                    <td>VBL</td>
+                    <td>( -- )</td>
+                    <td>Wait for vertical blank</td>
+                </tr>
+                <tr>
+                    <td>61</td>
+                    <td>SYS</td>
+                    <td>( -- )</td>
+                    <td>Call system routine n</td>
+                </tr>
+                <tr>
+                    <td>62</td>
+                    <td>PUT</td>
+                    <td>(val -- )</td>
+                    <td>Write value to I/O port n</td>
+                </tr>
+                <tr>
+                    <td>63</td>
+                    <td>GET</td>
+                    <td>( -- val)</td>
+                    <td>Read byte from I/O port n</td>
+                </tr>
+            </tbody>
+        </table>
+        <footer>
+            <hr>
+            <div>Updated 5 October 2025, Melbourne</div>
+        </footer>
+    </div>
+</body>
+
+</html>
