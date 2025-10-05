@@ -1,0 +1,84 @@
+body {
+    /* color: #E8E8E4;
+    background-color: #333333; */
+    background-color: #E8E8E4;
+    color: #191919;
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 1.4;
+}
+
+.wrapper-page {
+    width: 40em;
+    margin: 5em 4em;
+}
+
+.stamp {
+  width: 3em;
+  height: auto;
+  margin-left: -0.25em;
+}
+
+.roundbox {
+  border: 1px solid currentColor;
+  border-radius: 5px;
+  margin: 2em -1em;
+  padding: 1em;
+  background-color: white;
+}
+
+.roundbox p {
+  margin-top: 0;
+  margin-bottom: 0;
+  font-style: italic;
+}
+
+.roundbox p + p {
+  margin-top: 1em; /* keeps normal spacing between paragraphs */
+}
+
+
+h1 {
+    font-size: 1.15em;
+    font-weight: normal;
+    margin-top: 0.25em;
+    margin-bottom: 2em;
+}
+
+h2 {
+    font-size: 1em;
+    margin-top: 2em;
+    margin-bottom: 0.5em;
+}
+
+/* paragraph after header */
+h2 + p {
+    margin-top: 0.5em;
+    /* padding-top: 0; */
+}
+
+a {
+    color: #626bc9;
+    text-decoration: none;
+    border-bottom: 1px dotted currentColor;
+}
+
+footer {
+  margin-top: 5em;
+}
+
+.baskervville-400 {
+  font-family: "Baskervville", serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.inter-400 {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
