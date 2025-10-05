@@ -53,6 +53,12 @@ h2 {
     margin-bottom: 0.5em;
 }
 
+h3 {
+    display: inline;
+    font-size: 1em;
+    margin-right: 0.3em;
+}
+
 /* paragraph after header */
 h2 + p {
     margin-top: 0.5em;
