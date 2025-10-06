@@ -1,9 +1,6 @@
 html, body { overflow-x: hidden; }
 
-/* body > *:not(.full-bleed):not(figure.full-bleed img) {  */
 body {
-  /* color: #E8E8E4;
-  background-color: #333333; */
   background-color: #E8E8E4;
   color: #191919;
   font-family: "Inter", sans-serif;
@@ -13,13 +10,18 @@ body {
   line-height: 1.4;
 }
 
-
 .wrapper-page {
-    width: 40em;
+    max-width: 40em;
     margin: 5em 4em;
     padding-inline: 1em;
     container-type: inline-size; 
  }
+
+@media (max-width: 700px) {
+  .wrapper-page {
+    margin: 2em 1em;
+  }
+}
 
 .stamp {
   width: 3em;
