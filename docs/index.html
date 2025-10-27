@@ -18,54 +18,95 @@
 </head>
 
 <body>
-    <div class="wrapper-page">
-        <div class="stamp-header">
-            <img class="stamp" src="media/stamp.png" alt="BG">
+    <div class="page-wrapper">
+        <header>
             <h1>Benjamin Grayland</h1>
-        </div>
+        </header>
+        <main>
+            <section class="row">
+                <div class="prose">
+                    <p>Hello! I'm a computer science student currently completing my Honours year at <a href="https://www.rmit.edu.au">RMIT</a> in Melbourne, Australia. Before that, I worked in the fintech industry as a product owner and business analyst.</p>
+                </div>
+            </section>
 
-        <p>Hello! I'm a computer science student currently completing my Honours year at <a href="https://www.rmit.edu.au">RMIT</a> in Melbourne, Australia. Before that, I worked in fintech.</p>
+            <section id="now" class="row">
+                <div class="prose">
+                    <div class="roundbox">
+                        <p><strong>Now</strong></br>Working on Honours thesis exploring neural cellular automata with discrete states in the Wireworld domain.</p>
+                        <p><strong>Research interests</strong></br>Artificial life; self-organising systems; exotic and unusual computational models and substrates. I'm very interested in opportunities to learn more about molecular biology.</p>
+                    </div>
+                </div>
+            </section>
 
-        <div class="roundbox">
-            <p><strong>Now</strong></br>Working on Honours thesis exploring neural cellular automata with discrete states in the Wireworld domain.</p>
-            <p><strong>Research interests</strong></br>Artificial life; self-organising systems; exotic and unusual computational models and substrates. I'm very interested in opportunities to learn more about molecular biology.</p>
-        </div>
-        <h2>Projects and research</h2>
-        <p>
-          <h3>Honours thesis.</h3><em>Representation and Guidance Mechanisms in Neural Cellular Automata for Learning Precise Target Patterns</em>, in progress.
-          <figure>
-            <img src="media/nca.gif" alt="Neural Cellular Automata generating Wireworld patterns">
-            <figcaption>
-            Neural cellular automata growing a discrete Wireworld pattern that simulates a single pixel of Langton's Ant
-          </figcaption>
-        </figure>
-        </p>
-        <p>
-          <h3>MoveMemorE vehicle motion replay.</h3>For my Bachelor's capstone project, my team developed VR software that uses GPS and inertial data to replay recorded journeys. The software connects directly to the <a href="https://www.eight360.com">NOVA motion platform</a> to control its 360° motion, synchronising physical movement with the VR visuals to recreate the sensation of the original journey.
-        </p>
-        <figure>
-          <img src="media/nova.png" alt="Neural Cellular Automata generating Wireworld patterns">
-          <figcaption>
-          Our MoveMemorE simulator running on the NOVA motion platform 
-          </figcaption>
-        </figure>
-        <h2>Fantasy computers</h2>
-        <p>As a hobby project, I'm working on a series of fictional computers and video game consoles, each with their own unique architecture and instruction set. I'm working on an emulator for the first of these now, <em>Amulet</em>.</p>
-        <ul>
-            <li><a href="pages/amulet.html">Amulet</a></li>
-        </ul>
-        <h2>Library</h2>
-        <ul>
-            <li><a href="pages/links.html">Blogroll</a></li>
-            <li><a href="pages/books.html">Reading List</a></li>
-            <li><a href="pages/recipes.html">Recipes</a></li>
-            <li><a href="pages/music.html">Music</a></li>
-            <li><a href="pages/test.html">Test page</a></li>
-        </ul>
+            <section class="row">
+                <h2>Projects and research</h2>
+            </section>
+
+            <section class="row">
+                <div class="prose">
+                    <h3>Honours thesis.</h3><em>Representation and Guidance Mechanisms in Neural Cellular Automata for Learning Precise Target Patterns</em>, in progress.
+                </div>
+
+                <aside class="note">
+                    <figure>
+                        <img src="media/nca.gif" alt="Neural Cellular Automata generating Wireworld patterns">
+                        <figcaption>Neural cellular automata growing a discrete Wireworld pattern that simulates a single pixel
+                            of Langton's Ant</figcaption>
+                    </figure>
+                </aside>
+            </section>
+
+            <section class="row" data-offset="25">
+                <div class="prose">
+                    <p><h3>MoveMemorE vehicle motion replay.</h3>For my Bachelor's capstone project, my team developed VR software that uses GPS and inertial data to replay recorded journeys. The software connects directly to the <a href="https://www.eight360.com">NOVA motion platform</a> to control its 360° motion, synchronising physical movement with the VR visuals to recreate the sensation of the original journey.</p>
+                </div>
+
+                <aside class="note">
+                    <figure>
+                        <img src="media/nova.png" alt="NOVA motion platform">
+                    <figcaption>Our MoveMemorE simulator running on the NOVA motion platform</figcaption>
+                    </figure>
+                </aside>
+            </section>
+
+            <section class="row">
+                <div class="prose">
+                    <h2>Fantasy computers</h2>
+                    <p>As a hobby project, I'm working on a series of fictional computers and video game consoles, each with their
+                        own unique architecture and instruction set. I'm working on an emulator for the first of these now,
+                        <em>Amulet</em>.</p>
+                    <ul>
+                        <li><a href="pages/amulet.html">Amulet</a></li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="row">
+                <div class="prose">
+                    <h2>Library</h2>
+                    <ul>
+                        <li><a href="pages/books.html">Books</a></li>
+                        <li><a href="pages/music.html">Music</a></li>
+                        <li><a href="pages/recipes.html">Recipes</a></li>
+                        <li><a href="pages/links.html">Blogroll</a></li>
+                        <li><a href="pages/test.html">Test page</a></li>
+                    </ul>
+                </div>
+            </section>
+
+        </main>
+
         <footer>
-            <p>Last updated: 5 October 2025</p>
+            <section class="row">
+                <div class="prose">
+                    <hr>
+                    <div class="stamp-container">
+                        <div>Updated 13 October 2025, Melbourne</div>
+                        <img class="stamp" src="media/stamp.png" alt="BG">
+                    </div>
+                </div>
+            </section>
         </footer>
     </div>
 </body>
-
 </html>
