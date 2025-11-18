@@ -18,72 +18,78 @@
 </head>
 
 <body>
-    <div class="page-wrapper">
+    <div class="wrapper">
+        
         <header>
+            <img id="header_eico" src="media/eico.gif" alt="A colourful elevated icosahedron">
             <h1>Benjamin Grayland</h1>
         </header>
+
         <main>
             <section class="row">
-                <div class="prose">
-                    <p>Hello! I'm a computer science student currently completing my Honours year at <a href="https://www.rmit.edu.au">RMIT</a> in Melbourne, Australia. Before that, I worked in the fintech industry as a product owner and business analyst.</p>
-                </div>
+                <p>Hello! I'm a computer science student currently completing my Honours year at <a href="https://www.rmit.edu.au">RMIT</a> in Melbourne, Australia. Before that, I worked in the fintech industry as a product owner and business analyst.</p>
             </section>
 
             <section id="now" class="row">
-                <div class="prose">
-                    <div class="roundbox">
-                        <p><strong>Now</strong></br>Working on Honours thesis exploring neural cellular automata with discrete states in the Wireworld domain.</p>
-                        <p><strong>Research interests</strong></br>Artificial life; self-organising systems; exotic and unusual computational models and substrates. I'm very interested in opportunities to learn more about molecular biology.</p>
-                    </div>
+                <div class="roundbox">
+                    <p><strong>Now</strong></br>Working on Honours thesis exploring neural cellular automata with discrete states in the Wireworld domain.</p>
+                    <p><strong>Research interests</strong></br>Artificial life; self-organising systems; exotic and unusual computational models and substrates. I'm very interested in opportunities to learn more about molecular biology.</p>
                 </div>
             </section>
 
             <section class="row">
                 <h2>Projects and research</h2>
+                <p><h3>Honours thesis.</h3><em>Growing Wireworld circuits with Neural Cellular Automata</em>, under examination.</p>
+        
+                <figure class="fig">
+                    <img src="media/nca.gif" alt="Neural Cellular Automata generating Wireworld patterns" class="img-left">
+                    <figcaption>Neural cellular automata growing a discrete Wireworld pattern that simulates a single pixel
+                        of Langton's Ant</figcaption>
+                </figure>
             </section>
 
             <section class="row">
-                <div class="prose">
-                    <h3>Honours thesis.</h3><em>Representation and Guidance Mechanisms in Neural Cellular Automata for Learning Precise Target Patterns</em>, in progress.
-                </div>
+                <p><h3>MoveMemorE vehicle motion replay.</h3>For my Bachelor's capstone project, my team developed VR software that uses GPS and inertial data to replay recorded journeys. The software connects directly to the <a href="https://www.eight360.com">NOVA motion platform</a> to control its 360° motion, synchronising physical movement with the VR visuals to recreate the sensation of the original journey.</p>
 
-                <aside class="note">
-                    <figure>
-                        <img src="media/nca.gif" alt="Neural Cellular Automata generating Wireworld patterns">
-                        <figcaption>Neural cellular automata growing a discrete Wireworld pattern that simulates a single pixel
-                            of Langton's Ant</figcaption>
-                    </figure>
-                </aside>
-            </section>
-
-            <section class="row" data-offset="25">
-                <div class="prose">
-                    <p><h3>MoveMemorE vehicle motion replay.</h3>For my Bachelor's capstone project, my team developed VR software that uses GPS and inertial data to replay recorded journeys. The software connects directly to the <a href="https://www.eight360.com">NOVA motion platform</a> to control its 360° motion, synchronising physical movement with the VR visuals to recreate the sensation of the original journey.</p>
-                </div>
-
-                <aside class="note">
-                    <figure>
-                        <img src="media/nova.png" alt="NOVA motion platform">
-                    <figcaption>Our MoveMemorE simulator running on the NOVA motion platform</figcaption>
-                    </figure>
-                </aside>
+                <figure class="fig full-width">
+                    <img src="media/nova.png" alt="NOVA motion platform">
+                <figcaption>Our MoveMemorE simulator running on the NOVA motion platform</figcaption>
+                </figure>
             </section>
 
             <section class="row">
-                <div class="prose">
-                    <h2>Fantasy computers</h2>
-                    <p>As a hobby project, I'm working on a series of fictional computers and video game consoles, each with their
-                        own unique architecture and instruction set. I'm working on an emulator for the first of these now,
-                        <em>Amulet</em>.</p>
+                <h2>Personal projects</h2>
+                <h3>Fantasy computers</h3>
+                <p>As a hobby project, I'm working on a series of fictional computers and video game consoles, each with their
+                    own unique architecture and instruction set. I'm working on an emulator for the first of these now,
+                    <em>Amulet</em>.</p>
                     <ul>
                         <li><a href="pages/amulet.html">Amulet</a></li>
                     </ul>
-                </div>
+    
+                <h3>Foul Airs</h3>
+                <p>This was made for a Hypercard game jam. If you don't have an old Mac or emulator, it's also playable on the Internet Archive (I'm not sure how it wound up there).</p>
+                <ul>
+                    <li><a href="https://archive.org/details/hypercard_foul-airs">Foul Airs (Internet Archive)</a></li>
+                    <li><a href="https://marmaladian.itch.io/foul-airs">Foul Airs (itch.io)</a></li>
+                </ul>
+    
             </section>
 
-            <section class="row">
+            <!-- <section class="row">
                 <div class="prose">
-                    <h2>Library</h2>
+                    <h3>Zeal (in itch)</h3>
+                    <p>This was made for a Hypercard game jam. If you don't have an old Mac or emulator, it's playable on the Internet Archive (I'm not sure who added it there).</p>
+                    <ul>
+                        <li><a href="https://archive.org/details/hypercard_foul-airs">Foul Airs (Internet Archive)</a></li>
+                        <li><a href="https://marmaladian.itch.io/foul-airs">Foul Airs (itch.io)</a></li>
+                    </ul>
+                </div> -->
+            <!-- </section> -->
+
+            <section class="row">
+                <h2>Library</h2>
+
                     <ul>
                         <li><a href="pages/books.html">Books</a></li>
                         <li><a href="pages/music.html">Music</a></li>
@@ -91,21 +97,16 @@
                         <li><a href="pages/links.html">Blogroll</a></li>
                         <li><a href="pages/test.html">Test page</a></li>
                     </ul>
-                </div>
             </section>
 
         </main>
 
         <footer>
-            <section class="row">
-                <div class="prose">
-                    <hr>
-                    <div class="stamp-container">
-                        <div>Updated 13 October 2025, Melbourne</div>
-                        <img class="stamp" src="media/stamp.png" alt="BG">
-                    </div>
-                </div>
-            </section>
+            <hr>
+            <div class="stamp-container">
+                <div>Updated 18 November 2025, Melbourne</div>
+                <img class="stamp" src="media/stamp.png" alt="BG">
+            </div>
         </footer>
     </div>
 </body>
