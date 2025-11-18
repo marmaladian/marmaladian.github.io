@@ -1,6 +1,6 @@
 :root{
-  --ink:#e0511d;
-  --bg:#ffffff;
+  --ink:#333;                /* text color #e0511d */  
+  --bg:#fff;
   --gutter: 3rem;                 /* gap between prose and margin */
   --aside: min(40ch, 38%);        /* width of the margin column */
   --prose: 65ch;                  /* max width of main text column */
@@ -17,6 +17,10 @@ body {
   font-weight: 400;
   font-style: normal;
   line-height: 1.4;
+}
+
+#header_eico {
+  margin-left: -24px;
 }
 
 .page-wrapper {
@@ -65,6 +69,24 @@ body {
   .page-wrapper { margin: 2em 1em;}
 }
 
+
+/* header box */
+
+header {
+  /* display: flex; */
+  /* justify-content: space-between; */
+  /* align-items: center; */
+  /* vertical-align: top; */
+  /* margin-top: 0.25em; */
+  /* margin-bottom: 2em; */
+  width: 100%;
+}
+
+.home-link a {
+  width: 30%;
+  text-decoration: none;
+}
+
  /* footer box */
  
 footer {
@@ -82,27 +104,6 @@ footer {
   width: 3em;
   height: auto;
   margin-left: -0.25em;
-}
-
-/* header box */
-
-header {
-  display: flex;
-  justify-content: space-between; /* pushes them apart */
-  align-items: center;            /* vertically aligns them */
-  vertical-align: top;
-  margin-top: 0.25em;
-  margin-bottom: 2em;
-  width: 100%;
-}
-
-header h1 {
-  width: 70%;
-}
-
-.home-link a {
-  width: 30%;
-  text-decoration: none;
 }
 
 
@@ -154,7 +155,7 @@ figcaption {
 h1 {
     font-size: 1.15em;
     font-weight: normal;
-    margin-bottom: 5em;
+    /* margin-bottom: 5em; */
 }
 
 h2 {
