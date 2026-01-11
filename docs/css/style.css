@@ -5,6 +5,10 @@
   --link: #3366cc;
   --bg: #fff;
   --left-marg: 2rem;
+  --bg-shaded: #e7e4e5;
+  --snes-light: #d7d1d3;
+  --snes-mid: #bbb9ba;
+  --snes-dark: #828687;
 }
 
 html {
@@ -73,7 +77,7 @@ footer {
 /* old */
 
 .roundbox {
-  background-color: #eee;
+  background-color: var(--bg-shaded);
   border-radius: 5px;
   margin: 2em 0em 2em -5em;
   padding: 2em 2em 2em 5em;
@@ -82,7 +86,7 @@ footer {
 .roundbox p {
   margin-top: 0;
   margin-bottom: 0;
-  font-style: italic;
+  /* font-style: italic; */
 }
 
 .roundbox p+p {
