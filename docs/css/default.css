@@ -240,7 +240,7 @@ code.purple {
   font-style: normal;
 }
 
-s {
+del {
   /* make the text 75% shade */
   color: var(--light-ink);
 }

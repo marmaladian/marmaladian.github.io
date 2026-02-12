@@ -6,55 +6,55 @@
   Any that are struck-out are ones I didn't finish.
 
 2 2026
-* __Mathematica__, David Bessis
+* _Mathematica_, David Bessis
 
 2 2025
-* __Children of Time__, Adrian Tchaikovsky
-* __Absolution__, Jeff VanderMeer
-* __Desire Paths__, Megan Clement
-* __The Big Sleep__, Raymond Chandler
-* __The Satsuma Complex__, Bob Mortimer
-* __How to Take Smart Notes__, Sönke Ahrens
-* __How Life Works__, Phillip Ball
-* __Labyrinths__, Jorge Luis Borges ★
-* __Kabloona__, Gontran de Poncins ★
+* _Children of Time_, Adrian Tchaikovsky
+* _Absolution_, Jeff VanderMeer
+* _Desire Paths_, Megan Clement
+* _The Big Sleep_, Raymond Chandler
+* _The Satsuma Complex_, Bob Mortimer
+* _How to Take Smart Notes_, Sönke Ahrens
+* _How Life Works_, Phillip Ball
+* _Labyrinths_, Jorge Luis Borges ★
+* _Kabloona_, Gontran de Poncins ★
 
 2 2024
-* Between Two Fires_, Christopher Buehlman ★
+* _Between Two Fires_, Christopher Buehlman ★
 
 2 2023
 
-* __Meditations__, Augustine
-* __The Magus__, John Fowles
-* __The Mechanic's Tale__, Steve Matchett
-* __How to Build a Car__, Adrian Newey
-* ~~__Principles__, Ray Dalio~~
-* __Oceanic__, Greg Egan
+* _Meditations_, Augustine
+* _The Magus_, John Fowles
+* _The Mechanic's Tale_, Steve Matchett
+* _How to Build a Car_, Adrian Newey
+* ~~_Principles_, Ray Dalio~~
+* _Oceanic_, Greg Egan
 
 
 2 2022
-* __The Dream Machine: J.C.R. Licklider and the Revolution That Made Computing Personal__, M. Mitchell Waldrop
-* __A Fire Upon the Deep__, Vernor Vinge ★
-* __The Old Man and the Sea__, Ernest Hemingway ★
-* __A Clean, Well-Lighted Place__, Ernest Hemingway ★
-* __Luminous__, Greg Egan (re-read)
-* __The Cyberiad__, Stanislaw Lem
-* __Seven Languages in Seven Weeks__, Bruce Tate
-* __アナモルフォシスの冥獣__, Kago Shintaro
+* _The Dream Machine: J.C.R. Licklider and the Revolution That Made Computing Personal_, M. Mitchell Waldrop
+* _A Fire Upon the Deep_, Vernor Vinge ★
+* _The Old Man and the Sea_, Ernest Hemingway ★
+* _A Clean, Well-Lighted Place_, Ernest Hemingway ★
+* _Luminous_, Greg Egan (re-read)
+* _The Cyberiad_, Stanislaw Lem
+* _Seven Languages in Seven Weeks_, Bruce Tate
+* _アナモルフォシスの冥獣_, Kago Shintaro
 
 2 2021
-* __A Deepness in the Sky__, Vernor Vinge ★
-* __Basic Economics__, Thomas Sowell
-* __Don't Sleep, There are Snakes__, Daniel Everett ★
-* __Metro 2033__, Dmitry Glukhovsky
-* ~~__Stars in My Pocket Like Grains of Sand__, Samuel R. Delany~~
-* __The Unreal & The Real (Vol. 1)__, Ursula Le Guin
-* __How To Do Nothing__, Jenny Odell
+* _A Deepness in the Sky_, Vernor Vinge ★
+* _Basic Economics_, Thomas Sowell
+* _Don't Sleep, There are Snakes_, Daniel Everett ★
+* _Metro 2033_, Dmitry Glukhovsky
+* ~~_Stars in My Pocket Like Grains of Sand_, Samuel R. Delany~~
+* _The Unreal & The Real (Vol. 1)_, Ursula Le Guin
+* _How To Do Nothing_, Jenny Odell
 
 2 2020
-* __The Dispossessed__, Ursula Le Guin ★
-* __The Conquest of Bread__, Pyotr Kropotkin ★
-* __How to Read a Book__, Mortimer Adler
-* __How Everything Can Collapse__, Pablo Servigne & Raphaël Stevens, translated from French by Andrew Brown
-* __Tropic of Capricorn__, Henry Miller
-* __Fall of Hyperion__, Dan Simmons
+* _The Dispossessed_, Ursula Le Guin ★
+* _The Conquest of Bread_, Pyotr Kropotkin ★
+* _How to Read a Book_, Mortimer Adler
+* _How Everything Can Collapse_, Pablo Servigne & Raphaël Stevens, translated from French by Andrew Brown
+* _Tropic of Capricorn_, Henry Miller
+* _Fall of Hyperion_, Dan Simmons

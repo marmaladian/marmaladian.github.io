@@ -12,6 +12,15 @@
 * Thursday: tempo 2km @ 11 km/h
 * Sunday: recovery 3km @ 9.3 km/h
 
+# testing
+# testing 2
+  # another level
+  * bullets
+  # oh shit
+  # anumber3
+    # this was supposed to be 2 levels
+  
+
 3 2026-W05
   Have been following a GameBoy emulator tutorial on YouTube to brush up on my C and get some guidance for implementing Amulet. Went bowling with L. and C. on Sunday evening.
 
@@ -32,9 +41,9 @@
   Y's parents are visiting; we went to the tennis with them and my parents.
   Japanese study is going well and I've been watching an episode or half of Ergo Proxy each night. Lot of jargon to pick up in the early episodes, but it's about 60-70% comprehensible now.
   I was gradually increasing my running at the end of last year (after tearing a calf muscle) and it's going well. I ran a 30:00 5km last week, and I'm aiming to improve to 25:00.
-  I also started learning how to make music in {{Strudel | strudel}}.
+  I also started learning how to make music in {{Strudel|strudel}}.
 
-% Doenjang jjigae | full | journal/2026-W03.jpg
+% Doenjang jjigae | fig full-width | journal/2026-W03.jpg
 
 3 2026-W02
   Spent Wednesday at DisneySea. It was cold, with light snow falling while we queued to enter. The fast pass system I remembered from my last visit (a decade ago?) has been replaced by a paid priority queue. So, we only managed four rides across the day. Last time it was more than fifteen! The loop on Raging Spirits was even smaller than I remembered, the drop on Journey to the Centre of the Earth remains exhilarating.
@@ -42,4 +51,4 @@
   I think my Japanese has gotten worse over the past year. I spent all my time studying for university. I’ve restarted daily flashcards and will add some TV/listening practice as well.
   I haven’t done anything creative or productive yet. The holiday started right after uni finished, and this has been the first chance to sit still for a while. I’m still unwinding.
 
-% Tomato and miso shio ramen | full | journal/2026-W02.jpg
+% Tomato and miso shio ramen | fig full-width | journal/2026-W02.jpg
