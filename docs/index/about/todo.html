@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../css/default.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baskervville:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+<title>XXXYYYZZZ &mdash; Benjamin Grayland</title>
+</head>
+<body>
+<div class="wrapper">
+<nav>
+<ul>
+<li>journal
+</li>
+<li><a href="../data/journal/2026.f.html">2026</a></li>
+</ul>
+<ul>
+<li>records
+</li>
+<li><a href="../data/records/music.f.html">music</a></li>
+<li><a href="../data/records/links.f.html">links</a></li>
+<li><a href="../data/records/books.f.html">books</a></li>
+</ul>
+<ul>
+<li>shrines
+</li>
+<li><a href="../data/shrines/destiny.f.html">destiny</a></li>
+<li><a href="../data/shrines/ludopax.f.html">ludopax</a></li>
+<li><a href="../data/shrines/zeldagb.f.html">zeldagb</a></li>
+</ul>
+<ul>
+<li>projects
+</li>
+<li><a href="../data/projects/strudel.f.html">strudel</a></li>
+<li><a href="../data/projects/amulet.f.html">amulet</a></li>
+</ul>
+<ul>
+<li>about
+</li>
+<li><a href="../data/about/test.f.html">test</a></li>
+<li><a href="../data/about/todo.f.html">todo</a></li>
+</ul>
+<ul>
+<li>templates
+</li>
+<li><a href="../data/templates/default/index.html">default&mldr;</a></li>
+</ul>
+<ul>
+<li>uncategorised
+</li>
+<li><a href="../data/uncategorised/weird-computing.f.html">weird-computing</a></li>
+</ul>
+<ul>
+<li>media
+</li>
+<li><a href="../data/media/journal/index.html">journal&mldr;</a></li>
+</ul>
+</nav>
+<h1>Site to-do list</h1>
+<ul>
+<li>build proper navigation</li>
+<li>create a photo journal</li>
+<li>formatting</li>
+</ul>
+<p>* <s>italics</s></p>
+<p>* <s>bold</s></p>
+<p>* <s>strikeout</s></p>
+<p>* <s><code>inline code</code> (``)</s></p>
+<p>* <s>prevent these from running<b> past <i>the</b> end</i> of a line</s></p>
+<p>* <s>prevent an <i><b>opening</b></i> without a closing from doing anything</s></p>
+<ul>
+<li>code block</li>
+<li>block quotes</li>
+</ul>
+<p>* allow multiple paragraphs in a single blockquote</p>
+<ul>
+<li>clean up the ludopax page and add emoji</li>
+<li>fix site structure</li>
+<li>navigation</li>
+</ul>
+<p>* hide directories with no .f files (don't create nodes for these)</p>
+<p>* don't create directory nodes if none of their descendant directories have files in them</p>
+<blockquote>Avoid system("rm -rf ..."): use nftw/fts or unlinkat for safe, predictable deletion. Eliminate unchecked strncat/sprintf risks: track remaining buffer space and use snprintf.</blockquote>
+<blockquote>Centralize HTML escaping for content and n->name to prevent invalid output.</blockquote>
+<pre style="background-color: yellow;">Factor parsing into small handlers (handle_heading, handle_list, handle_fig) to reduce the large switch.</pre>
+<pre style="background-color: yellow;">Unify list logic: the ' ' case and '*'/'#' cases overlap; consolidate into one list handler.</pre>
+<pre style="background-color: yellow;">Use const char * for string literals (header, footer) and make them static const.</pre>
+<pre style="background-color: yellow;">Check indent_stack_push failures and handle allocation errors.</pre>
+<pre style="background-color: yellow;">Remove debug printf or gate it behind a verbose flag.</pre>
+<pre style="background-color: yellow;">Use size_t consistently (avoid signed/unsigned mixing in diff).</pre>
+<footer>
+<hr>
+<div>Updated 5 October 2025, Melbourne</div>
+</footer>
+</div>
+</body>
+</html>

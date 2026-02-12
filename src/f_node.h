@@ -13,7 +13,7 @@ typedef enum {
     F_LOAD_ERROR,
     F_PARSE_ERROR,
     F_PENDING,
-    F_OK
+    F_DONE
 } f_status;
 
 typedef enum {
@@ -45,7 +45,7 @@ struct f_node {
 int node_vec_push(f_node_vec *v, f_node *f);
 void node_vec_free(f_node_vec *v);
 
-f_status read_data_dir(char *path, f_node_vec *out);
-
 f_node *node_new(node_kind kind, const char *name, const char *path, f_node *parent);
 void node_free_recursive(f_node *n);
+
+f_status read_data_dir(char *path, f_node_vec *out);

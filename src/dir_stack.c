@@ -1,5 +1,4 @@
 #include "dir_stack.h"
-#include "f_node.h"
 
 int stack_push(dir_stack *s, f_node *n) {
     if (s->len == s->cap) {
