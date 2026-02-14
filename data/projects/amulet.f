@@ -11,6 +11,7 @@
 2 Instruction set
   Stack effect notation <code>(a b -- c)</code> shows inputs before the dash, outputs after.
 
+===
 <table>
     <thead>
         <tr>
@@ -261,3 +262,4 @@
         </tr>
     </tbody>
 </table>
+===

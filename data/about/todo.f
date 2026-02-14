@@ -22,9 +22,9 @@
 
 > Avoid system("rm -rf ..."): use nftw/fts or unlinkat for safe, predictable deletion. Eliminate unchecked strncat/sprintf risks: track remaining buffer space and use snprintf.
 > Centralize HTML escaping for content and n->name to prevent invalid output.
-Factor parsing into small handlers (handle_heading, handle_list, handle_fig) to reduce the large switch.
-Unify list logic: the ' ' case and '*'/'#' cases overlap; consolidate into one list handler.
-Use const char * for string literals (header, footer) and make them static const.
-Check indent_stack_push failures and handle allocation errors.
-Remove debug printf or gate it behind a verbose flag.
-Use size_t consistently (avoid signed/unsigned mixing in diff).
+> Factor parsing into small handlers (handle_heading, handle_list, handle_fig) to reduce the large switch.
+> Unify list logic: the ' ' case and '*'/'#' cases overlap; consolidate into one list handler.
+> Use const char * for string literals (header, footer) and make them static const.
+> Check indent_stack_push failures and handle allocation errors.
+> Remove debug printf or gate it behind a verbose flag.
+> Use size_t consistently (avoid signed/unsigned mixing in diff).
