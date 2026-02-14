@@ -26,6 +26,16 @@
     left: calc(var(--col-remaining) * var(--col-left-share));
     transform: translateX(-100%);
     max-width: 40ch;
+    text-align: right;
+}
+
+.kicker img {
+    display: block;
+    margin-left: auto;
+}
+
+.kicker nav {
+    text-align: right;
 }
 
 /* the grid */
@@ -129,8 +139,8 @@ body {
 
     .kicker {
         position: absolute;
-        left: calc(var(--kicker-width) + 1rem);
-        transform: translateX(-100%);
+        left: 0;
+        transform: none;
         width: var(--kicker-width);
         max-width: none;
     }

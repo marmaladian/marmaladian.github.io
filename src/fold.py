@@ -363,6 +363,118 @@ def close_open_blocks(html_content, list_stack, blockquote_open):
         blockquote_open = False
     return html_content, list_stack, blockquote_open
 
+def find_node_by_name(site, name):
+    for n in walk(site):
+        if n["name"] == name:
+            return n
+    return None
+
+def build_site_map(site, rel_root=""):
+    def render_node(node):
+        node_name = node["name"].capitalize()
+        node_path = f"{rel_root}{node['attrs']['path']}/index.html"
+        html = f"<li><a href='{node_path}'>{node_name}</a>"
+        if node["pages"] or node["children"]:
+            html += "<ul>"
+            for page_entry in node["pages"]:
+                page_file = page_entry["file"]
+                page_name = os.path.splitext(page_file)[0]
+                page_title = page_entry["metadata"].get("title") or page_name.capitalize()
+                html += f"<li><a href='{rel_root}{node['attrs']['path']}/{page_name}.html'>{page_title}</a></li>"
+            for child in node["children"]:
+                html += render_node(child)
+            html += "</ul>"
+        html += "</li>"
+        return html
+
+    if not site:
+        return ""
+    html = "<ul>"
+    html += f"<li><a href='{rel_root}index.html'>Home</a>"
+    html += "<ul>"
+    html += f"<li><a href='{rel_root}site-map.html'>Site map</a></li>"
+    for child in site["children"]:
+        html += render_node(child)
+    html += "</ul>"
+    html += "</li>"
+    html += "</ul>"
+    return html
+
+def build_latest_journal_entry(site, rel_root=""):
+    journal_node = find_node_by_name(site, "journal")
+    if not journal_node or not journal_node["pages"]:
+        return "<div class='text'><p>No journal entries found.</p></div>"
+
+    latest_page = sorted(journal_node["pages"], key=lambda p: p["file"], reverse=True)[0]
+    src_file = os.path.join(DATA_DIR, journal_node["attrs"]["path"], latest_page["file"])
+
+    with open(src_file, "r") as f:
+        content_lines = f.read().splitlines()
+
+    _, content_lines = parse_frontmatter(content_lines)
+
+    entry_title = None
+    entry_lines = []
+    entry_image = ""
+    in_entry = False
+
+    for line in content_lines:
+        if len(line) < 3 and not line.startswith("|"):
+            continue
+        if line[0] in ["1", "2", "3", "4", "5", "6"]:
+            if line[0] == "3":
+                if not in_entry:
+                    entry_title = apply_inline_formatting(line[2:], site, rel_root)
+                    in_entry = True
+                    continue
+                break
+            if in_entry:
+                break
+        if not in_entry:
+            continue
+        if line.startswith("%") and not entry_image:
+            parts = line[2:].split("|")
+            caption = parts[0].strip() if len(parts) > 0 else ""
+            cls = parts[1].strip() if len(parts) > 1 else ""
+            img_path = parts[2].strip() if len(parts) > 2 else ""
+            if not cls:
+                cls = "side"
+            entry_image = f"<figure class='{cls}'><img src='{rel_root}media/{img_path}' alt='{caption}'><figcaption>{caption}</figcaption></figure>"
+            continue
+        entry_lines.append(line)
+
+    if not entry_title:
+        return "<div class='text'><p>No journal entries found.</p></div>"
+
+    html_content = "<div class='text'>"
+    html_content += f"<h2>{entry_title}</h2>"
+    list_stack = []
+    blockquote_open = False
+    errors = []
+
+    for line in entry_lines:
+        if len(line) < 3 and not line.startswith("|"):
+            continue
+        prefix, rest = line[0], line[2:]
+        rest = apply_inline_formatting(rest, site, rel_root, errors)
+        if prefix == ">":
+            if not blockquote_open:
+                html_content, list_stack, blockquote_open = close_open_blocks(html_content, list_stack, blockquote_open)
+                html_content += "<blockquote>"
+                blockquote_open = True
+            html_content += f"<p>{rest}</p>"
+        elif prefix in ["*", "#", " "]:
+            if blockquote_open:
+                html_content += "</blockquote>"
+                blockquote_open = False
+            html_content = handle_list_or_para(html_content, list_stack, line, site, rel_root, errors)
+
+    html_content, list_stack, blockquote_open = close_open_blocks(html_content, list_stack, blockquote_open)
+    html_content += "</div>"
+    if entry_image:
+        html_content += entry_image
+    return html_content
+
 # Build a nav menu for the index.html page.
 # It will list all the child nodes of the root as paras in a div, and for each of these
 # nodes it will list the pages in a ul. Where a node has child nodes (i.e. directories), those should at the start of the ul as 'name...' linking to the index.html for that directory
@@ -427,14 +539,23 @@ def main():
     # create index.html
     index_path = os.path.join(OUTPUT_DIR, "index.html")
     with open(index_path, "w") as f:
-        f.write(html_header("Home", rel_root_for(index_path), "default.css", site))
+        rel_root = rel_root_for(index_path)
+        f.write(html_header("Home", rel_root, "default.css", site))
         f.write("<div class='page-header'><h1 class='page-title'>Home</h1></div>")
-        f.write(layout_open(rel_root_for(index_path)))
+        f.write(layout_open(rel_root))
+        f.write(build_full_nav(site, rel_root))
+        f.write(build_latest_journal_entry(site, rel_root))
+        f.write(html_footer())
+
+    # create site-map.html
+    site_map_path = os.path.join(OUTPUT_DIR, "site-map.html")
+    with open(site_map_path, "w") as f:
+        rel_root = rel_root_for(site_map_path)
+        f.write(html_header("Site map", rel_root, "default.css", site))
+        f.write("<div class='page-header'><h1 class='page-title'>Site map</h1></div>")
+        f.write(layout_open(rel_root))
         f.write("<div class='text'>")
-        f.write("<ul>")
-        for child in site["children"]:
-            f.write(f'<li><a href="{child["name"]}/index.html">{child["name"].capitalize()}</a></li>')
-        f.write("</ul>")
+        f.write(build_site_map(site, rel_root))
         f.write("</div>")
         f.write(html_footer())
 
