@@ -1,6 +1,4 @@
-: title: to do
-
-1 Site to-do list
+: title: Site to-do list
 
 * build proper navigation
 * create a photo journal
@@ -19,6 +17,9 @@
 * navigation
   * hide directories with no .f files (don't create nodes for these)
   * don't create directory nodes if none of their descendant directories have files in them
+
+* add a front-matter option to create toc from the headers.
+* still need to figure out something better for blank directory pages. maybe just select the first child page automatically?
 
 > Avoid system("rm -rf ..."): use nftw/fts or unlinkat for safe, predictable deletion. Eliminate unchecked strncat/sprintf risks: track remaining buffer space and use snprintf.
 > Centralize HTML escaping for content and n->name to prevent invalid output.

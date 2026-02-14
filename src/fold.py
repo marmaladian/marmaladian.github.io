@@ -29,8 +29,8 @@ def pretty(n, indent=""):
         print(f"{indent}  {page_file}")
 
 def get_page_metadata(filepath):
-    """Extract title and style from a .f file's front-matter."""
-    metadata = {"title": None, "style": "default.css"}
+    """Extract title, style, and order from a .f file's front-matter."""
+    metadata = {"title": None, "style": "default.css", "order": None}
     try:
         with open(filepath, "r") as f:
             for line in f:
@@ -43,11 +43,14 @@ def get_page_metadata(filepath):
                             metadata["title"] = value
                         elif key == "style":
                             metadata["style"] = value if value.endswith(".css") else value + ".css"
+                        elif key == "order":
+                            metadata["order"] = value
                 elif not line.startswith(": "):
                     # stop at first non-frontmatter line
                     break
     except:
         pass
+    return metadata
     return metadata
 
 def build_site_tree():
@@ -64,13 +67,17 @@ def build_site_tree():
 
         parts = root.split(os.sep)
         current_node = index
+        path_parts = []
         for part in parts[1:]:  # skip the first part which is "data"
+            if not part:
+                continue
+            path_parts.append(part)
             # find the child node with the name of part
             child = next((c for c in current_node["children"] if c["name"] == part), None)
             if child is None:
                 child = node(part)
                 # store the full path for the node (without the data/ prefix)
-                child["attrs"]["path"] = os.path.join(*parts[1:])
+                child["attrs"]["path"] = os.path.join(*path_parts)
                 add_child(current_node, child)
             current_node = child
 
@@ -82,6 +89,20 @@ def build_site_tree():
                 page_entry = {"file": file, "metadata": metadata}
                 current_node["pages"].append(page_entry)
     return index  
+
+def get_last_updated_date():
+    """Return the current date in a readable format."""
+    from datetime import datetime
+    return datetime.now().strftime("%Y-%m-%d")
+
+def slugify_heading(text):
+    """Convert heading text to a URL-safe anchor slug."""
+    import re
+    text = re.sub(r"\{\{\s*([^|]+?)\s*\|\s*[^}]+?\s*\}\}", r"\1", text)
+    text = re.sub(r"(\*\*|__|\*|_|`|~~)", "", text)
+    text = text.lower()
+    text = re.sub(r"[^a-z0-9]+", "-", text).strip("-")
+    return text
 
 def html_header(title, rel_root="", css_file="default.css", site=None):
     nav_html = ""
@@ -98,26 +119,26 @@ def html_header(title, rel_root="", css_file="default.css", site=None):
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Baskervville:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-        <title>{title} &mdash; Benjamin Grayland</title>
+        <title>{title} &mdash; gray.land</title>
     </head>
-    <body>
+    <body id="top">
     """
 
 def layout_open(rel_root="", nav_html=""):
-    return f"""
-        <div class=\"layout\">
-            <div class=\"kicker\"><img src=\"{rel_root}media/eico.gif\">{nav_html}</div>
-    """
-def html_footer():
-    return """
+    return f'''
+        <div class="layout">
+            <div class="kicker"><img src="{rel_root}media/eico-2.gif">{nav_html}</div>
+    '''
+def html_footer(rel_root=""):
+    return f'''
             <footer class="text">
                 <hr>
-                <div>Updated 5 October 2025, Melbourne</div>
+                <div>last updated {get_last_updated_date()} &middot; <a href=\"{rel_root}site-map.html\">site map</a> &middot; <a href=\"#top\">top ↑</a></div>
             </footer>
         </div>
     </body>
 </html>
-    """
+    '''
 
 def rel_root_for(output_path):
     rel_dir = os.path.relpath(os.path.dirname(output_path), OUTPUT_DIR)
@@ -135,35 +156,50 @@ def apply_inline_formatting(text, site=None, rel_root="", errors=None):
     if errors is None:
         errors = []
     # handle links first since they can contain other formatting
+    link_tokens = []
     def replace_link(match):
         link_text = match.group(1)
         url = match.group(2)
-        if url.startswith("http") or url.startswith("https"):
-            return f'<a href="{url}">{link_text}</a>'
+        html = None
+        if url.startswith("#"):
+            html = f'<a href="{url}">{link_text}</a>'
+        elif url.startswith("http") or url.startswith("https"):
+            html = f'<a href="{url}">{link_text}</a>'
         else:
             # search the site tree for the page with the name of the url
             if site:
                 for n in walk(site):
                     # check if url matches a node name
                     if n["name"] == url:
-                        return f'<a href="{rel_root}{n["attrs"]["path"]}/index.html">{link_text}</a>'
+                        html = f'<a href="{rel_root}{n["attrs"]["path"]}/index.html">{link_text}</a>'
+                        break
                     # check if url matches a page in this node
                     for page_entry in n["pages"]:
                         page_file = page_entry["file"] if isinstance(page_entry, dict) else page_entry
                         page_name = os.path.splitext(page_file)[0]
                         if page_name == url:
-                            return f'<a href="{rel_root}{n["attrs"]["path"]}/{page_name}.html">{link_text}</a>'
-                errors.append(f"Could not find page '{url}' for link text '{link_text}'")
-            return link_text  # return the text without a link
+                            html = f'<a href="{rel_root}{n["attrs"]["path"]}/{page_name}.html">{link_text}</a>'
+                            break
+                    if html is not None:
+                        break
+                if html is None:
+                    errors.append(f"Could not find page '{url}' for link text '{link_text}'")
+            if html is None:
+                return link_text  # return the text without a link
+        token = f"%%LINK{len(link_tokens)}%%"
+        link_tokens.append(html)
+        return token
     
     # the urls are encoded like {{link text|url}} or {{link text | url}} with spaces around the |, so we need to handle that in the regex
-    text = re.sub(r"\{\{\s*(\S(?:.*\S)?)\s*\|\s*(\S(?:.*\S)?)\s*\}\}", replace_link, text)
+    text = re.sub(r"\{\{\s*([^|]+?)\s*\|\s*([^}]+?)\s*\}\}", replace_link, text)
     text = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", text)
     text = re.sub(r"__([^_]+)__", r"<strong>\1</strong>", text)
     text = re.sub(r"\*([^*]+)\*", r"<em>\1</em>", text)
     text = re.sub(r"_([^_]+)_", r"<em>\1</em>", text)
     text = re.sub(r"`([^`]+)`", r"<code>\1</code>", text)
     text = re.sub(r"~~([^~]+)~~", r"<del>\1</del>", text)
+    for i, html in enumerate(link_tokens):
+        text = text.replace(f"%%LINK{i}%%", html)
     return text
 
 def parse_frontmatter(content_lines):
@@ -209,7 +245,12 @@ def create_page(src_file, path, rel_root="", site=None):
 
     # parse line by line: the first character is a prefix indicating the type of line. the rest [2:] is the actual content
     
-    html_content = f"<div class='page-header'><h1 class='page-title'>{page_title}</h1></div>"
+    rel_dir = os.path.relpath(os.path.dirname(src_file), DATA_DIR)
+    current_node = find_node_by_path(site, rel_dir)
+    current_page = os.path.splitext(os.path.basename(src_file))[0]
+    local_nav = build_local_nav(site, current_node, rel_root, current_page=current_page)
+    page_title_id = slugify_heading(page_title)
+    html_content = f"<div class='page-header'>{local_nav}<h1 class='page-title' id='{page_title_id}'>{page_title}</h1></div>"
     list_stack = []
     blockquote_open = False
     div_stack = []
@@ -239,16 +280,17 @@ def create_page(src_file, path, rel_root="", site=None):
                     errors.append(f"Unmatched div close in line: {line}")
             continue
         prefix, rest = line[0], line[2:]
-        rest = apply_inline_formatting(rest, site, rel_root, errors)
 
         if prefix in ["1", "2", "3", "4", "5", "6"]:
+            heading_id = slugify_heading(rest)
+            rest = apply_inline_formatting(rest, site, rel_root, errors)
             if prefix == "1" and rest.strip().lower() == page_title.strip().lower():
                 continue
             if not text_div_open and not div_stack:
                 html_content += "<div class='text'>"
                 text_div_open = True
             html_content, list_stack, blockquote_open = close_open_blocks(html_content, list_stack, blockquote_open)
-            html_content += f"<h{prefix}>{rest}</h{prefix}>"
+            html_content += f"<h{prefix} id='{heading_id}'>{rest}</h{prefix}>"
 
         elif prefix == "%":
             # % Doenjang jjigae | full | journal/2026-W03.jpg
@@ -257,17 +299,26 @@ def create_page(src_file, path, rel_root="", site=None):
                 html_content += "</div>"
                 text_div_open = False
             html_content, list_stack, blockquote_open = close_open_blocks(html_content, list_stack, blockquote_open)
-            parts = rest.split("|")
-            caption = parts[0].strip() if len(parts) > 0 else ""
-            cls = parts[1].strip() if len(parts) > 1 else ""
-            img_path = parts[2].strip() if len(parts) > 2 else ""
+            parts = rest.rsplit(" | ", 2)
+            if len(parts) == 3:
+                caption_raw, cls_raw, img_path_raw = parts
+            else:
+                parts = rest.split("|")
+                caption_raw = parts[0] if len(parts) > 0 else ""
+                cls_raw = parts[1] if len(parts) > 1 else ""
+                img_path_raw = parts[2] if len(parts) > 2 else ""
+            caption = caption_raw.strip()
+            caption_html = apply_inline_formatting(caption, site, rel_root, errors)
+            cls = cls_raw.strip()
+            img_path = img_path_raw.strip()
             # figures get "side" class if no class specified, otherwise use specified class
             if not cls:
                 cls = "side"
-            html_content += f"<figure class='{cls}'><img src='{rel_root}media/{img_path}' alt='{caption}'><figcaption>{caption}</figcaption></figure>"
+            html_content += f"<figure class='{cls}'><img src='{rel_root}media/{img_path}' alt='{caption}'><figcaption>{caption_html}</figcaption></figure>"
 
         elif prefix == ">":
             # blockquote
+            rest = apply_inline_formatting(rest, site, rel_root, errors)
             if not text_div_open and not div_stack:
                 html_content += "<div class='text'>"
                 text_div_open = True
@@ -288,6 +339,7 @@ def create_page(src_file, path, rel_root="", site=None):
             html_content = handle_list_or_para(html_content, list_stack, line, site, rel_root, errors)
 
         elif prefix == "/":
+            rest = apply_inline_formatting(rest, site, rel_root, errors)
             if (SHOW_COMMENTS):
                 html_content += f"<span class='comment'>{rest}</span>"
         
@@ -369,19 +421,204 @@ def find_node_by_name(site, name):
             return n
     return None
 
+def find_node_by_path(site, rel_dir):
+    if rel_dir in ("", "."):
+        return site
+    # Use get_node_nav_path to compare paths instead of attrs["path"]
+    # This handles cases where attrs["path"] may be incorrectly set
+    for n in walk(site):
+        nav_path = get_node_nav_path(site, n)
+        if nav_path == rel_dir:
+            return n
+    # Fallback to old method for compatibility
+    for n in walk(site):
+        if n["attrs"].get("path") == rel_dir:
+            return n
+    return None
+
+def find_parent_node(site, target):
+    if target is None:
+        return None
+    def _walk(node, parent):
+        if node is target:
+            return parent
+        for child in node["children"]:
+            found = _walk(child, node)
+            if found is not None:
+                return found
+        return None
+    return _walk(site, None)
+
+def get_node_nav_path(site, node):
+    """Build the navigation path for a node by traversing from root to node."""
+    if node is site:
+        return ""
+    
+    path_parts = []
+    current = node
+    while current is not None and current is not site:
+        path_parts.insert(0, current["name"])
+        current = find_parent_node(site, current)
+    
+    return "/".join(path_parts) if path_parts else ""
+
+def get_sort_order(item, index):
+    """Get sort order from an item. Items can be directory nodes or page entries."""
+    # For directory nodes
+    if "name" in item and "children" in item:
+        # Check if there's an index.f file for order metadata
+        for page in item.get("pages", []):
+            page_name = os.path.splitext(page["file"])[0]
+            if page_name == "index":
+                order_val = page.get("metadata", {}).get("order")
+                if order_val is not None:
+                    return int(order_val)
+                return index
+        return index
+    # For page entries
+    elif "file" in item:
+        order_val = item.get("metadata", {}).get("order")
+        if order_val is not None:
+            return int(order_val)
+        return index
+    return index
+
+def sort_with_order(items, item_type="page"):
+    """Sort items by their order metadata, preserving original order for unspecified items."""
+    indexed_items = []
+    for i, item in enumerate(items):
+        has_explicit_order = False
+        sort_order = None
+        
+        # Check if this item has an explicit order
+        if "name" in item and "children" in item:
+            for page in item.get("pages", []):
+                page_name = os.path.splitext(page["file"])[0]
+                if page_name == "index":
+                    sort_order = page.get("metadata", {}).get("order")
+                    if sort_order is not None:
+                        has_explicit_order = True
+                        sort_order = int(sort_order)
+                    break
+        elif "file" in item:
+            sort_order = item.get("metadata", {}).get("order")
+            if sort_order is not None:
+                has_explicit_order = True
+                sort_order = int(sort_order)
+        
+        # For items without explicit order, use default value of 500
+        if not has_explicit_order:
+            sort_order = 500
+        
+        indexed_items.append((sort_order, i, item))
+    
+    indexed_items.sort(key=lambda x: (x[0], x[1]))
+    return [item for _, _, item in indexed_items]
+
+def build_local_nav(site, node, rel_root="", current_page=None):
+    if not site or not node:
+        return ""
+
+    # Build path from root to current node
+    path_to_current = []
+    current = node
+    while current is not None and current is not site:
+        path_to_current.insert(0, current)
+        current = find_parent_node(site, current)
+
+    def is_in_path(check_node):
+        """Check if a node is in the path from root to current"""
+        return check_node in path_to_current
+
+    def render_dir_link(dir_node, is_active=False):
+        name = dir_node["name"] + "/"
+        nav_path = get_node_nav_path(site, dir_node)
+        path = f"{rel_root}{nav_path}/index.html" if nav_path else f"{rel_root}index.html"
+        active_class = " class='active'" if is_active else ""
+        return f"<li><a href='{path}'{active_class}>{name}</a></li>"
+
+    def render_siblings_ul(parent_node):
+        if not parent_node or not parent_node["children"]:
+            return ""
+        html = "<ul>"
+        sorted_children = sort_with_order(parent_node["children"])
+        for sibling in sorted_children:
+            is_active = is_in_path(sibling)
+            html += render_dir_link(sibling, is_active=is_active)
+        html += "</ul>"
+        return html
+
+    def render_current_ul(current_node):
+        items = []
+        sorted_children = sort_with_order(current_node["children"])
+        for child in sorted_children:
+            items.append(render_dir_link(child))
+        sorted_pages = sort_with_order(current_node["pages"])
+        for page_entry in sorted_pages:
+            page_file = page_entry["file"]
+            page_name = os.path.splitext(page_file)[0]
+            # Skip index.f since it's the directory's main content
+            if page_name == "index":
+                continue
+            nav_path = get_node_nav_path(site, current_node)
+            page_url = f"{rel_root}{nav_path}/{page_name}.html" if nav_path else f"{rel_root}{page_name}.html"
+            # Mark current page as active
+            is_active = (current_page is not None and page_name == current_page)
+            active_class = " class='active'" if is_active else ""
+            items.append(f"<li><a href='{page_url}'{active_class}>{page_name}</a></li>")
+        if not items:
+            return ""
+        return "<ul>" + "".join(items) + "</ul>"
+
+    parent = find_parent_node(site, node)
+    grandparent = find_parent_node(site, parent) if parent else None
+
+    uls = []
+    
+    # Always add home link as its own ul (active class since we're always descending from home)
+    home_ul = f"<ul><li><a href='{rel_root}index.html' class='active'>gray.land</a></li></ul>"
+    uls.append(home_ul)
+    
+    # Add hierarchy levels
+    if grandparent is site:
+        # Depth 2: show top-level dirs, then parent's siblings
+        uls.append(render_siblings_ul(grandparent))
+        uls.append(render_siblings_ul(parent))
+    elif parent is site:
+        # Depth 1: show top-level dirs
+        uls.append(render_siblings_ul(parent))
+    else:
+        # Depth 3+: show full hierarchy
+        if grandparent:
+            uls.append(render_siblings_ul(grandparent))
+        if parent:
+            uls.append(render_siblings_ul(parent))
+    
+    current_ul = render_current_ul(node)
+    if current_ul:
+        uls.append(current_ul)
+
+    if not uls:
+        return ""
+    return "<nav class='local-nav'>" + "".join(uls) + "</nav>"
+
 def build_site_map(site, rel_root=""):
     def render_node(node):
-        node_name = node["name"].capitalize()
+        node_name = node["name"]
         node_path = f"{rel_root}{node['attrs']['path']}/index.html"
         html = f"<li><a href='{node_path}'>{node_name}</a>"
         if node["pages"] or node["children"]:
             html += "<ul>"
-            for page_entry in node["pages"]:
+            sorted_pages = sort_with_order(node["pages"])
+            for page_entry in sorted_pages:
                 page_file = page_entry["file"]
                 page_name = os.path.splitext(page_file)[0]
-                page_title = page_entry["metadata"].get("title") or page_name.capitalize()
-                html += f"<li><a href='{rel_root}{node['attrs']['path']}/{page_name}.html'>{page_title}</a></li>"
-            for child in node["children"]:
+                # Skip index.f since it's the directory's main content
+                if page_name == "index":
+                    continue
+                html += f"<li><a href='{rel_root}{node['attrs']['path']}/{page_name}.html'>{page_name}</a></li>"
+            sorted_children = sort_with_order(node["children"])
+            for child in sorted_children:
                 html += render_node(child)
             html += "</ul>"
         html += "</li>"
@@ -400,12 +637,69 @@ def build_site_map(site, rel_root=""):
     html += "</ul>"
     return html
 
+def build_root_content(site, rel_root=""):
+    """Build content from root index.f file if it exists."""
+    root_index = os.path.join(DATA_DIR, "index.f")
+    if not os.path.exists(root_index):
+        return ""
+    
+    with open(root_index, "r") as f:
+        content_lines = f.read().splitlines()
+    
+    # Extract and skip frontmatter
+    _, content_lines = parse_frontmatter(content_lines)
+    
+    html_content = "<div class='text'>"
+    list_stack = []
+    blockquote_open = False
+    errors = []
+    
+    for line in content_lines:
+        if len(line) < 3 and not line.startswith("|"):
+            continue
+        if line.startswith("|"):
+            class_name = line[1:].strip()
+            if class_name:
+                html_content += f"<div class='{class_name}'>"
+            else:
+                html_content += "</div>"
+            continue
+        
+        prefix, rest = line[0], line[2:]
+        
+        if prefix in ["1", "2", "3", "4", "5", "6"]:
+            heading_id = slugify_heading(rest)
+            rest = apply_inline_formatting(rest, site, rel_root, errors)
+            html_content, list_stack, blockquote_open = close_open_blocks(html_content, list_stack, blockquote_open)
+            html_content += f"<h{prefix} id='{heading_id}'>{rest}</h{prefix}>"
+        elif prefix == ">":
+            rest = apply_inline_formatting(rest, site, rel_root, errors)
+            if not blockquote_open:
+                html_content, list_stack, blockquote_open = close_open_blocks(html_content, list_stack, blockquote_open)
+                html_content += "<blockquote>"
+                blockquote_open = True
+            html_content += f"<p>{rest}</p>"
+        elif prefix in ["*", "#", " "]:
+            if blockquote_open:
+                html_content += "</blockquote>"
+                blockquote_open = False
+            html_content = handle_list_or_para(html_content, list_stack, line, site, rel_root, errors)
+    
+    html_content, list_stack, blockquote_open = close_open_blocks(html_content, list_stack, blockquote_open)
+    html_content += "</div>"
+    return html_content
+
 def build_latest_journal_entry(site, rel_root=""):
     journal_node = find_node_by_name(site, "journal")
     if not journal_node or not journal_node["pages"]:
         return "<div class='text'><p>No journal entries found.</p></div>"
 
-    latest_page = sorted(journal_node["pages"], key=lambda p: p["file"], reverse=True)[0]
+    # Filter out index.f files and sort by filename
+    journal_pages = [p for p in journal_node["pages"] if os.path.splitext(p["file"])[0] != "index"]
+    if not journal_pages:
+        return "<div class='text'><p>No journal entries found.</p></div>"
+    
+    latest_page = sorted(journal_pages, key=lambda p: p["file"], reverse=True)[0]
     src_file = os.path.join(DATA_DIR, journal_node["attrs"]["path"], latest_page["file"])
 
     with open(src_file, "r") as f:
@@ -433,13 +727,21 @@ def build_latest_journal_entry(site, rel_root=""):
         if not in_entry:
             continue
         if line.startswith("%") and not entry_image:
-            parts = line[2:].split("|")
-            caption = parts[0].strip() if len(parts) > 0 else ""
-            cls = parts[1].strip() if len(parts) > 1 else ""
-            img_path = parts[2].strip() if len(parts) > 2 else ""
+            parts = line[2:].rsplit(" | ", 2)
+            if len(parts) == 3:
+                caption_raw, cls_raw, img_path_raw = parts
+            else:
+                parts = line[2:].split("|")
+                caption_raw = parts[0] if len(parts) > 0 else ""
+                cls_raw = parts[1] if len(parts) > 1 else ""
+                img_path_raw = parts[2] if len(parts) > 2 else ""
+            caption = caption_raw.strip()
+            cls = cls_raw.strip()
+            img_path = img_path_raw.strip()
             if not cls:
                 cls = "side"
-            entry_image = f"<figure class='{cls}'><img src='{rel_root}media/{img_path}' alt='{caption}'><figcaption>{caption}</figcaption></figure>"
+            caption_html = apply_inline_formatting(caption, site, rel_root, errors)
+            entry_image = f"<figure class='{cls}'><img src='{rel_root}media/{img_path}' alt='{caption}'><figcaption>{caption_html}</figcaption></figure>"
             continue
         entry_lines.append(line)
 
@@ -447,7 +749,7 @@ def build_latest_journal_entry(site, rel_root=""):
         return "<div class='text'><p>No journal entries found.</p></div>"
 
     html_content = "<div class='text'>"
-    html_content += f"<h2>{entry_title}</h2>"
+    html_content += "<h2 id='now'>Now</h2>"
     list_stack = []
     blockquote_open = False
     errors = []
@@ -470,6 +772,8 @@ def build_latest_journal_entry(site, rel_root=""):
             html_content = handle_list_or_para(html_content, list_stack, line, site, rel_root, errors)
 
     html_content, list_stack, blockquote_open = close_open_blocks(html_content, list_stack, blockquote_open)
+    latest_page_name = os.path.splitext(latest_page["file"])[0]
+    html_content += f"<p>See my <a href='journal/{latest_page_name}.html'>journal</a> for more.</p>"
     html_content += "</div>"
     if entry_image:
         html_content += entry_image
@@ -540,10 +844,14 @@ def main():
     index_path = os.path.join(OUTPUT_DIR, "index.html")
     with open(index_path, "w") as f:
         rel_root = rel_root_for(index_path)
-        f.write(html_header("Home", rel_root, "default.css", site))
-        f.write("<div class='page-header'><h1 class='page-title'>Home</h1></div>")
+        root_metadata = get_page_metadata(os.path.join(DATA_DIR, "index.f"))
+        root_title = root_metadata.get("title") or "Home"
+        f.write(html_header(root_title, rel_root, "default.css", site))
+        local_nav = build_local_nav(site, site, rel_root)
+        root_title_id = slugify_heading(root_title)
+        f.write(f"<div class='page-header'>{local_nav}<h1 class='page-title' id='{root_title_id}'>{root_title}</h1></div>")
         f.write(layout_open(rel_root))
-        f.write(build_full_nav(site, rel_root))
+        f.write(build_root_content(site, rel_root))
         f.write(build_latest_journal_entry(site, rel_root))
         f.write(html_footer())
 
@@ -552,7 +860,8 @@ def main():
     with open(site_map_path, "w") as f:
         rel_root = rel_root_for(site_map_path)
         f.write(html_header("Site map", rel_root, "default.css", site))
-        f.write("<div class='page-header'><h1 class='page-title'>Site map</h1></div>")
+        local_nav = build_local_nav(site, site, rel_root)
+        f.write(f"<div class='page-header'>{local_nav}<h1 class='page-title' id='site-map'>Site map</h1></div>")
         f.write(layout_open(rel_root))
         f.write("<div class='text'>")
         f.write(build_site_map(site, rel_root))
@@ -565,32 +874,65 @@ def main():
             # use the path attribute to create the directory structure in the output dir
             dir_path = os.path.join(OUTPUT_DIR, n["attrs"]["path"])
             os.makedirs(dir_path, exist_ok=True)
-            index_path = os.path.join(dir_path, "index.html")
-            with open(index_path, "w") as f:
-                f.write(html_header(n["name"].capitalize(), rel_root_for(index_path), "default.css", site))
-                f.write(f"<div class='page-header'><h1 class='page-title'>{n['name'].capitalize()}</h1></div>")
-                f.write(layout_open(rel_root_for(index_path)))
-                f.write("<div class='text'>")
-                if n["children"]:
-                    f.write("<h2>Subsections</h2>")
-                    f.write("<ul>")
-                    for child in n["children"]:
-                        f.write(f'<li><a href="{child["name"]}/index.html">{child["name"].capitalize()}</a></li>')
-                    f.write("</ul>")
-                if n["pages"]:
-                    f.write("<h2>Pages</h2>")
-                    f.write("<ul>")
-                    for page_entry in n["pages"]:
-                        page_file = page_entry["file"]
-                        page_name = os.path.splitext(page_file)[0]
-                        page_title = page_entry["metadata"].get("title") or page_name.capitalize()
-                        f.write(f'<li><a href="{page_name}.html">{page_title}</a></li>')
-                    f.write("</ul>")
-                f.write("</div>")
-                f.write(html_footer())
+            
+            # Check if there's a page named index.f (e.g., index.f in about/)
+            # If so, use it as the index.html instead of auto-generating
+            dir_index_page = None
+            for page_entry in n["pages"]:
+                page_name = os.path.splitext(page_entry["file"])[0]
+                if page_name == "index":
+                    dir_index_page = page_entry
+                    break
+            
+            if dir_index_page:
+                # Use the index.f file as the index.html
+                src_file = os.path.join(DATA_DIR, n["attrs"]["path"], dir_index_page["file"])
+                index_path = os.path.join(dir_path, "index.html")
+                errors = create_page(src_file, index_path, rel_root_for(index_path), site)
+                if errors:
+                    pretty_path = os.path.join(n["attrs"]["path"], dir_index_page["file"])
+                    all_errors[pretty_path] = errors
+            else:
+                # Auto-generate index.html
+                index_path = os.path.join(dir_path, "index.html")
+                with open(index_path, "w") as f:
+                    f.write(html_header(n["name"].capitalize(), rel_root_for(index_path), "default.css", site))
+                    local_nav = build_local_nav(site, n, rel_root_for(index_path))
+                    title = n["name"].capitalize()
+                    title_id = slugify_heading(title)
+                    f.write(f"<div class='page-header'>{local_nav}<h1 class='page-title' id='{title_id}'>{title}</h1></div>")
+                    f.write(layout_open(rel_root_for(index_path)))
+                    f.write("<div class='text'>")
+                    if n["children"]:
+                        f.write("<h2>Subsections</h2>")
+                        f.write("<ul>")
+                        sorted_children = sort_with_order(n["children"])
+                        for child in sorted_children:
+                            f.write(f'<li><a href="{child["name"]}/index.html">{child["name"].capitalize()}</a></li>')
+                        f.write("</ul>")
+                    if n["pages"]:
+                        f.write("<h2>Pages</h2>")
+                        f.write("<ul>")
+                        sorted_pages = sort_with_order(n["pages"])
+                        for page_entry in sorted_pages:
+                            page_file = page_entry["file"]
+                            page_name = os.path.splitext(page_file)[0]
+                            # Skip index.f since it's used as the directory's main content
+                            if page_name == "index":
+                                continue
+                            page_title = page_entry["metadata"].get("title") or page_name.capitalize()
+                            f.write(f'<li><a href="{page_name}.html">{page_title}</a></li>')
+                        f.write("</ul>")
+                    f.write("</div>")
+                    f.write(html_footer())
 
+            # Create pages for all entries in the directory (except index.f if it was used as index.html)
             for page_entry in n["pages"]:
                 page_file = page_entry["file"]
+                page_name = os.path.splitext(page_file)[0]
+                # Skip if this is the index.f file (already used as index.html)
+                if dir_index_page and page_name == "index":
+                    continue
                 src_file = os.path.join(DATA_DIR, n["attrs"]["path"], page_file)
                 output_file = os.path.join(dir_path, os.path.splitext(page_file)[0] + ".html")
                 errors = create_page(src_file, output_file, rel_root_for(output_file), site)

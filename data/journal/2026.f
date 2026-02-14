@@ -10,7 +10,7 @@
 * Sunday: recovery 3km @ 9.2 km/h
 
 3 2026-W06
-  Met Sebastian this week to organise my PhD start date and some administrative stuff.
+  Met S. this week to organise my PhD start date and some administrative stuff.
 
   Running:
 * Monday: easy 5km @ 10.2 km/h (was supposed to be 9.2 km/h)

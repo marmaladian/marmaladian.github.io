@@ -16,9 +16,9 @@
 
 | full
 | gallery
-% this should be|gallery|test-3.jpg
-% part of a|gallery|test-4.jpg
-% gallery of images|gallery|test-5.jpg
+% this should be|gallery|test-5.jpg
+% part of a|gallery|test-3.jpg
+% gallery of images|gallery|test-4.jpg
 |
 |
   Then the Techeuns looked Earthward—and saw the Fallen there becoming bolder. Tactics suggested they were planning a massive attack. We had no interplanetary arrays—no way to warn Earth. We thought we would be able to do nothing but watch.
@@ -40,3 +40,5 @@
 % gallery of images|gallery|test-5.jpg
 |
 |
+
+  Let's test an {{anchor link|#the-maraid-book-vii-chapter-10}}.
