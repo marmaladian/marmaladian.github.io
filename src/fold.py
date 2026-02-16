@@ -345,6 +345,102 @@ def inject_weekly_runs(content_lines, runs_by_week, default_unit):
             updated.extend(build_week_run_lines(week_runs, default_unit))
     return updated
 
+def build_running_week_graph(runs, default_unit):
+    if not runs:
+        return ""
+
+    weeks = {}
+    for run in runs:
+        week = run["week_key"]
+        bucket = weeks.setdefault(week, {"distance": 0.0, "time": 0.0, "count": 0})
+        bucket["distance"] += run["distance"]
+        bucket["time"] += run["time_seconds"]
+        bucket["count"] += 1
+
+    speed_unit = "km/h" if default_unit == "km" else "mph"
+    distance_unit = default_unit
+    week_keys = sorted(weeks.keys())
+    if len(week_keys) > 8:
+        week_keys = week_keys[-8:]
+    stats = []
+    for week in week_keys:
+        bucket = weeks[week]
+        avg_speed = bucket["distance"] / (bucket["time"] / 3600) if bucket["time"] > 0 else 0
+        week_distance = bucket["distance"]
+        stats.append((avg_speed, week_distance))
+
+    speed_vals = [value[0] for value in stats]
+    distance_vals = [value[1] for value in stats]
+    all_vals = speed_vals + distance_vals
+    min_val = min(all_vals)
+    max_val = max(all_vals)
+    left_pad = 2
+    right_pad = 22
+    vert_pad = 6
+    width = 100
+    height = 36
+    plot_height = height
+
+    if min_val == max_val:
+        span = max_val if max_val != 0 else 1
+        min_val = min_val - span * 0.5
+        max_val = min_val + span
+
+    def scale_y(value):
+        return vert_pad + (plot_height - 2 * vert_pad) * (1 - (value - min_val) / (max_val - min_val))
+
+    def scale_x(index):
+        if len(stats) == 1:
+            return width / 2
+        return left_pad + index * (width - left_pad - right_pad) / (len(stats) - 1)
+
+    speed_points = " ".join(
+        f"{scale_x(i):.2f},{scale_y(value):.2f}" for i, value in enumerate(speed_vals)
+    )
+    distance_points = " ".join(
+        f"{scale_x(i):.2f},{scale_y(value):.2f}" for i, value in enumerate(distance_vals)
+    )
+
+    speed_dots = []
+    distance_dots = []
+    for i, value in enumerate(speed_vals):
+        x_pos = scale_x(i)
+        y_pos = scale_y(value)
+        speed_dots.append(
+            f"<circle class='running-graph-point run-type-tempo' cx='{x_pos:.2f}' cy='{y_pos:.2f}' r='0.7'/>"
+        )
+    for i, value in enumerate(distance_vals):
+        x_pos = scale_x(i)
+        y_pos = scale_y(value)
+        distance_dots.append(
+            f"<circle class='running-graph-point run-type-long' cx='{x_pos:.2f}' cy='{y_pos:.2f}' r='0.7'/>"
+        )
+
+    last_index = len(stats) - 1
+    last_x = scale_x(last_index)
+    speed_last_y = scale_y(speed_vals[last_index])
+    distance_last_y = scale_y(distance_vals[last_index])
+    speed_label = f"{format_number(speed_vals[last_index], 2)} {speed_unit}"
+    distance_label = f"{format_number(distance_vals[last_index], 2)} {distance_unit}"
+    end_labels = (
+        f"<text class='running-graph-value run-type-tempo' x='{last_x + 3:.2f}' y='{speed_last_y + 1:.2f}' text-anchor='start'>{speed_label}</text>"
+        f"<text class='running-graph-value run-type-long' x='{last_x + 3:.2f}' y='{distance_last_y + 1:.2f}' text-anchor='start'>{distance_label}</text>"
+    )
+
+    return "".join(
+        [
+            "<div class='running-graph'>",
+            "<svg viewBox='0 0 100 36' role='img' aria-label='Weekly running averages'>",
+            f"<polyline class='running-graph-speed run-type-tempo' points='{speed_points}'/>",
+            f"<polyline class='running-graph-distance run-type-long' points='{distance_points}'/>",
+            "".join(speed_dots),
+            "".join(distance_dots),
+            end_labels,
+            "</svg>",
+            "</div>",
+        ]
+    )
+
 def build_running_log_html(runs, default_unit):
     if not runs:
         return "<div class='text'><p>No runs found.</p></div>"
@@ -369,8 +465,10 @@ def build_running_log_html(runs, default_unit):
             "</tr>"
         )
 
+    graph_html = build_running_week_graph(runs, default_unit)
     return (
         "<div class='text'>"
+        + graph_html +
         "<h2>Runs</h2>"
         "<table class='running-log'>"
         "<thead><tr><th>Date</th><th>Type</th><th>Distance</th><th>Time</th><th>Speed</th><th>Note</th></tr></thead>"

@@ -293,6 +293,35 @@ td {
     color: var(--snes-dark);
 }
 
+.running-graph {
+    margin: 1em 0 2em 0;
+    width: 100%;
+}
+
+.running-graph svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 100 / 36;
+}
+
+.running-graph polyline {
+    fill: none;
+    stroke-width: 0.6;
+    stroke: var(--run-color, #000);
+}
+
+
+
+.running-graph-value {
+    fill: var(--run-color, #000);
+    font-size: 3px;
+}
+
+.running-graph-point {
+    fill: var(--run-color, #000);
+}
+
 code.purple {
     font-family: monospace;
     background-color: #cfd3ff;
