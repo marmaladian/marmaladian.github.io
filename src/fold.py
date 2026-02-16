@@ -130,6 +130,11 @@ def format_distance(value, unit):
 def format_speed(value, unit):
     return f"{format_number(value, 2)} {unit}"
 
+def format_run_type_with_dot(run_type):
+    """Generate SVG dot + run type text for display in tables."""
+    svg = f'<svg class="run-dot run-type-{run_type}" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><circle cx="6" cy="6" r="6"/></svg>'
+    return f"{svg} {run_type}"
+
 def convert_distance(value, unit, default_unit):
     if unit is None:
         unit = default_unit
@@ -276,13 +281,9 @@ def build_week_run_table_html(week_runs, default_unit):
     total_distance = sum(run["distance"] for run in week_runs)
     total_time = sum(run["time_seconds"] for run in week_runs)
     total_speed = total_distance / (total_time / 3600) if total_time > 0 else 0
-    has_notes = any(run.get("note") for run in week_runs)
 
     parts = ["<div class='running'>", "<h4>Running</h4>", "<table>"]
-    if has_notes:
-        parts.append("<thead><tr><th>Day</th><th>Type</th><th>Distance</th><th>Time</th><th>Speed</th><th>Note</th></tr></thead>")
-    else:
-        parts.append("<thead><tr><th>Day</th><th>Type</th><th>Distance</th><th>Time</th><th>Speed</th></tr></thead>")
+    parts.append("<thead><tr><th>Day</th><th>Type</th><th>Distance</th><th>Time</th><th>Speed</th></tr></thead>")
     parts.append("<tbody>")
 
     for run in week_runs:
@@ -290,54 +291,30 @@ def build_week_run_table_html(week_runs, default_unit):
         distance_label = format_distance(run["distance"], default_unit)
         time_label = format_time_seconds(run["time_seconds"])
         speed_label = format_speed(run["speed"], speed_unit)
-        note_label = run.get("note", "")
-        if has_notes:
-            row = (
-                "<tr>"
-                f"<td>{date_label}</td>"
-                f"<td>{run['type']}</td>"
-                f"<td>{distance_label}</td>"
-                f"<td>{time_label}</td>"
-                f"<td>{speed_label}</td>"
-                f"<td>{note_label}</td>"
-                "</tr>"
-            )
-        else:
-            row = (
-                "<tr>"
-                f"<td>{date_label}</td>"
-                f"<td>{run['type']}</td>"
-                f"<td>{distance_label}</td>"
-                f"<td>{time_label}</td>"
-                f"<td>{speed_label}</td>"
-                "</tr>"
-            )
+        type_label = format_run_type_with_dot(run["type"])
+        row = (
+            "<tr>"
+            f"<td>{date_label}</td>"
+            f"<td>{type_label}</td>"
+            f"<td>{distance_label}</td>"
+            f"<td>{time_label}</td>"
+            f"<td>{speed_label}</td>"
+            "</tr>"
+        )
         parts.append(row)
 
     total_distance_label = format_distance(total_distance, default_unit)
     total_time_label = format_time_seconds(total_time)
     total_speed_label = f"{format_speed(total_speed, speed_unit)} av."
-    if has_notes:
-        total_row = (
-            "<tr>"
-            f"<td>Total</td>"
-            f"<td></td>"
-            f"<td>{total_distance_label}</td>"
-            f"<td>{total_time_label}</td>"
-            f"<td>{total_speed_label}</td>"
-            f"<td></td>"
-            "</tr>"
-        )
-    else:
-        total_row = (
-            "<tr>"
-            f"<td>Total</td>"
-            f"<td></td>"
-            f"<td>{total_distance_label}</td>"
-            f"<td>{total_time_label}</td>"
-            f"<td>{total_speed_label}</td>"
-            "</tr>"
-        )
+    total_row = (
+        "<tr>"
+        f"<td>Total</td>"
+        f"<td></td>"
+        f"<td>{total_distance_label}</td>"
+        f"<td>{total_time_label}</td>"
+        f"<td>{total_speed_label}</td>"
+        "</tr>"
+    )
     parts.append(total_row)
     parts.append("</tbody>")
     parts.append("</table>")
@@ -380,10 +357,11 @@ def build_running_log_html(runs, default_unit):
         time_label = format_time_seconds(run["time_seconds"])
         speed_label = format_speed(run["speed"], speed_unit)
         note_label = run.get("note", "")
+        type_label = format_run_type_with_dot(run["type"])
         rows.append(
             "<tr>"
             f"<td>{date_label}</td>"
-            f"<td>{run['type']}</td>"
+            f"<td>{type_label}</td>"
             f"<td>{distance_label}</td>"
             f"<td>{time_label}</td>"
             f"<td>{speed_label}</td>"
@@ -394,7 +372,7 @@ def build_running_log_html(runs, default_unit):
     return (
         "<div class='text'>"
         "<h2>Runs</h2>"
-        "<table>"
+        "<table class='running-log'>"
         "<thead><tr><th>Date</th><th>Type</th><th>Distance</th><th>Time</th><th>Speed</th><th>Note</th></tr></thead>"
         "<tbody>"
         + "".join(rows)

@@ -253,6 +253,46 @@ td {
     color: var(--snes-dark);
 }
 
+/* running types */
+.run-dot {
+    display: inline-block;
+    width: 0.6em;
+    height: 0.6em;
+    margin-right: 0.4em;
+    vertical-align: middle;
+}
+
+.run-type-tempo { --run-color: #ec4700; }
+.run-type-race { --run-color: #fab40b; }
+.run-type-recovery { --run-color: #f78ed6; }
+.run-type-interval { --run-color: #eb8931; }
+.run-type-easy { --run-color: #15c2a5; }
+.run-type-long { --run-color: #31a2f2; }
+.run-type-reserved1 { --run-color: #9b59b6; }
+.run-type-reserved2 { --run-color: #1abc9c; }
+
+.run-dot circle {
+    fill: var(--run-color, #999);
+}
+
+.running-log {
+    margin: 1em 0;
+    font-size: small;
+}
+
+.running-log thead {
+    display: none;
+}
+
+.running-log tbody tr {
+    color: var(--snes-mid);
+}
+
+.running-log tbody tr:last-child {
+    background-color: var(--bg-shaded);
+    color: var(--snes-dark);
+}
+
 code.purple {
     font-family: monospace;
     background-color: #cfd3ff;
