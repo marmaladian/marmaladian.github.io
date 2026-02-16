@@ -4,12 +4,11 @@
     --gap-right: 5rem;
     --col-left-share: 0.3;
     --col-remaining: calc(100% - var(--col-middle) - var(--gap-left) - var(--gap-right));
-
     --ink: #333;
     --light-ink: #999;
     --link: #3366cc;
     --bg: #fff;
-    --bg-shaded: #e7e4e5;
+    --bg-shaded: #ebebeb;
     --snes-light: #d7d1d3;
     --snes-mid: #bbb9ba;
     --snes-dark: #828687
@@ -59,6 +58,39 @@
 
 .text > :first-child {
     margin-top: 0;
+}
+
+/* Table of Contents */
+.toc {
+    background-color: var(--bg-shaded);
+    padding: 1em;
+    /* border-left: 3px solid red; */
+    padding: 1em 1em 1em 1.5em;
+    margin: 2em 0;
+}
+
+.toc ul {
+    margin: 0.5em 0;
+    padding-left: 1.5em;
+    list-style-type: disc;
+}
+
+.toc > ul {
+    margin: 0;
+}
+
+.toc li {
+    margin: 0.3em 0;
+}
+
+.toc a {
+    color: var(--snes-mid);
+    text-decoration: none;
+}
+
+.toc a:hover {
+    color: var(--snes-dark);
+    text-decoration: underline;
 }
 
 .side {
@@ -249,7 +281,9 @@ td {
     color: var(--snes-mid);
 }
 
-.running table tbody tr:last-child {
+.running table tfoot tr {
+    border-top: 1px dotted var(--secondary-gray);
+    font-weight: 500;
     color: var(--snes-dark);
 }
 
@@ -288,11 +322,6 @@ td {
     color: var(--snes-mid);
 }
 
-.running-log tbody tr:last-child {
-    background-color: var(--bg-shaded);
-    color: var(--snes-dark);
-}
-
 .running-graph {
     margin: 1em 0 2em 0;
     width: 100%;
@@ -310,8 +339,6 @@ td {
     stroke-width: 0.6;
     stroke: var(--run-color, #000);
 }
-
-
 
 .running-graph-value {
     fill: var(--run-color, #000);

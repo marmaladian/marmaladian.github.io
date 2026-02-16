@@ -1,8 +1,10 @@
-: title: music
-: include-toc
+: title: Music
+: order: 2
 
-1 Music
-/ this is a comment
+  this is a comment
+
+: toc
+
 2 Jazz
 3 Classic
 3 Ethiopian jazz

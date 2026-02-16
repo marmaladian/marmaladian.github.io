@@ -303,9 +303,12 @@ def build_week_run_table_html(week_runs, default_unit):
         )
         parts.append(row)
 
+    parts.append("</tbody>")
+
     total_distance_label = format_distance(total_distance, default_unit)
     total_time_label = format_time_seconds(total_time)
     total_speed_label = f"{format_speed(total_speed, speed_unit)} av."
+    parts.append("<tfoot>")
     total_row = (
         "<tr>"
         f"<td>Total</td>"
@@ -316,7 +319,7 @@ def build_week_run_table_html(week_runs, default_unit):
         "</tr>"
     )
     parts.append(total_row)
-    parts.append("</tbody>")
+    parts.append("</tfoot>")
     parts.append("</table>")
     parts.append("</div>")
     return "\n".join(parts)
@@ -446,6 +449,8 @@ def build_running_log_html(runs, default_unit):
         return "<div class='text'><p>No runs found.</p></div>"
 
     speed_unit = "km/h" if default_unit == "km" else "mph"
+    total_distance = sum(run["distance"] for run in runs)
+    total_time = sum(run["time_seconds"] for run in runs)
     rows = []
     for run in sorted(runs, key=lambda r: r["date"], reverse=True):
         date_label = run["date"].strftime("%Y-%m-%d")
@@ -465,6 +470,19 @@ def build_running_log_html(runs, default_unit):
             "</tr>"
         )
 
+    total_distance_label = format_distance(total_distance, default_unit)
+    total_time_label = format_time_seconds(total_time)
+    total_row = (
+        "<tr>"
+        "<td>Total</td>"
+        "<td></td>"
+        f"<td>{total_distance_label}</td>"
+        f"<td>{total_time_label}</td>"
+        "<td></td>"
+        "<td></td>"
+        "</tr>"
+    )
+
     graph_html = build_running_week_graph(runs, default_unit)
     return (
         "<div class='text'>"
@@ -474,7 +492,10 @@ def build_running_log_html(runs, default_unit):
         "<thead><tr><th>Date</th><th>Type</th><th>Distance</th><th>Time</th><th>Speed</th><th>Note</th></tr></thead>"
         "<tbody>"
         + "".join(rows)
-        + "</tbody></table></div>"
+        + "</tbody>"
+        "<tfoot>"
+        + total_row
+        + "</tfoot></table></div>"
     )
 
 def slugify_heading(text):
@@ -485,7 +506,7 @@ def slugify_heading(text):
     text = text.lower()
     text = re.sub(r"[^a-z0-9]+", "-", text).strip("-")
     return text
-
+    
 def html_header(title, rel_root="", css_file="default.css", site=None):
     nav_html = ""
     # if site:
@@ -608,6 +629,78 @@ def parse_frontmatter(content_lines):
     
     return frontmatter, remaining_lines
 
+def extract_headings(content_lines, page_title):
+    """Extract h2-h6 headings from content lines.
+    
+    Returns a list of dicts: [{"level": 2, "text": "...", "id": "..."}, ...]
+    """
+    headings = []
+    for line in content_lines:
+        if len(line) < 3:
+            continue
+        prefix, rest = line[0], line[2:]
+        
+        if prefix in ["2", "3", "4", "5", "6"]:
+            # Extract heading text (strip inline formatting for TOC)
+            heading_text = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', rest)  # Remove links
+            heading_text = re.sub(r'`([^`]+)`', r'\1', heading_text)  # Remove code
+            heading_text = re.sub(r'\*\*([^\*]+)\*\*', r'\1', heading_text)  # Remove bold
+            heading_text = re.sub(r'__([^_]+)__', r'\1', heading_text)  # Remove bold
+            heading_text = re.sub(r'\*([^\*]+)\*', r'\1', heading_text)  # Remove italic
+            heading_text = re.sub(r'_([^_]+)_', r'\1', heading_text)  # Remove italic
+            heading_text = re.sub(r'~~([^~]+)~~', r'\1', heading_text)  # Remove strikethrough
+            heading_text = heading_text.strip()
+            
+            heading_id = slugify_heading(rest)
+            headings.append({
+                "level": int(prefix),
+                "text": heading_text,
+                "id": heading_id
+            })
+    
+    return headings
+
+def build_toc_html(headings):
+    """Build a nested unordered list from headings.
+    
+    Returns HTML string with class 'toc'.
+    """
+    if not headings:
+        return ""
+    
+    html_parts = ["<div class='toc'>"]
+    level_stack = []  # Stack of heading levels
+    
+    for heading in headings:
+        level = heading["level"]
+        text = heading["text"]
+        heading_id = heading["id"]
+        
+        # Close lists when going back up to a shallower level
+        while level_stack and level_stack[-1] > level:
+            level_stack.pop()
+            html_parts.append("</li></ul>")
+        
+        # Same level - close previous item and start new sibling
+        if level_stack and level_stack[-1] == level:
+            html_parts.append("</li>")
+        
+        # Open new nested list when going deeper
+        if not level_stack or level_stack[-1] < level:
+            html_parts.append("<ul>")
+            level_stack.append(level)
+        
+        # Add the current item (leave it open for potential children)
+        html_parts.append(f"<li><a href='#{heading_id}'>{text}</a>")
+    
+    # Close all remaining open items and lists
+    while level_stack:
+        level_stack.pop()
+        html_parts.append("</li></ul>")
+    
+    html_parts.append("</div>")
+    return "\n".join(html_parts)
+
 def create_page(src_file, path, rel_root="", site=None, run_log=None):
     if site is None:
         raise ValueError("create_page requires a site tree for inline links")
@@ -627,6 +720,10 @@ def create_page(src_file, path, rel_root="", site=None, run_log=None):
 
     # parse line by line: the first character is a prefix indicating the type of line. the rest [2:] is the actual content
     
+    # Extract headings for potential TOC
+    headings = extract_headings(content_lines, page_title)
+    toc_html = build_toc_html(headings) if headings else ""
+    
     rel_dir = os.path.relpath(os.path.dirname(src_file), DATA_DIR)
     is_journal_year = rel_dir == "journal" and re.match(r"^\d{4}\.f$", os.path.basename(src_file))
     if is_journal_year and run_log:
@@ -640,12 +737,51 @@ def create_page(src_file, path, rel_root="", site=None, run_log=None):
     blockquote_open = False
     div_stack = []
     text_div_open = False
+    raw_html_mode = False
+    raw_html_class = None
     errors = []
     nav_html = ""
 
     html_content += layout_open(rel_root, nav_html)
 
     for line in content_lines:
+        # Check for raw HTML block delimiter
+        if line.strip().startswith("!!!"):
+            if not raw_html_mode:
+                # Entering raw HTML mode
+                html_content, list_stack, blockquote_open = close_open_blocks(html_content, list_stack, blockquote_open)
+                if text_div_open:
+                    html_content += "</div>"
+                    text_div_open = False
+                # Extract optional class name
+                parts = line.strip().split(None, 1)
+                if len(parts) > 1:
+                    raw_html_class = parts[1].strip()
+                    html_content += f"<div class='{raw_html_class}'>"
+                raw_html_mode = True
+            else:
+                # Exiting raw HTML mode
+                if raw_html_class:
+                    html_content += "</div>"
+                    raw_html_class = None
+                raw_html_mode = False
+            continue
+        
+        # If in raw HTML mode, just append the line directly
+        if raw_html_mode:
+            html_content += line + "\n"
+            continue
+        
+        # Check for TOC command
+        if line.strip() == ": toc":
+            if toc_html:
+                html_content, list_stack, blockquote_open = close_open_blocks(html_content, list_stack, blockquote_open)
+                if not text_div_open and not div_stack:
+                    html_content += "<div class='text'>"
+                    text_div_open = True
+                html_content += toc_html
+            continue
+        
         if len(line) < 3 and not line.startswith("|"):
             continue
         if line.startswith("|"):
@@ -756,7 +892,7 @@ def create_page(src_file, path, rel_root="", site=None, run_log=None):
     with open(path, "w") as f:
         f.write(html_header(page_title, rel_root, css_file, site))
         f.write(html_content)
-        f.write(html_footer())
+        f.write(html_footer(rel_root))
     
     return errors
 
@@ -1019,9 +1155,9 @@ def build_site_map(site, rel_root=""):
     if not site:
         return ""
     html = "<ul>"
-    html += f"<li><a href='{rel_root}index.html'>Home</a>"
+    html += f"<li><a href='{rel_root}index.html'>home</a>"
     html += "<ul>"
-    html += f"<li><a href='{rel_root}site-map.html'>Site map</a></li>"
+    html += f"<li><a href='{rel_root}site-map.html'>site-map</a></li>"
     for child in site["children"]:
         html += render_node(child)
     html += "</ul>"
@@ -1267,20 +1403,20 @@ def main():
         f.write(layout_open(rel_root))
         f.write(build_root_content(site, rel_root))
         f.write(build_latest_journal_entry(site, rel_root, run_log))
-        f.write(html_footer())
+        f.write(html_footer(rel_root))
 
     # create site-map.html
     site_map_path = os.path.join(OUTPUT_DIR, "site-map.html")
     with open(site_map_path, "w") as f:
         rel_root = rel_root_for(site_map_path)
-        f.write(html_header("Site map", rel_root, "default.css", site))
+        f.write(html_header("site-map", rel_root, "default.css", site))
         local_nav = build_local_nav(site, site, rel_root)
-        f.write(f"<div class='page-header'>{local_nav}<h1 class='page-title' id='site-map'>Site map</h1></div>")
+        f.write(f"<div class='page-header'>{local_nav}<h1 class='page-title' id='site-map'>site-map</h1></div>")
         f.write(layout_open(rel_root))
         f.write("<div class='text'>")
         f.write(build_site_map(site, rel_root))
         f.write("</div>")
-        f.write(html_footer())
+        f.write(html_footer(rel_root))
 
     # for each node in site, create a directory, and for each page then call create_page() to produce a html file
     for n in walk(site):
@@ -1338,7 +1474,7 @@ def main():
                             f.write(f'<li><a href="{page_name}.html">{page_title}</a></li>')
                         f.write("</ul>")
                     f.write("</div>")
-                    f.write(html_footer())
+                    f.write(html_footer(rel_root_for(index_path)))
 
             # Create pages for all entries in the directory (except index.f if it was used as index.html)
             for page_entry in n["pages"]:

@@ -1,5 +1,7 @@
 : title: Layout test
 
+: toc
+
 1 Layout test
   Sennett knows his craft. The Craftsman is an essay about the desire to do a job well as an end in itself, and this definition of craftsmanship, with which Sennett begins his book, has in a certain sense been a leitmotif throughout the writing career of this philosopher of society. The result is a book that's hard to put down. Sennett takes us to various lifeworlds - the medieval workshops of the goldsmith, the kitchens of the Old and New Worlds, or contemporary architectural offices, to name but a few - and links these excursions to considerations on abilities, on the learning and the impact of craftsmanship. This should suffice to sketch out the reasons why Sennett's book - the start of a trilogy on material culture - craftsman, warriors and priests, as well as stranger - demands to be read through to the end. This review is concerned with the importance of this book for a particular circle of readers - practitioners and scholars in the particular management-oriented disciplines - beyond just a general interest in the contemporary social philosophy of labor.
 | thickborder text
@@ -13,6 +15,17 @@
   
 2 The Maraid, Book VII, Chapter 10
   Abstract: The transmission was broadcasted on all Fallen frequencies. Lacking, at the time, the ability to crack Fallen encryptions, the Master of Crows could discern only that the Fallen Houses were all talking to each other. That was a thing that had never happened before.
+
+3 The Fallen Houses Unite
+  This subsection explores the unprecedented cooperation between Fallen Houses.
+
+3 The Queen's Dilemma
+  Another subsection at the same level.
+
+4 Strategic Considerations
+  A deeper level heading.
+
+2 The Wolf Attack
 
 | full
 | gallery

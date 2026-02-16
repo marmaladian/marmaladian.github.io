@@ -1,4 +1,5 @@
 : title: Reading List
+: order: 2
 
 1 Reading List
   This page lists books I've read (and remembered to record). I don't usually include textbooks.
