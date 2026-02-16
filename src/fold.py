@@ -1246,6 +1246,13 @@ def main():
                         with open(dst_file, "wb") as f_dst:
                             f_dst.write(f_src.read())
 
+    cname_src = os.path.join(DATA_DIR, "CNAME")
+    cname_dst = os.path.join(OUTPUT_DIR, "CNAME")
+    if os.path.exists(cname_src):
+        with open(cname_src, "rb") as f_src:
+            with open(cname_dst, "wb") as f_dst:
+                f_dst.write(f_src.read())
+
 
     # create index.html
     index_path = os.path.join(OUTPUT_DIR, "index.html")
