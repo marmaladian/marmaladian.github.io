@@ -4,7 +4,6 @@
     --gap-right: 5rem;
     --col-left-share: 0.3;
     --col-remaining: calc(100% - var(--col-middle) - var(--gap-left) - var(--gap-right));
-
     --ink: #333;
     --light-ink: #999;
     --link: #3366cc;
