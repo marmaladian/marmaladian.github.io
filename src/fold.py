@@ -7,6 +7,11 @@ SHOW_COMMENTS = False
 
 import os
 import fnmatch
+import re
+from datetime import date
+
+RUN_LOG_PATH = os.path.join(DATA_DIR, "special", "running.log")
+RUN_DEFAULT_UNIT = "km"
 
 def node(name, children=(), pages=(), **attrs):
     return {"name": name, "children": list(children), "pages": list(pages), "attrs": dict(attrs)}
@@ -94,6 +99,307 @@ def get_last_updated_date():
     """Return the current date in a readable format."""
     from datetime import datetime
     return datetime.now().strftime("%Y-%m-%d")
+
+def parse_time_to_seconds(time_str):
+    parts = time_str.split(":")
+    try:
+        if len(parts) == 2:
+            minutes, seconds = parts
+            return int(minutes) * 60 + int(seconds)
+        if len(parts) == 3:
+            hours, minutes, seconds = parts
+            return int(hours) * 3600 + int(minutes) * 60 + int(seconds)
+    except ValueError:
+        return None
+    return None
+
+def format_time_seconds(total_seconds):
+    total_seconds = int(round(total_seconds))
+    hours, remainder = divmod(total_seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    if hours > 0:
+        return f"{hours}:{minutes:02d}:{seconds:02d}"
+    return f"{minutes}:{seconds:02d}"
+
+def format_number(value, decimals=2):
+    return f"{value:.{decimals}f}".rstrip("0").rstrip(".")
+
+def format_distance(value, unit):
+    return f"{format_number(value, 2)} {unit}"
+
+def format_speed(value, unit):
+    return f"{format_number(value, 2)} {unit}"
+
+def convert_distance(value, unit, default_unit):
+    if unit is None:
+        unit = default_unit
+    if unit == default_unit:
+        return value
+    if unit == "mi" and default_unit == "km":
+        return value * 1.609344
+    if unit == "km" and default_unit == "mi":
+        return value * 0.621371
+    return value
+
+def convert_speed(value, unit, default_unit):
+    default_speed_unit = "km/h" if default_unit == "km" else "mph"
+    if unit is None:
+        unit = default_speed_unit
+    if unit == "kph":
+        unit = "km/h"
+    if unit == "km/h" and default_speed_unit == "mph":
+        return value * 0.621371
+    if unit == "mph" and default_speed_unit == "km/h":
+        return value * 1.609344
+    return value
+
+def extract_value(rest, patterns):
+    for pattern in patterns:
+        match = re.search(pattern, rest)
+        if match:
+            value = match.group(1)
+            unit = match.group(2) if match.lastindex and match.lastindex >= 2 else None
+            rest = rest[:match.start()] + " " + rest[match.end():]
+            return value, unit, rest
+    return None, None, rest
+
+def parse_running_log(path, default_unit="km"):
+    runs = []
+    errors = []
+    if not os.path.exists(path):
+        return runs, errors
+
+    with open(path, "r") as f:
+        for line_no, raw in enumerate(f, 1):
+            line = raw.strip()
+            if not line or line.startswith("#"):
+                continue
+
+            match = re.match(r"^(\d{4}-\d{2}-\d{2})\s+(\S+)\s+(.+)$", line)
+            if not match:
+                errors.append(f"Line {line_no}: Could not parse line '{line}'")
+                continue
+
+            date_str, run_type, rest = match.groups()
+            try:
+                run_date = date.fromisoformat(date_str)
+            except ValueError:
+                errors.append(f"Line {line_no}: Invalid date '{date_str}'")
+                continue
+
+            note = ""
+            note_match = re.search(r"(?i)\bnote\s*[:=]\s*(.+)$", rest)
+            if note_match:
+                note = note_match.group(1).strip()
+                rest = rest[:note_match.start()].strip()
+            else:
+                pipe_idx = rest.find("|")
+                if pipe_idx >= 0:
+                    note = rest[pipe_idx+1:].strip()
+                    rest = rest[:pipe_idx].strip()
+            note = re.sub(r"^(--|\||//)\s*", "", note).strip()
+
+            speed_str, speed_unit, rest = extract_value(
+                rest,
+                [
+                    r"(?i)\b(?:speed|v)\s*[:=]\s*(\d+(?:\.\d+)?)\s*(km\/h|kph|mph)\b",
+                    r"(?i)\b(\d+(?:\.\d+)?)\s*(km\/h|kph|mph)\b",
+                ],
+            )
+            distance_str, distance_unit, rest = extract_value(
+                rest,
+                [
+                    r"(?i)\b(?:dist|distance|d)\s*[:=]\s*(\d+(?:\.\d+)?)\s*(km|mi)?\b",
+                    r"(?i)\b(\d+(?:\.\d+)?)\s*(km|mi)\b",
+                ],
+            )
+            time_str, _, rest = extract_value(
+                rest,
+                [
+                    r"(?i)\b(?:time|t)\s*[:=]\s*(\d{1,2}:\d{2}(?::\d{2})?)\b",
+                    r"\b(\d{1,2}:\d{2}(?::\d{2})?)\b",
+                ],
+            )
+
+            distance = float(distance_str) if distance_str else None
+            if distance is not None:
+                distance = convert_distance(distance, distance_unit, default_unit)
+
+            speed = float(speed_str) if speed_str else None
+            if speed is not None:
+                speed = convert_speed(speed, speed_unit, default_unit)
+
+            time_seconds = parse_time_to_seconds(time_str) if time_str else None
+
+            fields_present = sum(value is not None for value in (distance, time_seconds, speed))
+            if fields_present < 2:
+                errors.append(f"Line {line_no}: Need at least two of distance, time, speed")
+                continue
+
+            if distance is None and speed is not None and time_seconds is not None:
+                distance = speed * (time_seconds / 3600)
+            if time_seconds is None and speed is not None and distance is not None:
+                time_seconds = (distance / speed) * 3600
+            if speed is None and distance is not None and time_seconds is not None:
+                hours = time_seconds / 3600
+                speed = distance / hours if hours > 0 else None
+
+            if distance is None or time_seconds is None or speed is None:
+                errors.append(f"Line {line_no}: Could not compute missing field")
+                continue
+
+            iso_year, iso_week, _ = run_date.isocalendar()
+            runs.append(
+                {
+                    "date": run_date,
+                    "type": run_type,
+                    "distance": distance,
+                    "time_seconds": time_seconds,
+                    "speed": speed,
+                    "note": note,
+                    "week_key": f"{iso_year}-W{iso_week:02d}",
+                }
+            )
+
+    return runs, errors
+
+def build_runs_by_week(runs):
+    runs_by_week = {}
+    for run in runs:
+        runs_by_week.setdefault(run["week_key"], []).append(run)
+    for week_runs in runs_by_week.values():
+        week_runs.sort(key=lambda r: r["date"])
+    return runs_by_week
+
+def build_week_run_table_html(week_runs, default_unit):
+    speed_unit = "km/h" if default_unit == "km" else "mph"
+    total_distance = sum(run["distance"] for run in week_runs)
+    total_time = sum(run["time_seconds"] for run in week_runs)
+    total_speed = total_distance / (total_time / 3600) if total_time > 0 else 0
+    has_notes = any(run.get("note") for run in week_runs)
+
+    parts = ["<div class='running'>", "<h4>Running</h4>", "<table>"]
+    if has_notes:
+        parts.append("<thead><tr><th>Day</th><th>Type</th><th>Distance</th><th>Time</th><th>Speed</th><th>Note</th></tr></thead>")
+    else:
+        parts.append("<thead><tr><th>Day</th><th>Type</th><th>Distance</th><th>Time</th><th>Speed</th></tr></thead>")
+    parts.append("<tbody>")
+
+    for run in week_runs:
+        date_label = run["date"].strftime("%a")
+        distance_label = format_distance(run["distance"], default_unit)
+        time_label = format_time_seconds(run["time_seconds"])
+        speed_label = format_speed(run["speed"], speed_unit)
+        note_label = run.get("note", "")
+        if has_notes:
+            row = (
+                "<tr>"
+                f"<td>{date_label}</td>"
+                f"<td>{run['type']}</td>"
+                f"<td>{distance_label}</td>"
+                f"<td>{time_label}</td>"
+                f"<td>{speed_label}</td>"
+                f"<td>{note_label}</td>"
+                "</tr>"
+            )
+        else:
+            row = (
+                "<tr>"
+                f"<td>{date_label}</td>"
+                f"<td>{run['type']}</td>"
+                f"<td>{distance_label}</td>"
+                f"<td>{time_label}</td>"
+                f"<td>{speed_label}</td>"
+                "</tr>"
+            )
+        parts.append(row)
+
+    total_distance_label = format_distance(total_distance, default_unit)
+    total_time_label = format_time_seconds(total_time)
+    total_speed_label = f"{format_speed(total_speed, speed_unit)} av."
+    if has_notes:
+        total_row = (
+            "<tr>"
+            f"<td>Total</td>"
+            f"<td></td>"
+            f"<td>{total_distance_label}</td>"
+            f"<td>{total_time_label}</td>"
+            f"<td>{total_speed_label}</td>"
+            f"<td></td>"
+            "</tr>"
+        )
+    else:
+        total_row = (
+            "<tr>"
+            f"<td>Total</td>"
+            f"<td></td>"
+            f"<td>{total_distance_label}</td>"
+            f"<td>{total_time_label}</td>"
+            f"<td>{total_speed_label}</td>"
+            "</tr>"
+        )
+    parts.append(total_row)
+    parts.append("</tbody>")
+    parts.append("</table>")
+    parts.append("</div>")
+    return "\n".join(parts)
+
+def build_week_run_lines(week_runs, default_unit):
+    html = build_week_run_table_html(week_runs, default_unit)
+    return [f"! {line}" for line in html.splitlines()]
+
+def inject_weekly_runs(content_lines, runs_by_week, default_unit):
+    updated = []
+    current_week = None
+    for line in content_lines:
+        match = re.match(r"^3\s+(\d{4}-W\d{2})\s*$", line)
+        if match:
+            if current_week:
+                week_runs = runs_by_week.get(current_week)
+                if week_runs:
+                    updated.extend(build_week_run_lines(week_runs, default_unit))
+            current_week = match.group(1)
+            updated.append(line)
+            continue
+        updated.append(line)
+    if current_week:
+        week_runs = runs_by_week.get(current_week)
+        if week_runs:
+            updated.extend(build_week_run_lines(week_runs, default_unit))
+    return updated
+
+def build_running_log_html(runs, default_unit):
+    if not runs:
+        return "<div class='text'><p>No runs found.</p></div>"
+
+    speed_unit = "km/h" if default_unit == "km" else "mph"
+    rows = []
+    for run in sorted(runs, key=lambda r: r["date"], reverse=True):
+        date_label = run["date"].strftime("%Y-%m-%d")
+        distance_label = format_distance(run["distance"], default_unit)
+        time_label = format_time_seconds(run["time_seconds"])
+        speed_label = format_speed(run["speed"], speed_unit)
+        note_label = run.get("note", "")
+        rows.append(
+            "<tr>"
+            f"<td>{date_label}</td>"
+            f"<td>{run['type']}</td>"
+            f"<td>{distance_label}</td>"
+            f"<td>{time_label}</td>"
+            f"<td>{speed_label}</td>"
+            f"<td>{note_label}</td>"
+            "</tr>"
+        )
+
+    return (
+        "<div class='text'>"
+        "<h2>Runs</h2>"
+        "<table>"
+        "<thead><tr><th>Date</th><th>Type</th><th>Distance</th><th>Time</th><th>Speed</th><th>Note</th></tr></thead>"
+        "<tbody>"
+        + "".join(rows)
+        + "</tbody></table></div>"
+    )
 
 def slugify_heading(text):
     """Convert heading text to a URL-safe anchor slug."""
@@ -226,7 +532,7 @@ def parse_frontmatter(content_lines):
     
     return frontmatter, remaining_lines
 
-def create_page(src_file, path, rel_root="", site=None):
+def create_page(src_file, path, rel_root="", site=None, run_log=None):
     if site is None:
         raise ValueError("create_page requires a site tree for inline links")
 
@@ -246,6 +552,9 @@ def create_page(src_file, path, rel_root="", site=None):
     # parse line by line: the first character is a prefix indicating the type of line. the rest [2:] is the actual content
     
     rel_dir = os.path.relpath(os.path.dirname(src_file), DATA_DIR)
+    is_journal_year = rel_dir == "journal" and re.match(r"^\d{4}\.f$", os.path.basename(src_file))
+    if is_journal_year and run_log:
+        content_lines = inject_weekly_runs(content_lines, run_log.get("runs_by_week", {}), run_log.get("unit", RUN_DEFAULT_UNIT))
     current_node = find_node_by_path(site, rel_dir)
     current_page = os.path.splitext(os.path.basename(src_file))[0]
     local_nav = build_local_nav(site, current_node, rel_root, current_page=current_page)
@@ -342,6 +651,10 @@ def create_page(src_file, path, rel_root="", site=None):
             rest = apply_inline_formatting(rest, site, rel_root, errors)
             if (SHOW_COMMENTS):
                 html_content += f"<span class='comment'>{rest}</span>"
+
+        elif prefix == "!":
+            html_content, list_stack, blockquote_open = close_open_blocks(html_content, list_stack, blockquote_open)
+            html_content += rest
         
         else:
             html_content, list_stack, blockquote_open = close_open_blocks(html_content, list_stack, blockquote_open)
@@ -360,6 +673,9 @@ def create_page(src_file, path, rel_root="", site=None):
         while div_stack:
             div_stack.pop()
             html_content += "</div>"
+
+    if frontmatter.get("auto") == "running-log" and run_log:
+        html_content += build_running_log_html(run_log.get("runs", []), run_log.get("unit", RUN_DEFAULT_UNIT))
     
     with open(path, "w") as f:
         f.write(html_header(page_title, rel_root, css_file, site))
@@ -689,7 +1005,7 @@ def build_root_content(site, rel_root=""):
     html_content += "</div>"
     return html_content
 
-def build_latest_journal_entry(site, rel_root=""):
+def build_latest_journal_entry(site, rel_root="", run_log=None):
     journal_node = find_node_by_name(site, "journal")
     if not journal_node or not journal_node["pages"]:
         return "<div class='text'><p>No journal entries found.</p></div>"
@@ -711,6 +1027,7 @@ def build_latest_journal_entry(site, rel_root=""):
     entry_lines = []
     entry_image = ""
     in_entry = False
+    entry_week_key = None
 
     for line in content_lines:
         if len(line) < 3 and not line.startswith("|"):
@@ -719,6 +1036,7 @@ def build_latest_journal_entry(site, rel_root=""):
             if line[0] == "3":
                 if not in_entry:
                     entry_title = apply_inline_formatting(line[2:], site, rel_root)
+                    entry_week_key = line[2:].strip()
                     in_entry = True
                     continue
                 break
@@ -772,6 +1090,10 @@ def build_latest_journal_entry(site, rel_root=""):
             html_content = handle_list_or_para(html_content, list_stack, line, site, rel_root, errors)
 
     html_content, list_stack, blockquote_open = close_open_blocks(html_content, list_stack, blockquote_open)
+    if run_log and entry_week_key:
+        week_runs = run_log.get("runs_by_week", {}).get(entry_week_key)
+        if week_runs:
+            html_content += build_week_run_table_html(week_runs, run_log.get("unit", RUN_DEFAULT_UNIT))
     latest_page_name = os.path.splitext(latest_page["file"])[0]
     html_content += f"<p>See my <a href='journal/{latest_page_name}.html'>journal</a> for more.</p>"
     html_content += "</div>"
@@ -810,6 +1132,15 @@ def main():
 
     # track all errors
     all_errors = {} 
+
+    runs, run_errors = parse_running_log(RUN_LOG_PATH, RUN_DEFAULT_UNIT)
+    run_log = {
+        "runs": runs,
+        "runs_by_week": build_runs_by_week(runs),
+        "unit": RUN_DEFAULT_UNIT,
+    }
+    if run_errors:
+        all_errors["special/running.log"] = run_errors
 
     # produce global nav
 
@@ -852,7 +1183,7 @@ def main():
         f.write(f"<div class='page-header'>{local_nav}<h1 class='page-title' id='{root_title_id}'>{root_title}</h1></div>")
         f.write(layout_open(rel_root))
         f.write(build_root_content(site, rel_root))
-        f.write(build_latest_journal_entry(site, rel_root))
+        f.write(build_latest_journal_entry(site, rel_root, run_log))
         f.write(html_footer())
 
     # create site-map.html
@@ -888,7 +1219,7 @@ def main():
                 # Use the index.f file as the index.html
                 src_file = os.path.join(DATA_DIR, n["attrs"]["path"], dir_index_page["file"])
                 index_path = os.path.join(dir_path, "index.html")
-                errors = create_page(src_file, index_path, rel_root_for(index_path), site)
+                errors = create_page(src_file, index_path, rel_root_for(index_path), site, run_log)
                 if errors:
                     pretty_path = os.path.join(n["attrs"]["path"], dir_index_page["file"])
                     all_errors[pretty_path] = errors
@@ -935,7 +1266,7 @@ def main():
                     continue
                 src_file = os.path.join(DATA_DIR, n["attrs"]["path"], page_file)
                 output_file = os.path.join(dir_path, os.path.splitext(page_file)[0] + ".html")
-                errors = create_page(src_file, output_file, rel_root_for(output_file), site)
+                errors = create_page(src_file, output_file, rel_root_for(output_file), site, run_log)
                 if errors:
                     pretty_path = os.path.join(n["attrs"]["path"], page_file)
                     all_errors[pretty_path] = errors

@@ -1,0 +1,28 @@
+# YYYY-MM-DD type distance time speed
+# Use any two of distance, time, speed; the third is computed.
+# Examples:
+# 2026-02-15 interval 5km 25:00
+# 2026-02-16 tempo distance=6km time=30:00
+# 2026-02-17 easy 5km speed=10km/h | comments are allowed
+
+2026-02-16 easy 5km 9.2km/h
+
+2026-02-15 recovery 3km 9.2km/h
+2026-02-12 easy 4km 9.1km/h
+2026-02-10 long 4km 9.4km/h
+2026-02-09 interval 2km 11:00 | 3 min @ 12 km/h, 1 min @ 8 km/h
+
+2026-02-08 recovery 3km 9.3km/h
+2026-02-05 tempo 2km 11km/h
+2026-02-03 long 6km 9.6km/h
+2026-02-02 easy 5km 10.2km/h
+
+2026-02-01 recovery 3km 9.2km/h
+2026-01-29 easy 4km 9.1km/h
+2026-01-27 long 4km 9.5km/h
+2026-01-26 interval 2km 13:00 | 3 min @ 11.8km/h, 2 min @ 5 km/h
+
+2026-01-25 recovery 2km 9.2km/h
+2026-01-22 tempo 2km 10.7km/h
+2026-01-20 long 4km 9.4km/h
+2026-01-19 easy 3km 8.7km/h

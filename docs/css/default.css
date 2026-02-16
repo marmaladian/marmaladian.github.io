@@ -194,8 +194,13 @@ h3 {
     margin-top: 2em;
 }
 
-h2 + p,
-h3 + p {
+h4 {
+    font-size: small;
+    margin-bottom: 0.25em;
+    margin-top: 1.5em;
+}
+
+:is(h2, h3, h4, h5, h6) + * {
     margin-top: 0.5em;
 }
 
@@ -234,6 +239,18 @@ td {
     border: 1px solid #E8E8E4;
     padding: 0.5em;
     text-align: left;
+}
+
+.running table thead {
+    display: none;
+}
+
+.running table tbody tr {
+    color: var(--snes-mid);
+}
+
+.running table tbody tr:last-child {
+    color: var(--snes-dark);
 }
 
 code.purple {
@@ -301,6 +318,11 @@ nav a.active {
     padding: 0em;
 }
 
+.running {
+    font-size: small;
+    padding: 0 2em;
+}
+
 /* ======
    RESPONSIVE
    ====== */
@@ -360,5 +382,21 @@ nav a.active {
     body {
         padding: 2ch;
         margin: 0;
+    }
+}
+
+@media (max-width: 600px) {
+    .kicker {
+        display: none;
+    }
+
+    .layout,
+    .page-header {
+        padding-left: 0;
+    }
+
+    nav {
+        grid-template-columns: 1fr;
+        gap: 1em;
     }
 }

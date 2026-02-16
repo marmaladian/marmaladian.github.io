@@ -1,38 +1,18 @@
 : title: 2026
 
 3 2026-W07
-  Played some tennis with H. this week, and went to see Birdsnake play at RRR with G.
-
-  Running:
-* Monday: interval 2km 3 min @ 12 km/h, 1 min @ 8 km/h
-* Tuesday: long 4km @ 9.4 km/h
-* Thursday: easy 4km @ 9.1 km/h
-* Sunday: recovery 3km @ 9.2 km/h
+  Played some tennis with H. this week, and went to see Birdsnake play at RRR with G. Found a {{love letter|https://en.wikipedia.org/wiki/Kue_semprong}} press at the Camberwell market! I want to try making senbei with it. Had dinner and drinks with D. for his birthday on Sunday.
 
 3 2026-W06
   Met S. this week to organise my PhD start date and some administrative stuff.
-
-  Running:
-* Monday: easy 5km @ 10.2 km/h (was supposed to be 9.2 km/h)
-* Tuesday: long 6km @ 9.6 km/h
-* Thursday: tempo 2km @ 11 km/h
-* Sunday: recovery 3km @ 9.3 km/h
 
 3 2026-W05
   Have been following a GameBoy emulator tutorial on YouTube to brush up on my C and get some guidance for implementing Amulet. Went bowling with L. and C. on Sunday evening.
 
 * Made an excellent anchovy substitute.
-* Monday: interval 2 km @ 11.8 km/h
-* Tuesday: long 4 km @ 9.5 km/h
-* Thursday: easy 4 km @ 9.1 km/h
-* Sunday: recovery 3 km @ 9.2 km/h
 
 3 2026-W04
-  Started a running plan this week.
-* Monday: easy 3 km @ 8.7 km/h
-* Tuesday: long 4 km @ 9.4 km/h
-* Thursday: tempo 2 km @ 10.7 km/h
-* Sunday: recovery 2 km @ 9.2 km/h
+  Started a running plan this week, aiming to run 5km in 25:00.
 
 3 2026-W03
   Y's parents are visiting; we went to the tennis with them and my parents.
