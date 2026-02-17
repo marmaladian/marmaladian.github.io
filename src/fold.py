@@ -12,6 +12,7 @@ from datetime import date
 
 RUN_LOG_PATH = os.path.join(DATA_DIR, "special", "running.log")
 RUN_DEFAULT_UNIT = "km"
+HABIT_LOG_PATH = os.path.join(DATA_DIR, "special", "habits.log")
 
 def node(name, children=(), pages=(), **attrs):
     return {"name": name, "children": list(children), "pages": list(pages), "attrs": dict(attrs)}
@@ -268,6 +269,78 @@ def parse_running_log(path, default_unit="km"):
 
     return runs, errors
 
+def parse_habits_log(path):
+    entries = []
+    errors = []
+    habits = []
+    active_indices = []
+    header_found = False
+    if not os.path.exists(path):
+        return entries, habits, active_indices, errors
+
+    with open(path, "r") as f:
+        for line_no, raw in enumerate(f, 1):
+            line = raw.strip()
+            if not line or line.startswith("#"):
+                continue
+
+            if not header_found:
+                if "," not in line:
+                    continue
+                parts = [part.strip() for part in line.split(",")]
+                if not parts or parts[0].lower() != "date":
+                    errors.append(f"Line {line_no}: Header must start with 'date'")
+                    continue
+                for idx, raw_name in enumerate(parts[1:]):
+                    name = raw_name.strip()
+                    is_struck = name.startswith("~~") and name.endswith("~~") and len(name) > 4
+                    if is_struck:
+                        name = name[2:-2].strip()
+                    habits.append(name)
+                    if not is_struck:
+                        active_indices.append(idx)
+                header_found = True
+                continue
+
+            if "," in line:
+                parts = [part.strip() for part in line.split(",", 1)]
+            else:
+                parts = line.split(None, 1)
+            if len(parts) < 2:
+                errors.append(f"Line {line_no}: Missing habit marks")
+                continue
+
+            date_str, marks_str = parts[0], parts[1].replace(" ", "")
+            try:
+                entry_date = date.fromisoformat(date_str)
+            except ValueError:
+                errors.append(f"Line {line_no}: Invalid date '{date_str}'")
+                continue
+
+            if not re.match(r"^[xX-]+$", marks_str):
+                errors.append(f"Line {line_no}: Invalid habit marks '{marks_str}'")
+                continue
+
+            marks = [char.lower() for char in marks_str]
+            if len(marks) < len(habits):
+                marks.extend(["-"] * (len(habits) - len(marks)))
+            if len(marks) > len(habits):
+                marks = marks[:len(habits)]
+
+            iso_year, iso_week, _ = entry_date.isocalendar()
+            entries.append(
+                {
+                    "date": entry_date,
+                    "marks": marks,
+                    "week_key": f"{iso_year}-W{iso_week:02d}",
+                }
+            )
+
+    if not header_found:
+        errors.append("No header row found in habits log")
+
+    return entries, habits, active_indices, errors
+
 def build_runs_by_week(runs):
     runs_by_week = {}
     for run in runs:
@@ -275,6 +348,14 @@ def build_runs_by_week(runs):
     for week_runs in runs_by_week.values():
         week_runs.sort(key=lambda r: r["date"])
     return runs_by_week
+
+def build_habits_by_week(entries):
+    habits_by_week = {}
+    for entry in entries:
+        habits_by_week.setdefault(entry["week_key"], []).append(entry)
+    for week_entries in habits_by_week.values():
+        week_entries.sort(key=lambda e: e["date"])
+    return habits_by_week
 
 def build_week_run_table_html(week_runs, default_unit):
     speed_unit = "km/h" if default_unit == "km" else "mph"
@@ -328,6 +409,29 @@ def build_week_run_lines(week_runs, default_unit):
     html = build_week_run_table_html(week_runs, default_unit)
     return [f"! {line}" for line in html.splitlines()]
 
+def build_week_habit_table_html(week_entries, habits, active_indices):
+    if not week_entries or not active_indices:
+        return ""
+
+    parts = ["<div class='habits'>", "<h4>Habits</h4>", "<table class='habits-week'>"]
+    header_cells = "".join(f"<th>{habits[i]}</th>" for i in active_indices)
+    parts.append(f"<thead><tr><th>Day</th>{header_cells}</tr></thead>")
+    parts.append("<tbody>")
+    for entry in week_entries:
+        date_label = entry["date"].strftime("%a")
+        marks = "".join(
+            f"<td>{'x' if entry['marks'][i] == 'x' else '-'}</td>" for i in active_indices
+        )
+        parts.append(f"<tr><td>{date_label}</td>{marks}</tr>")
+    parts.append("</tbody></table></div>")
+    return "\n".join(parts)
+
+def build_week_habit_lines(week_entries, habits, active_indices):
+    html = build_week_habit_table_html(week_entries, habits, active_indices)
+    if not html:
+        return []
+    return [f"! {line}" for line in html.splitlines()]
+
 def inject_weekly_runs(content_lines, runs_by_week, default_unit):
     updated = []
     current_week = None
@@ -346,6 +450,26 @@ def inject_weekly_runs(content_lines, runs_by_week, default_unit):
         week_runs = runs_by_week.get(current_week)
         if week_runs:
             updated.extend(build_week_run_lines(week_runs, default_unit))
+    return updated
+
+def inject_weekly_habits(content_lines, habits_by_week, habits, active_indices):
+    updated = []
+    current_week = None
+    for line in content_lines:
+        match = re.match(r"^3\s+(\d{4}-W\d{2})\s*$", line)
+        if match:
+            if current_week:
+                week_entries = habits_by_week.get(current_week)
+                if week_entries:
+                    updated.extend(build_week_habit_lines(week_entries, habits, active_indices))
+            current_week = match.group(1)
+            updated.append(line)
+            continue
+        updated.append(line)
+    if current_week:
+        week_entries = habits_by_week.get(current_week)
+        if week_entries:
+            updated.extend(build_week_habit_lines(week_entries, habits, active_indices))
     return updated
 
 def build_running_week_graph(runs, default_unit):
@@ -496,6 +620,29 @@ def build_running_log_html(runs, default_unit):
         "<tfoot>"
         + total_row
         + "</tfoot></table></div>"
+    )
+
+def build_habits_log_html(entries, habits, active_indices):
+    if not entries or not active_indices:
+        return "<div class='text'><p>No habits found.</p></div>"
+
+    header_cells = "".join(f"<th>{habits[i]}</th>" for i in active_indices)
+    rows = []
+    for entry in sorted(entries, key=lambda e: e["date"], reverse=True):
+        date_label = entry["date"].strftime("%Y-%m-%d")
+        marks = "".join(
+            f"<td>{'x' if entry['marks'][i] == 'x' else '-'}</td>" for i in active_indices
+        )
+        rows.append(f"<tr><td>{date_label}</td>{marks}</tr>")
+
+    return (
+        "<div class='text'>"
+        "<h2>Habits</h2>"
+        "<table class='habits-log'>"
+        f"<thead><tr><th>Date</th>{header_cells}</tr></thead>"
+        "<tbody>"
+        + "".join(rows)
+        + "</tbody></table></div>"
     )
 
 def slugify_heading(text):
@@ -701,7 +848,7 @@ def build_toc_html(headings):
     html_parts.append("</div>")
     return "\n".join(html_parts)
 
-def create_page(src_file, path, rel_root="", site=None, run_log=None):
+def create_page(src_file, path, rel_root="", site=None, run_log=None, habit_log=None):
     if site is None:
         raise ValueError("create_page requires a site tree for inline links")
 
@@ -728,6 +875,13 @@ def create_page(src_file, path, rel_root="", site=None, run_log=None):
     is_journal_year = rel_dir == "journal" and re.match(r"^\d{4}\.f$", os.path.basename(src_file))
     if is_journal_year and run_log:
         content_lines = inject_weekly_runs(content_lines, run_log.get("runs_by_week", {}), run_log.get("unit", RUN_DEFAULT_UNIT))
+    if is_journal_year and habit_log:
+        content_lines = inject_weekly_habits(
+            content_lines,
+            habit_log.get("habits_by_week", {}),
+            habit_log.get("habits", []),
+            habit_log.get("active_indices", []),
+        )
     current_node = find_node_by_path(site, rel_dir)
     current_page = os.path.splitext(os.path.basename(src_file))[0]
     local_nav = build_local_nav(site, current_node, rel_root, current_page=current_page)
@@ -888,6 +1042,12 @@ def create_page(src_file, path, rel_root="", site=None, run_log=None):
 
     if frontmatter.get("auto") == "running-log" and run_log:
         html_content += build_running_log_html(run_log.get("runs", []), run_log.get("unit", RUN_DEFAULT_UNIT))
+    if frontmatter.get("auto") == "habits-log" and habit_log:
+        html_content += build_habits_log_html(
+            habit_log.get("entries", []),
+            habit_log.get("habits", []),
+            habit_log.get("active_indices", []),
+        )
     
     with open(path, "w") as f:
         f.write(html_header(page_title, rel_root, css_file, site))
@@ -1217,7 +1377,7 @@ def build_root_content(site, rel_root=""):
     html_content += "</div>"
     return html_content
 
-def build_latest_journal_entry(site, rel_root="", run_log=None):
+def build_latest_journal_entry(site, rel_root="", run_log=None, habit_log=None):
     journal_node = find_node_by_name(site, "journal")
     if not journal_node or not journal_node["pages"]:
         return "<div class='text'><p>No journal entries found.</p></div>"
@@ -1306,6 +1466,14 @@ def build_latest_journal_entry(site, rel_root="", run_log=None):
         week_runs = run_log.get("runs_by_week", {}).get(entry_week_key)
         if week_runs:
             html_content += build_week_run_table_html(week_runs, run_log.get("unit", RUN_DEFAULT_UNIT))
+    if habit_log and entry_week_key:
+        week_entries = habit_log.get("habits_by_week", {}).get(entry_week_key)
+        if week_entries:
+            html_content += build_week_habit_table_html(
+                week_entries,
+                habit_log.get("habits", []),
+                habit_log.get("active_indices", []),
+            )
     latest_page_name = os.path.splitext(latest_page["file"])[0]
     html_content += f"<p>See my <a href='journal/{latest_page_name}.html'>journal</a> for more.</p>"
     html_content += "</div>"
@@ -1353,6 +1521,16 @@ def main():
     }
     if run_errors:
         all_errors["special/running.log"] = run_errors
+
+    habit_entries, habit_names, habit_active_indices, habit_errors = parse_habits_log(HABIT_LOG_PATH)
+    habit_log = {
+        "entries": habit_entries,
+        "habits": habit_names,
+        "active_indices": habit_active_indices,
+        "habits_by_week": build_habits_by_week(habit_entries),
+    }
+    if habit_errors:
+        all_errors["special/habits.log"] = habit_errors
 
     # produce global nav
 
@@ -1402,7 +1580,7 @@ def main():
         f.write(f"<div class='page-header'>{local_nav}<h1 class='page-title' id='{root_title_id}'>{root_title}</h1></div>")
         f.write(layout_open(rel_root))
         f.write(build_root_content(site, rel_root))
-        f.write(build_latest_journal_entry(site, rel_root, run_log))
+        f.write(build_latest_journal_entry(site, rel_root, run_log, habit_log))
         f.write(html_footer(rel_root))
 
     # create site-map.html
@@ -1438,7 +1616,7 @@ def main():
                 # Use the index.f file as the index.html
                 src_file = os.path.join(DATA_DIR, n["attrs"]["path"], dir_index_page["file"])
                 index_path = os.path.join(dir_path, "index.html")
-                errors = create_page(src_file, index_path, rel_root_for(index_path), site, run_log)
+                errors = create_page(src_file, index_path, rel_root_for(index_path), site, run_log, habit_log)
                 if errors:
                     pretty_path = os.path.join(n["attrs"]["path"], dir_index_page["file"])
                     all_errors[pretty_path] = errors
@@ -1485,7 +1663,7 @@ def main():
                     continue
                 src_file = os.path.join(DATA_DIR, n["attrs"]["path"], page_file)
                 output_file = os.path.join(dir_path, os.path.splitext(page_file)[0] + ".html")
-                errors = create_page(src_file, output_file, rel_root_for(output_file), site, run_log)
+                errors = create_page(src_file, output_file, rel_root_for(output_file), site, run_log, habit_log)
                 if errors:
                     pretty_path = os.path.join(n["attrs"]["path"], page_file)
                     all_errors[pretty_path] = errors
