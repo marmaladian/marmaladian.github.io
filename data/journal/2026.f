@@ -1,5 +1,9 @@
 : title: 2026
 
+3 2026-W08
+  {{Ludopax|ludopax}} 26 was this weekend. Played a little bit of tennis, did a Parkrun and went for a swim. Played a lot of boardgames (Game of Thrones, Magical Athlete, The Zone, The Mind, Dungeon Mayhem, Molly House) and cooked some {{delicious food|https://www.theguardian.com/food/2023/sep/02/vegan-sabzi-polo-herbed-rice-saffron-pistachios-recipe-meera-sodha}}.
+  Now I really need to focus and start preparing for study and teaching to start next week.
+
 3 2026-W07
   Played some tennis with H. this week, and went to see Birdsnake play at RRR with G. Found a {{love letter|https://en.wikipedia.org/wiki/Kue_semprong}} press at the Camberwell market! I want to try making senbei with it. Had dinner and drinks with D. for his birthday on Sunday.
 
