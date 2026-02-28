@@ -1,5 +1,8 @@
 : title: 2026
 
+3 2026-W09
+  Saw Mad Professor at RRR with C, he mixed _KONG & The Dudley Flats Rockers_ live. _The Inspirational Sounds of Mad Professor_ was the album that got me interested in dub, released in 1999. Mad Professor mentioned some tracks he made in 1984.
+
 3 2026-W08
   {{Ludopax|ludopax}} 26 was this weekend. Played a little bit of tennis, did a Parkrun and went for a swim. Played a lot of boardgames (Game of Thrones, Magical Athlete, The Zone, The Mind, Dungeon Mayhem, Molly House) and cooked some {{delicious food|https://www.theguardian.com/food/2023/sep/02/vegan-sabzi-polo-herbed-rice-saffron-pistachios-recipe-meera-sodha}}.
   Now I really need to focus and start preparing for study and teaching to start next week.
