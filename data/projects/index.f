@@ -11,7 +11,7 @@
 
 2 Foul Airs
 
-  This was made for a Hypercard game jam. If you don't have an old Mac or emulator, it's also playable on the Internet Archive (I'm not sure how it wound up there).
+  This was made for the {{Merveilles Hyperjam|https://cancel.fm/hyperjam/}}, a {{Hypercard|https://en.wikipedia.org/wiki/HyperCard}} game jam. If you don't have an old Mac or emulator, it's also playable on the Internet Archive (I'm not sure how it wound up there).
 
 * {{Foul Airs (itch.io)|https://marmaladian.itch.io/foul-airs}}
 * {{Foul Airs (Internet Archive)|https://archive.org/details/hypercard_foul-airs}}
