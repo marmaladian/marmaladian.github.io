@@ -1,5 +1,14 @@
 : title: 2026
 
+3 2026-W10
+  Back to uni - PhD has begun, and so has teaching. I lectured for the first time, filling in for M. It went OK!
+
+  I went to {{Interrupt|https://www.interruptfestival.com.au}} on Friday night with R. and C. M. was also there, we'd both been to Square Sounds back before COVID.
+
+  Y. and A. went back home on Sunday morning, Y. and I watched the F1 at Beer DeLuxe
+  
+% {{Abraide|https://www.abraide.music}} at the Interrupt Festival (W10) | text | journal/2026-W10.jpg
+
 3 2026-W09
   Saw Mad Professor at RRR with C, he mixed _KONG & The Dudley Flats Rockers_ live. _The Inspirational Sounds of Mad Professor_ was the album that got me interested in dub, released in 1999. Mad Professor mentioned some tracks he made in 1984.
   Took the ferry to Geelong with Y. and Y. to visit my parents, had lunch at Fishermen's Pier.

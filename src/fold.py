@@ -1395,6 +1395,7 @@ def build_latest_journal_entry(site, rel_root="", run_log=None, habit_log=None):
 
     _, content_lines = parse_frontmatter(content_lines)
 
+    errors = []
     entry_title = None
     entry_lines = []
     entry_image = ""
@@ -1475,10 +1476,12 @@ def build_latest_journal_entry(site, rel_root="", run_log=None, habit_log=None):
                 habit_log.get("active_indices", []),
             )
     latest_page_name = os.path.splitext(latest_page["file"])[0]
-    html_content += f"<p>See my <a href='journal/{latest_page_name}.html'>journal</a> for more.</p>"
     html_content += "</div>"
     if entry_image:
         html_content += entry_image
+    html_content += "<div class='text'>"
+    html_content += f"<p>See my <a href='journal/{latest_page_name}.html'>journal</a> for more.</p>"
+    html_content += "</div>"
     return html_content
 
 # Build a nav menu for the index.html page.
