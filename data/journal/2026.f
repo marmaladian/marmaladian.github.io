@@ -1,5 +1,12 @@
 : title: 2026
 
+3 2026-W11
+  Filled in for another lecture, went well. Started looking for a simple (stupid), slow, expensive way to compute MAPF in a cellular automata.
+
+  Played a lot of Marathon with my friends. It's so good, like getting the band back together.
+
+  I've kept up the daily Japanese and running habits so far.
+
 3 2026-W10
   Back to uni - PhD has begun, and so has teaching. I lectured for the first time, filling in for M. It went OK!
 
