@@ -131,6 +131,14 @@ def format_distance(value, unit):
 def format_speed(value, unit):
     return f"{format_number(value, 2)} {unit}"
 
+def format_pace(speed_kmh):
+    """Return pace as MM:SS for a given speed in km/h."""
+    if not speed_kmh or speed_kmh <= 0:
+        return ""
+    seconds_per_km = 3600 / speed_kmh
+    minutes, seconds = divmod(int(round(seconds_per_km)), 60)
+    return f"{minutes}:{seconds:02d}"
+
 def format_run_type_with_dot(run_type):
     """Generate SVG dot + run type text for display in tables."""
     svg = f'<svg class="run-dot run-type-{run_type}" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><circle cx="6" cy="6" r="6"/></svg>'
@@ -581,6 +589,7 @@ def build_running_log_html(runs, default_unit):
         distance_label = format_distance(run["distance"], default_unit)
         time_label = format_time_seconds(run["time_seconds"])
         speed_label = format_speed(run["speed"], speed_unit)
+        pace_label = format_pace(run["speed"]) if default_unit == "km" else ""
         note_label = run.get("note", "")
         type_label = format_run_type_with_dot(run["type"])
         rows.append(
@@ -590,12 +599,15 @@ def build_running_log_html(runs, default_unit):
             f"<td>{distance_label}</td>"
             f"<td>{time_label}</td>"
             f"<td>{speed_label}</td>"
+            f"<td>{pace_label}</td>"
             f"<td>{note_label}</td>"
             "</tr>"
         )
 
     total_distance_label = format_distance(total_distance, default_unit)
     total_time_label = format_time_seconds(total_time)
+    avg_speed = total_distance / (total_time / 3600) if total_time > 0 else 0
+    avg_pace_label = format_pace(avg_speed) if default_unit == "km" else ""
     total_row = (
         "<tr>"
         "<td>Total</td>"
@@ -603,6 +615,7 @@ def build_running_log_html(runs, default_unit):
         f"<td>{total_distance_label}</td>"
         f"<td>{total_time_label}</td>"
         "<td></td>"
+        f"<td>{avg_pace_label}</td>"
         "<td></td>"
         "</tr>"
     )
@@ -613,7 +626,7 @@ def build_running_log_html(runs, default_unit):
         + graph_html +
         "<h2>Runs</h2>"
         "<table class='running-log'>"
-        "<thead><tr><th>Date</th><th>Type</th><th>Distance</th><th>Time</th><th>Speed</th><th>Note</th></tr></thead>"
+        "<thead><tr><th>Date</th><th>Type</th><th>Distance</th><th>Time</th><th>Speed</th><th>Pace</th><th>Note</th></tr></thead>"
         "<tbody>"
         + "".join(rows)
         + "</tbody>"
