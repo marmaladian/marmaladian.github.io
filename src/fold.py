@@ -1033,6 +1033,9 @@ def create_page(src_file, path, rel_root="", site=None, run_log=None, habit_log=
 
         elif prefix == "!":
             html_content, list_stack, blockquote_open = close_open_blocks(html_content, list_stack, blockquote_open)
+            if not text_div_open and not div_stack:
+                html_content += "<div class='text'>"
+                text_div_open = True
             html_content += rest
         
         else:
