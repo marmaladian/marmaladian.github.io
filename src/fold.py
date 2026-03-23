@@ -1,7 +1,7 @@
 # a python version of fold to test out some ideas
 
-DATA_DIR = "data/"
-OUTPUT_DIR = "docs/"
+DATA_DIR = "data"
+OUTPUT_DIR = "docs"
 
 SHOW_COMMENTS = False
 
@@ -38,7 +38,7 @@ def get_page_metadata(filepath):
     """Extract title, style, and order from a .f file's front-matter."""
     metadata = {"title": None, "style": "default.css", "order": None}
     try:
-        with open(filepath, "r") as f:
+        with open(filepath, "r", encoding="utf-8") as f:
             for line in f:
                 if line.startswith(": "):
                     parts = line[2:].split(":", 1)
@@ -71,10 +71,11 @@ def build_site_tree():
         if not any(fnmatch.fnmatch(file, "*.f") for file in files):
             continue
 
-        parts = root.split(os.sep)
+        rel_path = os.path.relpath(root, DATA_DIR)
+        parts = [] if rel_path == "." else rel_path.split(os.sep)
         current_node = index
         path_parts = []
-        for part in parts[1:]:  # skip the first part which is "data"
+        for part in parts:
             if not part:
                 continue
             path_parts.append(part)
@@ -183,7 +184,7 @@ def parse_running_log(path, default_unit="km"):
     if not os.path.exists(path):
         return runs, errors
 
-    with open(path, "r") as f:
+    with open(path, "r", encoding="utf-8") as f:
         for line_no, raw in enumerate(f, 1):
             line = raw.strip()
             if not line or line.startswith("#"):
@@ -286,7 +287,7 @@ def parse_habits_log(path):
     if not os.path.exists(path):
         return entries, habits, active_indices, errors
 
-    with open(path, "r") as f:
+    with open(path, "r", encoding="utf-8") as f:
         for line_no, raw in enumerate(f, 1):
             line = raw.strip()
             if not line or line.startswith("#"):
@@ -866,7 +867,7 @@ def create_page(src_file, path, rel_root="", site=None, run_log=None, habit_log=
         raise ValueError("create_page requires a site tree for inline links")
 
     # read the .f file and convert it to html
-    with open(src_file, "r") as f:
+    with open(src_file, "r", encoding="utf-8") as f:
         content_lines = f.read().splitlines()
 
     # extract front-matter
@@ -1065,7 +1066,7 @@ def create_page(src_file, path, rel_root="", site=None, run_log=None, habit_log=
             habit_log.get("active_indices", []),
         )
     
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8") as f:
         f.write(html_header(page_title, rel_root, css_file, site))
         f.write(html_content)
         f.write(html_footer(rel_root))
@@ -1347,7 +1348,7 @@ def build_root_content(site, rel_root=""):
     if not os.path.exists(root_index):
         return ""
     
-    with open(root_index, "r") as f:
+    with open(root_index, "r", encoding="utf-8") as f:
         content_lines = f.read().splitlines()
     
     # Extract and skip frontmatter
@@ -1406,7 +1407,7 @@ def build_latest_journal_entry(site, rel_root="", run_log=None, habit_log=None):
     latest_page = sorted(journal_pages, key=lambda p: p["file"], reverse=True)[0]
     src_file = os.path.join(DATA_DIR, journal_node["attrs"]["path"], latest_page["file"])
 
-    with open(src_file, "r") as f:
+    with open(src_file, "r", encoding="utf-8") as f:
         content_lines = f.read().splitlines()
 
     _, content_lines = parse_frontmatter(content_lines)
@@ -1589,7 +1590,7 @@ def main():
 
     # create index.html
     index_path = os.path.join(OUTPUT_DIR, "index.html")
-    with open(index_path, "w") as f:
+    with open(index_path, "w", encoding="utf-8") as f:
         rel_root = rel_root_for(index_path)
         root_metadata = get_page_metadata(os.path.join(DATA_DIR, "index.f"))
         root_title = root_metadata.get("title") or "Home"
@@ -1604,7 +1605,7 @@ def main():
 
     # create site-map.html
     site_map_path = os.path.join(OUTPUT_DIR, "site-map.html")
-    with open(site_map_path, "w") as f:
+    with open(site_map_path, "w", encoding="utf-8") as f:
         rel_root = rel_root_for(site_map_path)
         f.write(html_header("site-map", rel_root, "default.css", site))
         local_nav = build_local_nav(site, site, rel_root)
@@ -1642,7 +1643,7 @@ def main():
             else:
                 # Auto-generate index.html
                 index_path = os.path.join(dir_path, "index.html")
-                with open(index_path, "w") as f:
+                with open(index_path, "w", encoding="utf-8") as f:
                     f.write(html_header(n["name"].capitalize(), rel_root_for(index_path), "default.css", site))
                     local_nav = build_local_nav(site, n, rel_root_for(index_path))
                     title = n["name"].capitalize()
@@ -1697,7 +1698,7 @@ def main():
             for error in errors:
                 print(f"  - {error}")
     else:
-        print("✓ All pages generated successfully with no errors")
+        print("All pages generated successfully with no errors")
 
 if __name__ == "__main__":
     main()

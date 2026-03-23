@@ -1,5 +1,10 @@
 : title: 2026
 
+3 2026-W12
+  Mostly work/study this week. Went for coffee with M. who is interested in NCA and related areas. Also went for a beer with a bunch of people from the reading group and teaching, then to Shandong Mama with M. and A.
+
+  On Saturday Y. and I went to Beermash and played Sky Team. Sunday we joined R. and his family at a forest conservation protest.
+
 3 2026-W11
   Filled in for another lecture, went well. Started looking for a simple (stupid), slow, expensive way to compute MAPF in a cellular automata.
 
