@@ -1,5 +1,8 @@
 : title: 2026
 
+3 2026-W13
+  Picked up a surprise on Thursday. Y. and I went to the Melbourne International Coffee Expo on Friday, finally got to try a Mont Blanc coffee. Saw Project Hail Mary with D. on Sunday, good fun but probably forgettable.
+
 3 2026-W12
   Mostly work/study this week. Went for coffee with M. who is interested in NCA and related areas. Also went for a beer with a bunch of people from the reading group and teaching, then to Shandong Mama with M. and A.
 
