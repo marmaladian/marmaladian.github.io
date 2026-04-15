@@ -1,5 +1,11 @@
 : title: 2026
 
+3 2026-W15
+  Spent a lot of time marking assignments. Presented my Honours work to a reading group at Melbourne Uni, I think it went well. Celebrated my brother's 40th birthday with my family.
+
+3 2026-W14
+  I'm writing this two weeks late, been busy. Went to Geelong for Easter with the family. Hurt my hamstring or glute running last time, haven't run since.
+
 3 2026-W13
   Picked up a surprise on Thursday. Y. and I went to the Melbourne International Coffee Expo on Friday, finally got to try a Mont Blanc coffee. Saw Project Hail Mary with D. on Sunday, good fun but probably forgettable.
 
