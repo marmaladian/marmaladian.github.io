@@ -1,5 +1,8 @@
 : title: 2026
 
+3 2026-W16
+  I've played a lot of Marathon over the last few weeks. Went to the physio, have some exercises and stretches so hopefully I can start running again before too long.
+
 3 2026-W15
   Spent a lot of time marking assignments. Presented my Honours work to a reading group at Melbourne Uni, I think it went well. Celebrated my brother's 40th birthday with my family.
 
