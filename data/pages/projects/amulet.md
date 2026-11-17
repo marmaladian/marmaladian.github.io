@@ -8,7 +8,7 @@ Stack-machine, 8-bit ALU, 16-bit addresses (MMU allows access to 1MB). PPU with 
 ## Instruction set
 Stack effect notation `(a b -- c)` shows inputs before the dash, outputs after.
 
-<table class="full">
+<table>
     <thead>
         <tr>
             <th>Category</th>

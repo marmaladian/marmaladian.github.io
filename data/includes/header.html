@@ -4,43 +4,27 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/prototype.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
   <title>{{title}}</title>
   <script>
     (function () {
-      var THEMES = ['light', 'dark'];
+      // Theme: the page starts in the light theme (white on blue). The sun
+      // button swaps to the dark theme (blue on white) and back. The choice
+      // is saved for the next page.
       var saved = localStorage.getItem('theme');
-      if (THEMES.indexOf(saved) !== -1) {
-        document.documentElement.setAttribute('data-theme', saved);
+      if (saved === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
       }
+
       document.addEventListener('DOMContentLoaded', function () {
-        var button = document.getElementById('theme-toggle');
-        button.addEventListener('click', function () {
-          var root = document.documentElement;
-          // With no attribute set the page is following the operating
-          // system, so resolve that first — otherwise the first click
-          // would move to the theme already on screen.
-          var current = root.getAttribute('data-theme');
-          if (THEMES.indexOf(current) === -1) {
-            current = window.matchMedia('(prefers-color-scheme: dark)').matches
-              ? 'dark' : 'light';
-          }
-          var next = THEMES[(THEMES.indexOf(current) + 1) % THEMES.length];
+        var root = document.documentElement;
+        document.getElementById('theme-toggle').addEventListener('click', function () {
+          var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
           root.setAttribute('data-theme', next);
           localStorage.setItem('theme', next);
         });
-      });
 
-      // The running head: a small copy of the page title that lives in the
-      // sticky bar and only shows once the real h1 has scrolled out from
-      // under it. An IntersectionObserver watches the h1 against a root
-      // shrunk by the bar's own height, so "intersecting" means "still
-      // below the bar" — the moment it isn't, the two swap places. The
-      // fade itself is a CSS transition on .is-faded/.is-visible; this
-      // only flips the classes.
-      document.addEventListener('DOMContentLoaded', function () {
+        // Running title: when the h1 scrolls under the bar, the h1 fades
+        // out and the copy of the title in the bar fades in.
         var h1 = document.getElementById('page-title');
         var bar = document.querySelector('.runhead');
         var label = document.getElementById('runhead-title');
@@ -52,46 +36,16 @@
           label.classList.toggle('is-visible', past);
         }, { rootMargin: -barHeight + 'px 0px 0px 0px', threshold: 0 }).observe(h1);
       });
-
-      // The folio: a book's running page number, repurposed here as how
-      // far through the page the reader is. 0% at the very top, 100% once
-      // the bottom of the document has scrolled into view — a plain
-      // fraction of scrollable distance covered, not tied to headings, so
-      // it works the same on every page regardless of how it's sectioned.
-      document.addEventListener('DOMContentLoaded', function () {
-        var folio = document.getElementById('runhead-folio');
-        if (!folio) return;
-        var ticking = false;
-        function update() {
-          ticking = false;
-          var scrollable = document.documentElement.scrollHeight - window.innerHeight;
-          var percent = scrollable <= 0 ? 100 : (window.scrollY / scrollable) * 100;
-          percent = Math.max(0, Math.min(100, Math.round(percent)));
-          folio.textContent = percent + '%';
-        }
-        function onScroll() {
-          if (!ticking) {
-            ticking = true;
-            requestAnimationFrame(update);
-          }
-        }
-        window.addEventListener('scroll', onScroll, { passive: true });
-        window.addEventListener('resize', onScroll);
-        update();
-      });
     })();
   </script>
 </head>
 <body id="top">
 
-<div class="page">
-
-  <div class="row runhead">
-    <a class="runhead-home" href="index.html" aria-label="gray.land — home">g</a>
-    <span class="runhead-title" id="runhead-title" aria-hidden="true">{{runhead_title}}</span>
-    <span class="runhead-folio" id="runhead-folio" aria-hidden="true"></span>
-    <button id="theme-toggle" class="runhead-toggle" aria-label="Toggle dark and light mode">&#9788;</button>
+  <div class="runhead">
+    <a class="runhead-home" href="index.html" aria-label="gray.land — home">{{logo}}</a>
+    <span class="runhead-title" id="runhead-title" aria-hidden="true">{{title}}</span>
+    <button id="theme-toggle" class="runhead-toggle" aria-label="Swap text and background colours">&#9728;&#xFE0E;</button>
   </div>
 
+  <main>
 {{pagehead}}
-  <main class="row article">

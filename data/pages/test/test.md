@@ -1,4 +1,13 @@
-# Test Page
+# Valarin - _like the glitter of swords_
+
+Also called: Valian, and (in Quenya) Valya or Lambë Valarinwa
+
+## INTERNAL HISTORY
+
+The Valar had made their own language, undoubtedly the oldest of all the tongues of Arda. They did not need a spoken language; they were angelic spirits and could easily communicate telepathically. But as the Ainulindalë tells, "the Valar took to themselves shape and hue" when they entered Eä at the beginning of Time. They became self-incarnate. "The making of a lambe [language] is the chief character of an Incarnate," Pengolodh the sage of Gondolin observed. "The Valar, having arrayed them in this manner, would inevitably during their long sojourn in Arda have made a lambe for themselves" (WJ:397). There was no doubt that this was indeed the case, for there were references to the language of the Valar in the old lore of the Noldor.
+
+When the Eldar arrived in Valinor, the Valar and the Maiar quickly adopted Quenya and sometimes even used it among themselves. Yet Valarin was by no means displaced by Quenya, and it could still be heard when the Valar were having their great debates. "The tongues and voices of the Valar are great and stern," Rúmil of Tirion wrote, "and yet also swift and subtle in movement, making sounds that we find hard to counterfeit; and their words are mostly long and rapid, like the glitter of swords, like the rush of leaves in a great wind or the fall of stones in the mountains." Pengolodh is less lyrical, and also less courteous: "Plainly the effect of Valarin upon Elvish ears was not pleasing." (WJ:398) Valarin employed many sounds that were alien to the Eldarin languages.
+Nonetheless, Quenya borrowed some words from Valarin, though they often had to be much changed to fit the restrictive phonology of High-Elven. From the Silmarillion we remember the Ezellohar, the Green Mound, and Máhanaxar, the Ring of Doom. These are foreign words in Quenya, adopted and adapted from Valarin Ezellôchâr and Mâchananaškad. The names of the Valar Manwë, Aulë, Tulkas, Oromë and Ulmo were borrowed from Valarin Mânawenûz, A3ûlêz, Tulukastâz, Arômêz and Ulubôz (or Ullubôz). So is the name of the Maia Ossë (Ošošai, Oššai). The names Eönwë and possibly Nessa also seem to be adopted from Valarin, though the original forms of the names are not recorded.
 
 Like anyone else who could spare the bullets, Crow had picked off a few dozen at distance when he found them in the open. Glint had told him they were related to Eliksni somehow, which made sense—they moved like Eliksni—but they just wouldn't stay dead.
 

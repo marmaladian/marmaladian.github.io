@@ -5,82 +5,32 @@ import html as html_lib
 PAGES_DIR    = "data/pages"
 INCLUDES_DIR = "data/includes"
 OUTPUT_DIR   = "docs"
-
-LOGO_SVG = "docs/media/blg.svg"
-
-
-# The mark is drawn small and centred inside a square 512 viewBox, which is
-# what you want for a favicon and not for a wordmark slot. These are the
-# bounds of the drawing itself: translate(171.667 40.006) scale(15.339)
-# applied to a path spanning 11 x 28 units.
-LOGO_VIEWBOX_SQUARE = 'viewBox="0 0 512 512"'
-LOGO_VIEWBOX_CROPPED = 'viewBox="171.667 40.006 168.73 429.5"'
+LOGO_SVG     = "docs/media/blg.svg"
 
 
 def logo_svg():
-    """The logo is inlined rather than linked so its fill can be currentColor
-    (i.e. var(--ink), following the theme toggle). An <img> can't see the
-    page's CSS, and a CSS mask is treated as cross-origin over file://.
-
-    The viewBox is cropped to the drawing on the way out, so the nav can size
-    the mark by its own height instead of by the padding around it. The file
-    itself is left square, since that is the right shape for an icon."""
+    """The logo for the bar at the top of each page. It is inlined, not
+    linked, so its fill (currentColor) follows the theme. The file has a
+    square viewBox for use as an icon; here the viewBox is cropped to the
+    drawing, so CSS can size the logo by its height."""
     with open(LOGO_SVG, encoding="utf-8") as f:
         svg = f.read().strip()
-
-    if LOGO_VIEWBOX_SQUARE in svg:
-        svg = svg.replace(LOGO_VIEWBOX_SQUARE, LOGO_VIEWBOX_CROPPED, 1)
-    else:
-        print(f"[WARN] {LOGO_SVG}: expected {LOGO_VIEWBOX_SQUARE}, leaving the "
-              f"viewBox alone — the mark may sit in its own padding")
-
-    # The link around it carries the accessible name, so the mark itself is
-    # hidden rather than announced twice.
-    if "aria-hidden" not in svg:
-        svg = svg.replace("<svg ", '<svg aria-hidden="true" ', 1)
-    return svg
+    svg = svg.replace('viewBox="0 0 512 512"',
+                      'viewBox="171.667 40.006 168.73 429.5"', 1)
+    # The link around the logo has the accessible name.
+    return svg.replace("<svg ", '<svg aria-hidden="true" ', 1)
 
 
-# Directories under data/pages become the section label above a page title.
-# A page can override it with `section:` in its front matter, and the index,
-# which sits at the root, gets none.
-SECTION_LABELS = {
-    "gait": "Games and AI",
-    "library": "Library",
-    "meta": "Meta",
-    "projects": "Projects",
-    "recipes": "Recipes",
-    "shrines": "Shrines",
-    "test": "Test",
-}
-
-
-def section_for(src_path):
-    rel = os.path.relpath(src_path, PAGES_DIR)
-    parts = rel.split(os.sep)
-    if len(parts) < 2:
-        return ""
-    return SECTION_LABELS.get(parts[0], parts[0].replace("-", " ").title())
-
-
-def build_pagehead(title, section, meta):
-    """The header row: section label, page title, and any front-matter fields
-    worth showing. All three live in one .titleblock because the vertical
-    rules are drawn in the row's first grid row, so a row's children have to
-    share it."""
-    parts = ['  <header class="row pagehead">\n',
-             '    <a class="brand" href="index.html" aria-label="gray.land — home">{{logo}}</a>\n',
-             '    <div class="titleblock">\n']
-    if section:
-        parts.append(f'      <div class="eyebrow">{section}</div>\n')
-    parts.append(f'      <h1 id="page-title">{title}</h1>\n')
+def build_pagehead(title, meta):
+    """The page title, and any front-matter fields worth showing under it."""
+    parts = ['    <header class="pagehead">\n',
+             f'      <h1 id="page-title">{title}</h1>\n']
     if meta:
         parts.append('      <dl class="meta">\n')
         for label, value in meta:
             parts.append(f'        <dt>{label}</dt><dd>{value}</dd>\n')
         parts.append('      </dl>\n')
-    parts.append('    </div>\n')
-    parts.append('  </header>\n')
+    parts.append('    </header>\n')
     return "".join(parts)
 
 
@@ -328,11 +278,8 @@ def convert(filename, lines, directives=None, fn=None):
     raw_depth        = 0
     pending_h4       = None
 
-    # .content wraps the whole article and is its own grid, using the same
-    # column tracks as the row, so body copy can be pushed out into the side
-    # tracks. Nothing sits outside it any more — the page title has moved to
-    # the header row — so it opens here rather than waiting for the h1. A page
-    # with no h1 gets the same wrapper as any other.
+    # The first h1 goes in the page head, so the article opens here rather
+    # than after the h1.
     html_parts.append('<article class="content">\n')
 
     heading_re   = re.compile(r"^(#{1,6}) (.+)$")
@@ -345,7 +292,7 @@ def convert(filename, lines, directives=None, fn=None):
 
     def gallery_figure(caption, src):
         return (
-            f'<figure class="gallery">\n'
+            f'<figure>\n'
             f'<img src="{src}" alt="{strip_markdown(caption)}">\n'
             f'<figcaption>{inline(caption)}</figcaption>\n'
             f'</figure>\n'
@@ -357,14 +304,8 @@ def convert(filename, lines, directives=None, fn=None):
             content = inline(" ".join(para_buf))
             if pending_h4:
                 slug, htext = pending_h4
-                # \paragraph{}-style run-in: bold, full stop, folded into
-                # the paragraph that follows rather than its own element.
-                # This has to happen at the HTML level, not in CSS — the
-                # h4 and the paragraph after it would otherwise be two
-                # separate children of .content, which is a grid, and grid
-                # blockifies every direct child regardless of its own
-                # display value, so no display trick can put them on one
-                # line if they stay separate elements.
+                # \paragraph{}-style run-in: bold, full stop, put inside
+                # the paragraph that follows so both sit on one line.
                 content = f'<strong class="run-in-h4" id="{slug}">{htext}.</strong> ' + content
                 pending_h4 = None
             html_parts.append(f"<p>{content}</p>\n")
@@ -458,8 +399,7 @@ def convert(filename, lines, directives=None, fn=None):
         # A block-level tag starting a line is handed through untouched to the
         # matching close, so hand-written tables and embeds survive. Without
         # this the opening tag is treated as prose and the whole block ends up
-        # inside a <p>, which is invalid and puts the element out of reach of
-        # the layout classes, since it is no longer a child of .content.
+        # inside a <p>, which is invalid HTML.
         m = raw_open_re.match(stripped)
         if m:
             flush_all()
@@ -483,7 +423,7 @@ def convert(filename, lines, directives=None, fn=None):
         if in_gallery:
             if stripped == "[/gallery]":
                 figures = "".join(gallery_figure(c, s) for c, s in gallery_items)
-                html_parts.append(f'<div class="full">\n<div class="gallery">\n{figures}</div>\n</div>\n')
+                html_parts.append(f'<div class="gallery">\n{figures}</div>\n')
                 gallery_items.clear()
                 in_gallery = False
                 continue
@@ -532,13 +472,14 @@ def convert(filename, lines, directives=None, fn=None):
             continue
 
         # --- Block image → figure ---
+        # A quoted title after the URL ("side", "wide", ...) was a layout
+        # option. The page has one column now, so the title is ignored.
         m = img_re.match(stripped)
         if m:
             flush_all()
-            caption, src, modifier = m.group(1), m.group(2), (m.group(3) or "").strip().lower()
-            cls = f' class="{modifier}"' if modifier in ("side", "wide", "wide-alt", "full") else ""
+            caption, src = m.group(1), m.group(2)
             html_parts.append(
-                f'<figure{cls}>\n'
+                f'<figure>\n'
                 f'<img src="{src}" alt="{strip_markdown(caption)}">\n'
                 f'<figcaption>{inline(caption)}</figcaption>\n'
                 f'</figure>\n'
@@ -647,7 +588,7 @@ def main():
             max_depth = int(frontmatter.get('toc_depth', '3'))
             headings = collect_headings(content_lines, max_depth)
             toc_html = build_toc(headings)
-        # The contents is placed automatically, outside the article. [toc] is
+        # The contents is placed automatically, before the article. [toc] is
         # kept as a no-op so a directive left in an older page is ignored
         # rather than reported as unknown.
         directives['toc'] = ""
@@ -660,14 +601,10 @@ def main():
         # to go inside the article, so it is spliced in before the closing tag
         # rather than tacked on the end.
         if ordered_labels and '[endnotes]' not in ''.join(content_lines):
-            body = body.replace('</article>\n', '<hr>\n' + directives['endnotes'] + '</article>\n')
+            body = body.replace('</article>\n', directives['endnotes'] + '</article>\n')
 
-        # The contents list is a sibling of the article, not a child of it.
-        # Both sit in the same grid row, which gives the sticky column the full
-        # height of the article to travel through; nested inside, it would stop
-        # at the end of its own row.
         if toc_html:
-            body += toc_html
+            body = toc_html + body
 
         # optional per-page hook: `class: foo` in front-matter lands on the
         # .content element, so a stylesheet can target one page
@@ -683,18 +620,14 @@ def main():
             print(f"[{md_file}] no h1 — falling back to the filename for the title")
             page_title = stem
 
-        section = frontmatter.get('section', section_for(src_path))
         meta = [(k.title(), frontmatter[k])
                 for k in ('date', 'read', 'makes', 'time', 'serves')
                 if frontmatter.get(k)]
 
-        # {{pagehead}} first: the header block it inserts carries its own
-        # {{logo}} placeholder, which the following replace then fills.
         page = (header
                 .replace("{{title}}", strip_tags(page_title))
-                .replace("{{pagehead}}", build_pagehead(page_title, section, meta))
-                .replace("{{logo}}", logo)
-                .replace("{{runhead_title}}", strip_tags(page_title)))
+                .replace("{{pagehead}}", build_pagehead(page_title, meta))
+                .replace("{{logo}}", logo))
 
         with open(out_path, "w", encoding="utf-8") as f:
             f.write(page)

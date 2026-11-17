@@ -1,77 +1,18 @@
 /* ============================================================
-   PROTOTYPE — panelled three-column layout
-   ------------------------------------------------------------
-   A new look for gray.land. Black and white: a grey ramp, light and
-   dark. The furniture — page title, running head, code blocks, footer
-   band — is drawn in ink, and the blocks among them are inverted
-   rather than tinted.
+   gray.land — one column of text.
 
-   Page skeleton (three stacked rows inside one page container, plus
-   the running head, which is sticky rather than in flow):
+   Page structure:
 
-       .page
-         .runhead    sticky, fixed to the top of the viewport
-         .pagehead   title block
-         .article    body copy + contents
+       body
+         .runhead     sticky bar: "g", running title, theme button
+         main
+           .pagehead  page title and optional metadata
+           .toc       optional contents list
+           .content   the article
          .pagefoot
 
-   Every row uses the same three column tracks — left, main,
-   right — separated by a hairline. Content sits in `main` by
-   default and can be pushed out into the side tracks with
-   .side, .wide, .wide-alt and .full.
-
-   The vertical rules between left, main and right are drawn inside
-   the columns and stop where the columns stop (currently switched
-   off — see .row::before/::after below). There are no horizontal
-   rules: rows meet each other with nothing drawn between them.
-
-   Each row draws its vertical rules with two pseudo-elements
-   placed in the hairline tracks of grid row 1. A row's children
-   therefore all have to sit in that one row; the header keeps
-   its label, title and metadata inside a single .titleblock for
-   that reason.
+   Each theme uses three colours: background, foreground and link.
    ============================================================ */
-
-
-/* ======
-   FONTS
-   ====== */
-
-@font-face {
-    font-family: "TeX Gyre Pagella";
-    src: url("../fonts/TeXGyrePagella-Regular.woff2") format("woff2"),
-         url("../fonts/TeXGyrePagella-Regular.woff") format("woff");
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "TeX Gyre Pagella";
-    src: url("../fonts/TeXGyrePagella-Italic.woff2") format("woff2"),
-         url("../fonts/TeXGyrePagella-Italic.woff") format("woff");
-    font-weight: normal;
-    font-style: italic;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "TeX Gyre Pagella";
-    src: url("../fonts/TeXGyrePagella-Bold.woff2") format("woff2"),
-         url("../fonts/TeXGyrePagella-Bold.woff") format("woff");
-    font-weight: bold;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "TeX Gyre Pagella";
-    src: url("../fonts/TeXGyrePagella-BoldItalic.woff2") format("woff2"),
-         url("../fonts/TeXGyrePagella-BoldItalic.woff") format("woff");
-    font-weight: bold;
-    font-style: italic;
-    font-display: swap;
-}
 
 
 /* ======
@@ -79,467 +20,121 @@
    ====== */
 
 :root {
-    /* ---- grid ---- */
-    /* Fractional widths are not a way to go thinner. Browsers floor a
-       border to whole device pixels, so 1.5px computes to 1px on a
-       standard display and renders at 1.5 only on a retina one — the rule
-       would then survive on one screen and vanish on another. */
-    --rule: 2px;
+    --bg: #0000ff;
+    --fg: #ffffff;
+    --link: #ff0000;
 
-    /* Style of every rule on the page, horizontal and vertical alike.
-       solid | dashed | dotted — or any border-style keyword. */
-    --rule-style: solid;
+    --font-body: serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+    --font-size-sm: 0.8rem;
 
-    --page-max: 1680px;
-
-    /* --measure is the line length of the body copy and is the number to
-       tune when the text reads long or short. --pad-x is the gutter
-       between a column rule and whatever sits inside it. The width of the
-       middle track follows from the two, so changing either one keeps the
-       measure and the gutters in step at every breakpoint. */
-    --measure: 45rem;
-    --pad-x: 3.5rem;
-    --col-main: calc(var(--measure) + 2 * var(--pad-x));
-
-    /* The right track is a fixed width, not a share. That is what lets
-       the middle and right tracks together be centred: the flexible
-       track on each side of them then resolves to the same width. Widen
-       it for a roomier contents column, at the cost of the left track. */
-    --col-right: 22rem;
-
-    --nav-h: 3.25rem;
-    --footer-h: 21rem;   /* the band is a deliberate stop, not a strip */
-    --gallery-h: 15rem;  /* common height for images in a .gallery band */
-
-    /* The one column template, shared by every row and by the nested
-       .content grid so the tracks line up exactly.
-
-       Middle and right sit together as one block, with a rule on each
-       side of it and an equal flexible track beyond each rule. There is
-       no rule between middle and right — they are one block, not two —
-       and the trailing track carries no content. It exists so that the
-       block it balances lands on the centre of the screen. */
-    --cols:
-        [left-start] minmax(0, 1fr)
-        [left-end] var(--rule)
-        [main-start] minmax(0, var(--col-main))
-        [main-end right-start] var(--col-right)
-        [right-end] var(--rule)
-        [tail-start] minmax(0, 1fr)
-        [tail-end];
-
-    /* ---- spacing scale ---- */
     --space-xs: 0.5rem;
     --space-sm: 1rem;
     --space-md: 1.5rem;
     --space-lg: 2.25rem;
     --space-xl: 4rem;
 
-    /* --pad-x is declared with the grid above, since the width of the
-       middle track is derived from it. */
-    --pad-y: 2rem;
-
-    /* ---- type ---- */
-    --font-body: "TeX Gyre Pagella", Palatino, "Palatino Linotype", Georgia, serif;
-    --font-ui: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-    --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
-    --font-size-sm: 0.8rem;
-    --underline-offset: 0.18em;
-    --underline-thickness: 1px;
-
-    /* ---- palette ---- */
-
-    /* Light pair */
-    --ink-light: #111111;
-    --ink-mute-light: #6b6b6b;
-    --panel-light: #ffffff;
-    --panel-alt-light: #f4f4f4;
-    --border-light: #dcdcdc;
-    /* Dark pair */
-    --ink-dark: #ededed;
-    --ink-mute-dark: #9a9a9a;
-    --panel-dark: #141414;
-    --panel-alt-dark: #1e1e1e;
-    --border-dark: #2e2e2e;
-
-    /* The two hues in an otherwise grayscale page. Same in both themes. */
-    /* Used sparingly — currently just the running head's home link on
-       hover. */
-    --link-highlight: #0059ff;
-    /* A fixed tint rather than a themed one — the footer band and code
-       blocks are the two places the page departs from black-and-white on
-       purpose, and they stay this colour in both themes rather than
-       inverting with everything else. */
-    --accent-bg: #7bcde6;
-
-    /* ---- active tokens (light by default) ---- */
-    --ink: var(--ink-light);
-    --ink-mute: var(--ink-mute-light);
-    --panel: var(--panel-light);
-    /* --panel as an actual colour, for anything that needs to paint with
-       the ground rather than sit on it. They are the same value today; the
-       pair exists so a theme can make --panel transparent, to let a page
-       ground show through the rows, without breaking those uses. */
-    --panel-solid: var(--panel-light);
-    --panel-alt: var(--panel-alt-light);
-    /* Every rule on the page is drawn in the ink colour, so the frame
-       carries the same weight as the writing inside it. Derived rather
-       than declared per theme: --ink is already themed, and substitution
-       happens where it is used. The exception is inside the footer band,
-       where the rules invert to the page colour instead. */
-    --hair: var(--ink);
-    --border: var(--border-light);
-
-    /* What the page itself is painted with. Its own token rather than a
-       second use of --panel, so a theme can give the page a ground that is
-       not simply the panel colour. */
-    --page-bg: var(--panel);
-
-    /* The footer band is tinted rather than inverted, so it keeps its own
-       colour in both themes instead of flipping with everything else.
-       The text is fixed dark to stay legible against it either way. */
-    --footer-bg: var(--accent-bg);
-    --footer-ink: var(--ink-light);
+    /* The height of the part of the bar that holds the logo, title and
+       sun. It is 4em at the 1.1rem body size. */
+    --bar-h: 4.4rem;
+    /* Extra space at the top of the bar, above the logo, title and sun.
+       It makes the bar taller, so the page title moves down by the
+       same amount. */
+    --bar-top: 2rem;
+    /* The height of the logo in the bar. */
+    --logo-h: 2rem;
+    /* The gap between the bar and the page title. The overlay under the
+       bar fills this gap. */
+    --bar-gap: 2.625rem;
 }
 
-@media (prefers-color-scheme: dark) {
-    :root:not([data-theme]) {
-        --ink: var(--ink-dark);
-        --ink-mute: var(--ink-mute-dark);
-        --panel: var(--panel-dark);
-        --panel-solid: var(--panel-dark);
-        --panel-alt: var(--panel-alt-dark);
-        --border: var(--border-dark);
-    }
-}
-
+/* The sun button swaps the foreground and background colours. */
 [data-theme="dark"] {
-    --ink: var(--ink-dark);
-    --ink-mute: var(--ink-mute-dark);
-    --panel: var(--panel-dark);
-    --panel-solid: var(--panel-dark);
-    --panel-alt: var(--panel-alt-dark);
-    --border: var(--border-dark);
-}
-
-/* Photographs are the only thing on the page that is not black
-   and white. In dark mode they are held back so they do not
-   glare, and hover lifts them again — pointer devices only,
-   because without a pointer the tint could never be undone. */
-@media (hover: hover) and (pointer: fine) {
-    @media (prefers-color-scheme: dark) {
-        :root:not([data-theme]) img { opacity: 0.82; }
-        :root:not([data-theme]) img:hover { opacity: 1; }
-    }
-    [data-theme="dark"] img { opacity: 0.82; }
-    [data-theme="dark"] img:hover { opacity: 1; }
+    --bg: #ffffff;
+    --fg: #0000ff;
 }
 
 
-/* ==============
-   PAGE SKELETON
-   ============== */
+/* =====
+   PAGE
+   ===== */
 
 *, *::before, *::after { box-sizing: border-box; }
 
 body {
+    max-width: calc(40em + 8em);
     margin: 0;
-    background: var(--page-bg);
-    color: var(--ink);
+    padding: 0 4em;
+    background: var(--bg);
+    color: var(--fg);
     font-family: var(--font-body);
-    font-size: 1.0625rem;
-    line-height: 1.55;
+    font-size: 1.1rem;
+    line-height: 1.3;
     -webkit-font-smoothing: antialiased;
 }
 
-.page {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    background: var(--panel);
-}
-
-/* Every row is the same grid. The row itself runs the full width
-   of the window and its padding is what holds the columns to
-   --page-max, so a border on the row reaches both edges of the
-   screen while the columns inside it stay centred. */
-.row {
-    position: relative;
-    display: grid;
-    grid-template-columns: var(--cols);
-    background: var(--panel);
-    padding-inline: max(0px, calc((100% - var(--page-max)) / 2));
-}
-
-/* The two vertical rules. They are grid items placed in the
-   hairline tracks, so they need no markup and cannot drift out
-   of line with the tracks they separate. align-self is set
-   explicitly because a row that aligns its own children some
-   other way would otherwise collapse these to nothing.
-
-   They are drawn under the content. A figure that crosses a rule
-   covers it, so the line breaks for the height of the image and
-   picks up again below. Captions are kept clear of the rules
-   instead of painting over them — see the figure rules further
-   down — so the only thing that ever interrupts a line is a
-   picture. */
-/* TEMPORARY — the vertical rules are off. The pseudo-elements that draw
-   them are simply not rendered, so the tracks they separated show the panel
-   colour like the rest of the row.
-
-   To put them back, delete the `display: none` below. Everything else is
-   intact: the placement, the border and the colour. */
-.row::before,
-.row::after {
-    content: "";
-    display: none;
-    grid-row: 1;
-    align-self: stretch;
-    border-left: var(--rule) var(--rule-style) var(--hair);
-    z-index: 0;
-    pointer-events: none;
-}
-
-.row::before { grid-column: left-end / main-start; }
-.row::after  { grid-column: right-end / tail-start; }
-
-/* The running head is sticky, so it sits over the top of whatever an
-   anchor link jumps to. Every element that can be a link target reserves
-   its height above itself, which is the offset the browser then scrolls
-   to instead of the element's own top edge. Headings, footnotes and their
-   back-references all carry ids, so this is keyed on the attribute rather
-   than a list of tags. */
+/* The bar covers the top of the window, so a link to a heading stops
+   below the bar and its gap. */
 [id] {
-    scroll-margin-top: calc(var(--nav-h) / 3 + var(--nav-h) + var(--space-md));
+    scroll-margin-top: calc(var(--bar-top) + var(--bar-h) + var(--bar-gap));
 }
-
-/* Where a figure meets a column rule it runs right up to it, and
-   where it meets the outer edge of the page it keeps the same
-   gutter as everything else. Stopping a gutter's width short of
-   a rule was what made a crossing figure look accidental: the
-   edge landed near the line without landing on it.
-
-   .wide fills the centred block exactly, from the rule on its
-   left to the rule on its right, so it crosses neither. */
-.content > .wide     { padding-left: 0; padding-right: 0; }
-
-/* The caption is prose, so it keeps the gutter the figure gave up. */
-.wide > figcaption { padding-left: var(--pad-x); }
-
-/* .wide-alt and .full reach back across the rule at the left of the
-   middle column, and the image is painted over it. A caption cannot be
-   treated the same way: it has no background, so a rule would run
-   straight through the words. These two figures are therefore subgrids
-   of the page grid, which lets the caption be placed on the middle
-   column while the picture above it still spans the whole figure.
-
-   A subgrid lines its tracks up with the parent's, so the figure itself
-   can carry no padding — padding would shift the tracks out of step. The
-   page gutter moves onto the picture instead, where border-box sizing
-   makes it read as a margin without disturbing the aspect ratio. */
-.content > :is(figure, div).wide-alt,
-.content > :is(figure, div).full {
-    display: grid;
-    grid-template-columns: subgrid;
-    padding: 0;
-    position: relative;
-    z-index: 1;
-}
-
-.content > :is(figure, div).wide-alt > *,
-.content > :is(figure, div).full > * { grid-column: 1 / -1; }
-
-.content > :is(figure, div).wide-alt > :not(figcaption),
-.content > :is(figure, div).full > :not(figcaption) { padding-left: var(--pad-x); }
-
-.content > :is(figure, div).wide-alt > figcaption,
-.content > :is(figure, div).full > figcaption {
-    grid-column: main-start / main-end;
-    padding-inline: var(--pad-x);
-}
-
-/* The subgrid above is for pictures and their captions. Anything else that
-   spans a rule — a hand-written table, say — has no image to cover the line
-   with, so it masks it with the panel colour instead. */
-.content > :not(figure, div).wide,
-.content > :not(figure, div).wide-alt,
-.content > :not(figure, div).full {
-    position: relative;
-    z-index: 1;
-    background: var(--panel);
-}
-
-
-/* ===========
-   COLUMN SPANS
-   =========== */
-
-/* The default: one column of body copy. */
-.row > *,
-.content > * {
-    grid-column: main-start / main-end;
-}
-
-.at-left  { grid-column: left-start / left-end; }
-.at-right { grid-column: right-start / right-end; }
-
-/* A side note hangs in the right track beside the copy it belongs to.
-   It is given no height, so it takes no part in sizing the grid row and
-   cannot open a gap in the middle column; the figure simply overflows
-   downward from the line it starts on. The cost is that two side notes
-   close together will overlap, so space them by a screenful of copy. */
-.side {
-    grid-column: right-start / right-end;
-    align-self: start;
-    height: 0;
-    margin-bottom: 0;
-}
-.wide      { grid-column: main-start / right-end; }
-.wide-alt  { grid-column: left-start / main-end; }
-.full      { grid-column: left-start / right-end; }
-
 
 
 /* ============
    RUNNING HEAD
    ============ */
 
-/* Sticky rather than fixed: the row keeps its place in the flow, so the
-   header below it never has to be padded down by hand. It carries no
-   navigation — the site is small enough that the mark in the header below
-   is the only way back to the index — just a running title and the theme
-   toggle.
-
-   The bar still sits flush against the top of the screen — top: 0,
-   unchanged — because it's the content inside that's pushed down, not the
-   box itself. align-items: end holds the title and toggle against the
-   bottom of the box, so the space above them (a third of a bar-height,
-   here) reads as padding inside the bar rather than a gap between the bar
-   and the edge of the screen. Height is that top space plus one bar-height
-   for the content row itself. */
+/* The logo and the sun are always shown. The page title appears between
+   them after the h1 has scrolled under the bar. The script in the
+   header include sets the classes that control this. */
 .runhead {
     position: sticky;
     top: 0;
     z-index: 20;
-    height: calc(var(--nav-h) / 3 + var(--nav-h));
-    /* .page is a column flex container, so this row is a flex item on its
-       cross axis. Without this, the row's used width can't go below its
-       children's min-content size, and a long title measured with its
-       real text width — nowrap and off until scroll, but not shrunk to
-       zero for min-content purposes — pushes the row wider than the
-       viewport and the toggle off the edge of it. */
-    min-width: 0;
-    align-items: end;
-    font-family: var(--font-ui);
-    font-size: 0.8125rem;
-    letter-spacing: 0.02em;
+    display: flex;
+    align-items: center;
+    height: calc(var(--bar-top) + var(--bar-h));
+    padding-top: var(--bar-top);
+    background: var(--bg);
 }
 
-/* Content passing underneath dissolves into the bar rather than meeting a
-   hard edge. A gradient painted on the bar's own background would fade the
-   title and toggle with it, so this is a separate layer instead, sitting
-   flush against the bar (top: 100%, no gap in the positioning itself).
-   The gap between the g/title/folio and where the fade visibly starts —
-   twice the padding that already sits above them inside the bar, so the
-   two read as a deliberate pair rather than one arbitrary number — is
-   inside this same element instead: solid panel colour for that first
-   stretch, so it reads as part of the bar rather than a hole in it, then
-   three lines of body copy fading to transparent below that. One element
-   rather than two, because a plain solid block above a separately
-   positioned fade would leave the gap between them uncovered — nothing
-   painting it, so scrolling content shows through there instead of the
-   bar's own colour.
-
-   display, grid-column and border-left are all set explicitly because
-   .runhead is also a .row, and .row::before/.row::after above (the
-   vertical rules' off switch, further down the file) already claims
-   .runhead's own ::after at equal specificity. Left unset, each is won by
-   that earlier rule instead of this one: display:none renders nothing at
-   all; grid-column: right-end / tail-start is the same trap as .row >
-   .rule-h and .row > .band elsewhere — an absolutely positioned grid
-   child with a definite placement takes that track as its containing
-   block instead of the row's full width, so left/right: 0 draws a sliver
-   a couple of pixels wide rather than a strip the width of the page; and
-   border-left is a solid 2px line in the ink colour, which is the column
-   hairline this element would have drawn had it stayed a plain .row::after
-   — visible down the left edge of the screen with nothing else to explain
-   it. */
+/* An overlay fills the gap under the bar. It is solid for the top two
+   thirds and fades to transparent in the last third, so text that
+   scrolls under the bar fades out. */
 .runhead::after {
     content: "";
-    display: block;
-    grid-column: auto;
-    grid-row: auto;
-    border-left: none;
     position: absolute;
     top: 100%;
     left: 0;
     right: 0;
-    height: calc(var(--nav-h) * 2 / 3 + 1.0625rem * 1.55 * 3);
+    height: var(--bar-gap);
     background: linear-gradient(
         to bottom,
-        var(--panel) 0,
-        var(--panel) calc(var(--nav-h) * 2 / 3),
+        var(--bg) 0,
+        var(--bg) calc(100% * 2 / 3),
         transparent 100%
     );
     pointer-events: none;
 }
 
-/* The way home, aligned to the outer edge of the body copy rather than the
-   margin — flush with where a paragraph starts, the way a verso folio
-   sits at the outer edge of the text block in a printed book, not the
-   outer edge of the page. Shares .runhead-title's grid area (main-start /
-   main-end) rather than owning a track of its own: three items — this,
-   the title, the folio — can occupy the same area at once, since
-   justify-self is what actually places each one (start, centre, end),
-   not the grid area. grid-row: 1 is needed to make that true — items
-   that share a column but not a row are auto-placed into separate rows
-   to avoid overlapping, which is exactly what should NOT happen here.
-
-   Hidden until the title is, and for the same reason: both only make
-   sense once the reader has scrolled past the real h1 and the page
-   header they belong to has gone. The rule lives here rather than beside
-   .runhead-title because :has() needs the parent, not either sibling. */
+/* The logo, the title and the sun are centred vertically in the bar. */
 .runhead-home {
-    grid-column: main-start / main-end;
-    grid-row: 1;
-    justify-self: start;
-    padding: 0 var(--pad-x);
-    font-family: var(--font-body);
-    font-size: 1.125rem;
     line-height: 1;
-    color: var(--ink);
-    text-decoration: none;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.25s ease, color 0.15s ease;
 }
 
-.runhead-home:hover,
-.runhead-home:focus-visible {
-    color: var(--link-highlight);
+.runhead-home svg {
+    display: block;
+    height: var(--logo-h);
+    width: auto;
 }
 
-.runhead:has(.runhead-title.is-visible) .runhead-home {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-/* Hidden until the page's own h1 scrolls out from under this bar — see the
-   IntersectionObserver in the header include. Centred on the main column
-   only, not the contents track beside it, the way a running head sits
-   over the text block on a printed page rather than over the whole leaf.
-   Its own opacity transition is what makes the change a fade rather than
-   a cut, in both directions. */
 .runhead-title {
-    grid-column: main-start / main-end;
-    grid-row: 1;
-    justify-self: center;
-    max-width: 100%;
-    padding: 0 var(--pad-x);
-    overflow: hidden;
-    color: var(--ink);
+    flex: 1;
+    min-width: 0;
+    font-size: 1.2rem;
     text-align: center;
     white-space: nowrap;
+    overflow: hidden;
     text-overflow: ellipsis;
     opacity: 0;
     transition: opacity 0.25s ease;
@@ -547,258 +142,94 @@ body {
 
 .runhead-title.is-visible { opacity: 1; }
 
-/* The page's own h1 fades the other way as it leaves, so the two never
-   show at once. */
-.pagehead h1 {
-    transition: opacity 0.25s ease;
-}
-
-.pagehead h1.is-faded { opacity: 0; }
-
-/* A folio, the way a book prints its page number in the running head —
-   current over total, aligned to the other outer edge of the body copy
-   from .runhead-home, the way a recto folio sits opposite a verso one.
-   Same grid area as the title and the home link, same visibility rule,
-   for the same reasons as .runhead-home above. Text is set by the script
-   in the header include on scroll; a "page" there is one viewport
-   height, so the count advances the way it would if this were turned
-   leaves rather than a continuous scroll. */
-.runhead-folio {
-    grid-column: main-start / main-end;
-    grid-row: 1;
-    justify-self: end;
-    padding: 0 var(--pad-x);
-    line-height: 1;
-    font-variant-numeric: oldstyle-nums;
-    color: var(--ink-mute);
-    white-space: nowrap;
-    opacity: 0;
-    transition: opacity 0.25s ease;
-}
-
-.runhead:has(.runhead-title.is-visible) .runhead-folio {
-    opacity: 1;
-}
-
-/* Unlike the three above, always on — the theme toggle needs to be
-   reachable before you've scrolled anywhere. line-height: 1 matches the
-   others so all four sit on the same baseline despite the very different
-   font sizes. */
 .runhead-toggle {
-    grid-column: right-start / right-end;
-    grid-row: 1;
-    justify-self: end;
-    margin-right: var(--pad-x);
-    background: none;
-    border: none;
-    cursor: pointer;
-    font: inherit;
-    /* Twice the bar's own size. Set after `font: inherit`, which would
-       otherwise reset it back to the row's 0.8125rem. */
-    font-size: 1.625rem;
-    color: var(--ink);
     padding: 0;
+    border: none;
+    background: none;
+    color: var(--fg);
+    font: inherit;
+    font-size: 1.25rem;
     line-height: 1;
-    opacity: 0.7;
+    cursor: pointer;
 }
 
 .runhead-toggle:hover,
 .runhead-toggle:focus-visible {
-    opacity: 1;
-    color: var(--link-highlight);
+    color: var(--link);
 }
 
 
-/* ==========
-   PAGE HEADER
-   ========== */
+/* =========
+   PAGE HEAD
+   ========= */
 
-/* The mark is the home link, and it lives in the header's left track
-   rather than in the nav — the left track is otherwise empty margin, and at
-   this size the mark has somewhere to be. It hangs to the right of that
-   track, so it sits just outside the title rather than adrift in the
-   margin. */
-.pagehead .brand {
-    grid-column: left-start / left-end;
-    justify-self: end;
-    align-self: center;
-    display: flex;
-    padding: 0.6rem;
-}
-
-.pagehead .brand svg {
-    display: block;
-    height: 4.875rem;
-    width: auto;
-}
-
-/* Label, title and metadata are one block in the middle column.
-   Keeping them together leaves the left and right tracks empty,
-   which is what lets the vertical rules run the height of the
-   header, and it keeps every child of the row in grid row 1. */
-.pagehead .titleblock {
-    grid-column: main-start / main-end;
-    padding: calc(var(--pad-y) * 1.75) var(--pad-x) calc(var(--pad-y) * 1.5);
-}
-
-.pagehead .eyebrow {
-    margin-bottom: var(--space-xs);
-    font-family: var(--font-ui);
-    font-size: var(--font-size-sm);
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--ink-mute);
+.pagehead {
+    padding: var(--bar-gap) 0 var(--space-md);
 }
 
 .pagehead h1 {
     margin: 0;
-    color: var(--ink);
-    font-size: 2.5rem;
+    font-size: 2em;
+    font-weight: bold;
     line-height: 1.1;
-    font-weight: normal;
-    letter-spacing: -0.015em;
     text-wrap: balance;
+    transition: opacity 0.25s ease;
 }
 
-/* The fields run along one line under the title rather than
-   stacking, so the block stays shallow however many there are. */
+/* The h1 fades out as the running title fades in. */
+.pagehead h1.is-faded { opacity: 0; }
+
 .pagehead .meta {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
     gap: 0.4rem;
     margin: var(--space-md) 0 0;
-    font-family: var(--font-ui);
     font-size: var(--font-size-sm);
-    color: var(--ink-mute);
 }
 
 .pagehead .meta dt { text-transform: uppercase; letter-spacing: 0.1em; }
-.pagehead .meta dd { margin: 0; color: var(--ink); }
+.pagehead .meta dd { margin: 0; }
 .pagehead .meta dd + dt { margin-left: var(--space-md); }
-
-
-/* =======
-   ARTICLE
-   ======= */
-
-/* The article row grows so the footer is pushed to the bottom of
-   short pages. */
-.article { flex: 1; }
-
-/* .content spans the whole row and repeats the same tracks, so
-   its children can be placed in any column while still being
-   one flow of prose. */
-.content {
-    grid-column: left-start / tail-end;
-    grid-row: 1;
-    display: grid;
-    grid-template-columns: var(--cols);
-    grid-auto-flow: row dense;
-    align-content: start;
-    padding: var(--pad-y) 0 var(--space-xl);
-}
-
-.content > * {
-    padding-left: var(--pad-x);
-    padding-right: var(--pad-x);
-}
-
-/* Items that reach into a side track keep the same inner edge as
-   the body copy, so the text block never shifts. */
-.wide-alt, .full { padding-left: var(--pad-x); }
 
 
 /* ========
    CONTENTS
    ======== */
 
-/* Sibling of .content, not a child of it, and in the same grid
-   row. That makes its containing block the full height of the
-   article, which is what lets it stay stuck for the whole scroll.
-   At rest it lines up with the top of the article; once the
-   article has run up under the nav it stops at the nav's lower
-   edge. */
 .toc {
-    grid-column: right-start / right-end;
-    grid-row: 1;
-    align-self: start;
-    position: sticky;
-    top: var(--nav-h);
-    z-index: 2;
-    max-height: calc(100vh - var(--nav-h));
-    overflow-y: auto;
-    padding: var(--pad-y) var(--pad-x) var(--space-lg);
-    font-family: var(--font-ui);
+    padding-bottom: var(--space-md);
+    border-bottom: 1px dashed var(--fg);
     font-size: var(--font-size-sm);
     line-height: 1.45;
-    background: var(--panel);
 }
 
 .toc h2 {
     margin: 0 0 var(--space-sm);
-    padding: 0 0 var(--space-xs);
-    font-family: var(--font-ui);
+    padding-bottom: var(--space-xs);
+    border-bottom: 1px solid var(--fg);
     font-size: var(--font-size-sm);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
     font-weight: 600;
-    text-transform: uppercase;
     letter-spacing: 0.12em;
-    color: var(--ink-mute);
-    border-bottom: 1px solid var(--border);
 }
 
 .toc ul { margin: 0; padding: 0; list-style: none; }
 .toc ul ul { padding-left: var(--space-sm); }
 .toc li { margin: 0.35em 0; }
+.toc a { text-decoration: none; }
 
-.toc a {
-    color: var(--ink-mute);
-    text-decoration: none;
-}
-
-.toc a:hover,
-.toc a:focus-visible {
-    color: var(--link-highlight);
-}
-
-.toc a[aria-current="true"] {
-    color: var(--ink);
-}
-
-/* The contents owns the right track. Anything that would have
-   reached into it steps back to the main column so the two
-   cannot overlap. */
-.article:has(> .toc) .content .wide { grid-column: main-start / main-end; }
-.article:has(> .toc) .content .full { grid-column: left-start / main-end; }
-
-/* A side note is given no height so that it can hang in the margin
-   without sizing the grid row it starts in. Stepping back into the
-   middle column takes the margin away, so the height has to come
-   back with it — otherwise the note occupies no row of its own and
-   whatever follows is drawn straight over the top of it. */
-.article:has(> .toc) .content .side {
-    grid-column: main-start / main-end;
-    height: auto;
-    margin-bottom: var(--space-lg);
-}
+.toc + .content { padding-top: var(--space-md); }
 
 
 /* ==========
    TYPOGRAPHY
    ========== */
 
-p { margin: 0 0 var(--space-sm); }
-
-/* Markers inside the text column rather than hanging in the gutter to its
-   left — list-style-position defaults to outside, which draws the
-   bullet or number past the same left edge everything else in .content
-   lines up on. */
-.content ul,
-.content ol {
-    list-style-position: inside;
+.content {
+    padding: var(--space-sm) 0 var(--space-xl);
 }
+
+p { margin: 0 0 var(--space-sm); }
 
 p, li, blockquote {
     text-align: justify;
@@ -806,104 +237,72 @@ p, li, blockquote {
     -webkit-hyphens: auto;
 }
 
-h2, h3, h4 {
-    font-weight: normal;
-    text-wrap: balance;
+.content ul,
+.content ol {
+    padding-left: 0;
+    list-style-position: inside;
 }
 
-/* Same size as the body copy — weight, style and margin are what mark
-   these as headings now, not scale. The contents heading opts back out
-   below, since it is a label rather than a heading in the article. */
+h2, h3, h4 { text-wrap: balance; }
+
 h2 {
-    margin: var(--space-xl) 0 var(--space-xs);
-    font-family: var(--font-body);
-    font-size: 1.0625rem;
-    font-weight: normal;
+    margin: calc(var(--space-xl) / 2) 0 var(--space-xs);
+    font-size: 1.2em;
+    font-weight: bold;
     line-height: 1.15;
-    text-wrap: balance;
+    text-transform: uppercase;
 }
 
 h3 {
-    margin: var(--space-lg) 0 var(--space-xs);
-    font-size: 1.0625rem;
+    margin: calc(var(--space-lg) / 2) 0 var(--space-xs);
+    font-size: 1em;
+    font-weight: normal;
     font-style: italic;
 }
 
-/* h4 is treated as LaTeX's \paragraph{}: bold, closed with a full stop,
-   run straight into the text that follows rather than sitting on its own
-   line. The merge happens at the HTML level, not here — the generator
-   folds a heading and the paragraph after it into one <p>, with the
-   heading text as a <strong class="run-in-h4"> at the front of it, since
-   .content is a grid and grid blockifies every direct child regardless
-   of its own display value, which rules out any pure-CSS way to run two
-   separate grid-item elements onto one line. This rule is what that
-   merged span looks like. */
-.run-in-h4 {
-    font-family: var(--font-ui);
-    font-weight: 600;
-}
+/* h4 works like LaTeX's \paragraph{}: bold, ends with a full stop, and
+   runs into the paragraph after it. The generator puts the heading
+   inside that paragraph as .run-in-h4. A plain h4 is used only when no
+   paragraph follows. */
+.run-in-h4 { font-weight: 600; }
 
-/* The one case the generator can't merge — a heading with nothing to run
-   into (nothing follows it, or what follows isn't a paragraph) falls
-   back to an ordinary block heading instead. */
 h4 {
-    margin: var(--space-md) 0 var(--space-xs);
-    font-family: var(--font-ui);
+    margin: calc(var(--space-md) / 2) 0 var(--space-xs);
     font-weight: 600;
 }
 
-h4::after {
-    content: ".";
-}
+h4::after { content: "."; }
 
 :is(h1, h2, h3, h4) + * { margin-top: 0; }
 
-/* First paragraph of the article, set larger as a standfirst. */
-.content > .lede {
-    font-size: 1.25rem;
-    line-height: 1.45;
-    margin-bottom: var(--space-sm);
-}
-
-/* Links sit in body colour and are marked only by the dotted
-   rule, so a paragraph full of them keeps an even texture. */
+/* Links use the foreground colour with a dotted underline, and the link
+   colour on hover. */
 a {
-    color: var(--ink);
-    text-decoration-line: underline;
-    text-decoration-style: dotted;
-    text-underline-offset: var(--underline-offset);
-    text-decoration-thickness: var(--underline-thickness);
+    color: var(--fg);
+    text-decoration: underline dotted 1px;
+    text-underline-offset: 0.18em;
     text-decoration-skip-ink: none;
 }
 
 a:hover, a:focus-visible {
-    color: var(--link-highlight);
+    color: var(--link);
     text-decoration-line: none;
 }
 
 blockquote {
     margin: var(--space-md) 0;
-    border-left: 2px solid var(--ink);
-    font-style: italic;
-}
-
-/* The quote's own rule has to start where the body copy starts, not at
-   the column track edge, or it reads as a second column hairline. */
-.content > blockquote {
-    margin-left: var(--pad-x);
     padding-left: var(--space-md);
+    border-left: 2px solid var(--fg);
+    font-style: italic;
 }
 
 blockquote p:last-child { margin-bottom: 0; }
 
 hr {
-    border: none;
-    border-top: 1px solid var(--border);
     margin: var(--space-lg) 0;
+    border: none;
+    border-top: 1px solid var(--fg);
 }
-
-.sc { font-variant-caps: small-caps; }
-.all-sc { font-variant-caps: all-small-caps; }
 
 
 /* =====
@@ -912,144 +311,96 @@ hr {
 
 figure {
     margin: var(--space-md) 0 var(--space-lg);
-    padding: 0;
 }
 
 img {
     display: block;
     width: 100%;
     height: auto;
-    transition: opacity 300ms ease;
-}
-
-@media (prefers-reduced-motion: reduce) {
-    img { transition: none; }
 }
 
 figcaption {
-    margin-top: var(--space-xs);
     max-width: 46ch;
-    font-family: var(--font-ui);
+    margin-top: var(--space-xs);
     font-size: var(--font-size-sm);
     line-height: 1.35;
-    color: var(--ink-mute);
-    text-align: left;
 }
 
-/* Images in a gallery are cropped to one height rather than left at their
-   own aspect ratios, so the row reads as a single band instead of a ragged
-   edge. --gallery-h is the band height. */
+/* Images in a gallery sit in one row and are cropped to one height. */
 .gallery {
     display: flex;
-    gap: var(--rule);
+    gap: 2px;
 }
 
 .gallery figure { flex: 1; min-width: 0; margin: 0; }
 
 .gallery img {
-    height: var(--gallery-h);
+    height: 15rem;
     object-fit: cover;
 }
 
 
-/* ==============
+/* ===============
    TABLES AND CODE
-   ============== */
+   =============== */
 
-/* Separate rather than collapse: a collapsed table ignores padding on
-   its own box, which would let it run out to the column hairlines while
-   every paragraph around it stays on the measure. Cell borders are
-   bottom-only, so nothing doubles up. */
 table {
-    border-collapse: separate;
-    border-spacing: 0;
     width: 100%;
     margin: var(--space-md) 0;
-    font-family: var(--font-ui);
+    border-collapse: collapse;
     font-size: var(--font-size-sm);
 }
 
 th, td {
-    border-bottom: 1px solid var(--border);
     padding: 0.5em 0.75em 0.5em 0;
+    border-bottom: 1px solid var(--fg);
     text-align: left;
     vertical-align: top;
 }
 
 th {
+    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    font-weight: 600;
-    color: var(--ink-mute);
-    border-bottom-color: var(--ink);
 }
 
-/* No fill — a dotted rule above and below instead, the same device as a
-   blockquote's side rule: marking quoted material by framing it rather
-   than by painting a panel behind it. */
 pre {
-    font-family: var(--font-mono);
+    margin: var(--space-md) 0;
+    padding: var(--space-md) 0;
+    overflow-x: auto;
+    border-top: 1px dotted var(--fg);
+    border-bottom: 1px dotted var(--fg);
     font-size: var(--font-size-sm);
     line-height: 1.5;
-    overflow-x: auto;
-    border-top: var(--underline-thickness) dotted var(--ink);
-    border-bottom: var(--underline-thickness) dotted var(--ink);
 }
 
 code {
     font-family: var(--font-mono);
     font-size: 0.875em;
-    background: var(--panel-alt);
-    padding: 0.1em 0.3em;
 }
 
-pre code { background: none; padding: 0; }
-
-/* Margin rather than .content > *'s usual padding on the sides, so the
-   block — and the rules top and bottom, which sit on its own border —
-   stop at the same edges as the text column instead of bleeding out to
-   the column rules. */
-.content > pre {
-    margin: var(--space-md) var(--pad-x);
-    padding: var(--space-md) 0;
-}
+pre code { font-size: inherit; }
 
 
 /* =========
    HOME PAGE
    ========= */
 
-/* Set by `class: home` in the index's front matter, which the generator puts
-   on the .content element. The index is a table of contents for the site, so
-   its lists are navigation rather than prose — they keep <ul> for the
-   semantics and the screen-reader item count, but lose the bullets and the
-   indent. */
-/* Only the bullets come off. The left padding is not the browser's list
-   indent here — .content > * has already replaced that with the column
-   gutter — so zeroing it would hang the whole list outside the measure. */
-.home ul {
-    list-style: none;
-    margin-top: 0;
-}
-
+/* `class: home` in the index's front matter puts .home on .content.
+   Its lists are navigation, so they have no bullets. */
+.home ul { margin-top: 0; list-style: none; }
 .home li { margin: 0.15em 0; }
-
-.home h2 {
-    margin-top: var(--space-lg);
-    margin-bottom: var(--space-xs);
-}
+.home h2 { margin-top: var(--space-lg); }
 
 
-/* =========
+/* ========
    ENDNOTES
-   ========= */
+   ======== */
 
+/* Space alone separates the notes from the article. */
 .endnotes {
     margin-top: var(--space-xl);
-    padding-top: var(--space-sm);
-    border-top: 1px solid var(--border);
     font-size: 0.9rem;
-    color: var(--ink-mute);
 }
 
 .endnotes ol { padding-left: 1.2em; }
@@ -1059,213 +410,35 @@ pre code { background: none; padding: 0; }
    FOOTER
    ====== */
 
-/* The footer is the one row that is not a white panel. It is
-   filled with the rule colour, so its own vertical rules vanish
-   into the fill and it reads as a single band. */
-/* A deep band rather than a strip, so the end of the page reads as an
-   arrival rather than a trailing edge. Content sits at the top of it: that
-   leaves the room below for the footer's real contents, and it keeps the
-   colophon on a predictable line instead of floating with the band height. */
 .pagefoot {
-    min-height: var(--footer-h);
-    font-family: var(--font-ui);
-    font-size: var(--font-size-sm);
-    color: var(--footer-ink);
-    align-items: start;
-}
-
-/* The band is a real element because both of .pagefoot's pseudo-elements
-   are already spent on the vertical rules, and the fill has to be separated
-   from the footer's text. The overscroll shadow can stay on .pagefoot: an
-   outer box-shadow is clipped to outside the caster's border box, so it
-   cannot seep up through the band. */
-/* Selector is .row > .band, and the grid placement is cleared: an
-   absolutely positioned grid child with a definite placement takes its
-   grid area as the containing block, so .row > * would confine the band
-   to the middle column instead of the whole row. */
-.row > .band {
-    position: absolute;
-    grid-column: auto;
-    grid-row: auto;
-    inset: 0;
-    z-index: 0;
-    background: var(--footer-bg);
-    pointer-events: none;
-}
-
-/* Above the band, which is a later sibling and would otherwise paint over
-   it. */
-.pagefoot .footinner {
-    position: relative;
-    z-index: 1;
-}
-
-/* Above the band, which is a later sibling and would otherwise paint over
-   them. Inert while the rules are hidden, and needed again the moment they
-   come back. */
-.pagefoot::before,
-.pagefoot::after {
-    z-index: 1;
-}
-
-/* Safari rubber-bands past the end of the document and fills what it
-   exposes with the canvas colour, which is the white of the page — so
-   the grey footer appears to stop short during the bounce. The shadow
-   paints a screen-deep band of footer colour below the footer. A shadow
-   is ink rather than layout: it adds no scrollable height, so it is only
-   ever seen during an overscroll. The offset and the spread are equal,
-   which puts the band's top edge exactly on the footer's own. */
-.pagefoot {
-    box-shadow: 0 50vh 0 50vh var(--footer-bg);
-}
-
-/* Same as the nav: the footer's content belongs to the centred block. */
-.footinner {
-    grid-column: main-start / right-end;
     display: flex;
+    flex-wrap: wrap;
     align-items: baseline;
-    gap: var(--space-lg);
-    padding: var(--space-lg) var(--pad-x);
+    gap: var(--space-md);
+    min-height: 10.5rem;
+    padding: var(--space-lg) 0;
+    font-size: var(--font-size-sm);
 }
 
-.pagefoot .footlinks { display: flex; gap: var(--space-md); }
+.pagefoot a { text-decoration: none; }
+.pagefoot a:hover, .pagefoot a:focus-visible { text-decoration: underline; }
 .pagefoot .totop { margin-left: auto; }
 
-.pagefoot a { color: var(--footer-ink); text-decoration: none; }
-.pagefoot a:hover, .pagefoot a:focus-visible { color: var(--link-highlight); text-decoration: underline; }
 
-
-/* ==========
-   RESPONSIVE
-   ========== */
-
-/* Not enough room for three tracks. Everything folds into one column and
-   the hairlines between the tracks go with it — only the rules between
-   the rows are left. The panels still run the full width of the window,
-   but their contents are centred on the measure, so the fold does not
-   stretch the body copy to the width of the screen.
-
-   Placement is re-stated by hand here rather than left to the column line
-   names. A single-track grid would make lines such as right-start and
-   right-end the same line, and an element asked to span between them
-   would open an implicit column instead of collapsing into the one that
-   is left. */
-@media (max-width: 1100px) {
-    :root {
-        --pad-x: 1.75rem;
-        --cols: minmax(0, 1fr);
-    }
-
-    /* --col-main is derived from --measure and --pad-x, so the tighter
-       gutter here narrows the column rather than widening the line. */
-    .row {
-        padding-inline: max(0px, calc((100% - var(--col-main)) / 2));
-    }
-
-    .row::before, .row::after { display: none; }
-
-    /* The running head switches to flex here rather than being repinned
-       like the rest of the grid children below: main-start and right-end
-       collapse to the same line at this width, so a title spanning one and
-       a toggle spanning the other would auto-place onto separate rows
-       instead of overlapping — flex is simpler than fighting that. */
-    .runhead {
-        display: flex;
-        padding-inline: var(--pad-x);
-    }
-
-    .runhead-home { grid-column: auto; padding: 0; }
-    .runhead-title { grid-column: auto; flex: 1; padding: 0; }
-    /* The folio is the first thing to go — there isn't room for a reading
-       gauge once the title and the toggle are already sharing one line. */
-    .runhead-folio { display: none; }
-    .runhead-toggle { grid-column: auto; margin-right: 0; }
-
-    /* The mark loses its track at this width along with everything else
-       in it, and the running head's own "g" already covers the way home
-       — so rather than re-place it, it's simplest to drop it here. */
-    .pagehead .brand { display: none; }
-
-    .row > *,
-    .content,
-    .content > *,
-    .at-left, .at-right,
-    .side, .wide, .wide-alt, .full,
-    /* Repeated at their original specificity so the placements made
-       elsewhere in this file cannot outrank the fold and reopen a
-       column that is supposed to be gone. */
-    .pagehead .titleblock, .footinner,
-    .article:has(> .toc) .content .wide,
-    .article:has(> .toc) .content .side,
-    .article:has(> .toc) .content .full {
-        grid-column: 1 / -1;
-    }
-
-
-    .pagehead .titleblock {
-        padding-top: var(--space-lg);
-        padding-bottom: var(--space-lg);
-    }
-
-    /* The contents leaves the sidebar and becomes a block at the head of
-       the article. The article stays a grid, so the two only swap rows. */
-    .toc {
-        grid-column: 1 / -1;
-        grid-row: 1;
-        position: static;
-        max-height: none;
-        overflow: visible;
-        padding-bottom: var(--space-md);
-        border-bottom: 1px dashed var(--border);
-    }
-
-    .article:has(> .toc) .content {
-        grid-row: 2;
-        padding-top: var(--space-md);
-    }
-
-    /* Nothing hangs in a margin that no longer exists. */
-    .side {
-        height: auto;
-        margin-bottom: var(--space-lg);
-    }
-
-    /* A subgrid has nothing to align to once the tracks are gone, and the
-       middle column it placed captions on no longer exists. These two
-       figures go back to being ordinary blocks with the usual gutters. */
-    .content > :is(figure, div).wide-alt,
-    .content > :is(figure, div).full {
-        display: block;
-        padding-inline: var(--pad-x);
-    }
-
-    .content > :is(figure, div).wide-alt > *,
-    .content > :is(figure, div).full > *,
-    .content > :is(figure, div).wide-alt > figcaption,
-    .content > :is(figure, div).full > figcaption {
-        grid-column: auto;
-        padding-inline: 0;
-    }
-
-    .footinner { flex-wrap: wrap; gap: var(--space-md); }
-}
+/* ===========
+   NARROW SCREENS
+   =========== */
 
 @media (max-width: 640px) {
-    :root {
-        --pad-x: 1.125rem;
-        --pad-y: 1.25rem;
-        --nav-h: 2.75rem;
+    :root { --bar-h: 4rem; }
+
+    body {
+        padding: 0 1em;
+        font-size: 1rem;
     }
-
-    body { font-size: 1rem; }
-
-    .pagehead h1 { font-size: 1.75rem; }
-    .content > .lede { font-size: 1.0625rem; }
 
     .gallery { flex-direction: column; }
     .gallery img { height: auto; }
 
-    /* Two thirds of a phone screen of empty colour is not a pause, it is a
-       dead end. The band comes back down to something proportionate. */
-    :root { --footer-h: 11rem; }
+    .pagefoot { min-height: 5.5rem; }
 }
