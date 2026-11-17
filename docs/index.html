@@ -1,26 +1,195 @@
-
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="css/default.css">
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Baskervville:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-        <title>Benjamin Grayland &mdash; gray.land</title>
-    </head>
-    <body id="top">
-    <div class='page-header'><nav class='local-nav'><ul><li><a href='index.html' class='active'>gray.land</a></li></ul><ul><li><a href='journal/index.html'>journal/</a></li><li><a href='projects/index.html'>projects/</a></li><li><a href='research/index.html'>research/</a></li><li><a href='records/index.html'>records/</a></li><li><a href='shrines/index.html'>shrines/</a></li><li><a href='recipes/index.html'>recipes/</a></li><li><a href='uncategorised/index.html'>uncategorised/</a></li><li><a href='about/index.html'>about/</a></li></ul></nav><h1 class='page-title' id='benjamin-grayland'>Benjamin Grayland</h1></div>
-        <div class="layout">
-            <div class="kicker"><img src="media/eico-2.gif"></div>
-    <div class='text'><p>Hello! I'm a computer science PhD student at RMIT University in Melbourne. In a previous life, I worked in fintech as a product owner and business analyst.</p></div><div class='text'><h2 id='now'>Now</h2><p>I've played a lot of Marathon over the last few weeks. Went to the physio, have some exercises and stretches so hopefully I can start running again before too long.</p></div><div class='text'><p>See my <a href='journal/2026.html'>journal</a> for more.</p></div>
-            <footer class="text">
-                <hr>
-                <div>last updated 2026-04-19 &middot; <a href="site-map.html">site map</a> &middot; <a href="#top">top ↑</a></div>
-            </footer>
-        </div>
-    </body>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/prototype.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+  <title>Benjamin Grayland</title>
+  <script>
+    (function () {
+      var THEMES = ['light', 'dark'];
+      var saved = localStorage.getItem('theme');
+      if (THEMES.indexOf(saved) !== -1) {
+        document.documentElement.setAttribute('data-theme', saved);
+      }
+      document.addEventListener('DOMContentLoaded', function () {
+        var button = document.getElementById('theme-toggle');
+        button.addEventListener('click', function () {
+          var root = document.documentElement;
+          // With no attribute set the page is following the operating
+          // system, so resolve that first — otherwise the first click
+          // would move to the theme already on screen.
+          var current = root.getAttribute('data-theme');
+          if (THEMES.indexOf(current) === -1) {
+            current = window.matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark' : 'light';
+          }
+          var next = THEMES[(THEMES.indexOf(current) + 1) % THEMES.length];
+          root.setAttribute('data-theme', next);
+          localStorage.setItem('theme', next);
+        });
+      });
+
+      // The running head: a small copy of the page title that lives in the
+      // sticky bar and only shows once the real h1 has scrolled out from
+      // under it. An IntersectionObserver watches the h1 against a root
+      // shrunk by the bar's own height, so "intersecting" means "still
+      // below the bar" — the moment it isn't, the two swap places. The
+      // fade itself is a CSS transition on .is-faded/.is-visible; this
+      // only flips the classes.
+      document.addEventListener('DOMContentLoaded', function () {
+        var h1 = document.getElementById('page-title');
+        var bar = document.querySelector('.runhead');
+        var label = document.getElementById('runhead-title');
+        if (!h1 || !bar || !label || !('IntersectionObserver' in window)) return;
+        var barHeight = bar.getBoundingClientRect().height;
+        new IntersectionObserver(function (entries) {
+          var past = !entries[0].isIntersecting;
+          h1.classList.toggle('is-faded', past);
+          label.classList.toggle('is-visible', past);
+        }, { rootMargin: -barHeight + 'px 0px 0px 0px', threshold: 0 }).observe(h1);
+      });
+
+      // The folio: a book's running page number, repurposed here as how
+      // far through the page the reader is. 0% at the very top, 100% once
+      // the bottom of the document has scrolled into view — a plain
+      // fraction of scrollable distance covered, not tied to headings, so
+      // it works the same on every page regardless of how it's sectioned.
+      document.addEventListener('DOMContentLoaded', function () {
+        var folio = document.getElementById('runhead-folio');
+        if (!folio) return;
+        var ticking = false;
+        function update() {
+          ticking = false;
+          var scrollable = document.documentElement.scrollHeight - window.innerHeight;
+          var percent = scrollable <= 0 ? 100 : (window.scrollY / scrollable) * 100;
+          percent = Math.max(0, Math.min(100, Math.round(percent)));
+          folio.textContent = percent + '%';
+        }
+        function onScroll() {
+          if (!ticking) {
+            ticking = true;
+            requestAnimationFrame(update);
+          }
+        }
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', onScroll);
+        update();
+      });
+    })();
+  </script>
+</head>
+<body id="top">
+
+<div class="page">
+
+  <div class="row runhead">
+    <a class="runhead-home" href="index.html" aria-label="gray.land — home">g</a>
+    <span class="runhead-title" id="runhead-title" aria-hidden="true">Benjamin Grayland</span>
+    <span class="runhead-folio" id="runhead-folio" aria-hidden="true"></span>
+    <button id="theme-toggle" class="runhead-toggle" aria-label="Toggle dark and light mode">&#9788;</button>
+  </div>
+
+  <header class="row pagehead">
+    <a class="brand" href="index.html" aria-label="gray.land — home"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="171.667 40.006 168.73 429.5">
+  <g transform="translate(171.667 40.006) scale(15.339)">
+    <path fill="currentColor" fill-rule="evenodd" d="M0 0.12713A0.12713 0.12713 0 0 1 0.12713 0L2.87287 0A0.12713 0.12713 0 0 1 3 0.12713L3 3.87287A0.12713 0.12713 0 0 0 3.12713 4L4.87287 4A0.12713 0.12713 0 0 0 5 3.87287L5 0.12713A0.12713 0.12713 0 0 1 5.12713 0L5.87287 0A0.12713 0.12713 0 0 1 6 0.12713L6 3.87287A0.12713 0.12713 0 0 0 6.12713 4L10.87287 4A0.12713 0.12713 0 0 1 11 4.12713L11 10.87287A0.12713 0.12713 0 0 1 10.87287 11L6.12713 11A0.12713 0.12713 0 0 0 6 11.12713L6 11.87287A0.12713 0.12713 0 0 0 6.12713 12L10.87287 12A0.12713 0.12713 0 0 1 11 12.12713L11 14.87287A0.12713 0.12713 0 0 1 10.87287 15L6.12713 15A0.12713 0.12713 0 0 0 6 15.12713L6 15.87287A0.12713 0.12713 0 0 0 6.12713 16L10.87287 16A0.12713 0.12713 0 0 1 11 16.12713L11 18.87287A0.12713 0.12713 0 0 1 10.87287 19L5.12713 19A0.12713 0.12713 0 0 1 5 18.87287L5 15.12713A0.12713 0.12713 0 0 0 4.87287 15L3.12713 15A0.12713 0.12713 0 0 0 3 15.12713L3 19.87287A0.12713 0.12713 0 0 0 3.12713 20L10.87287 20A0.12713 0.12713 0 0 1 11 20.12713L11 26.87287A0.12713 0.12713 0 0 1 10.87287 27L6.12713 27A0.12713 0.12713 0 0 0 6 27.12713L6 27.87287A0.12713 0.12713 0 0 1 5.87287 28L5.12713 28A0.12713 0.12713 0 0 1 5 27.87287L5 24.12713A0.12713 0.12713 0 0 1 5.12713 24L9.87287 24A0.12713 0.12713 0 0 0 10 23.87287L10 23.12713A0.12713 0.12713 0 0 0 9.87287 23L2.12713 23A0.12713 0.12713 0 0 1 2 22.87287L2 12.12713A0.12713 0.12713 0 0 1 2.12713 12L4.87287 12A0.12713 0.12713 0 0 0 5 11.87287L5 11.12713A0.12713 0.12713 0 0 0 4.87287 11L2.12713 11A0.12713 0.12713 0 0 1 2 10.87287L2 8.12713A0.12713 0.12713 0 0 1 2.12713 8L4.87287 8A0.12713 0.12713 0 0 0 5 7.87287L5 7.12713A0.12713 0.12713 0 0 0 4.87287 7L2.12713 7A0.12713 0.12713 0 0 1 2 6.87287L2 3.12713A0.12713 0.12713 0 0 0 1.87287 3L0.12713 3A0.12713 0.12713 0 0 1 0 2.87287ZM6.12713 7A0.12713 0.12713 0 0 0 6 7.12713L6 7.87287A0.12713 0.12713 0 0 0 6.12713 8L9.87287 8A0.12713 0.12713 0 0 0 10 7.87287L10 7.12713A0.12713 0.12713 0 0 0 9.87287 7Z"/>
+  </g>
+</svg></a>
+    <div class="titleblock">
+      <h1 id="page-title">Benjamin Grayland</h1>
+    </div>
+  </header>
+
+  <main class="row article">
+<article class="content home">
+<p>Hello! I'm a computer science PhD student at RMIT University in Melbourne. In a previous life, I worked in fintech as a product owner and business analyst.</p>
+<h2 id="meta">Meta</h2>
+<ul>
+<li><a href="photocopy-effect.html">The photocopy effect</a></li>
+<li><a href="test.html">Test page</a></li>
+<li><a href="game-tree-search.html">Game Tree Search</a></li>
+</ul>
+<h2 id="library">Library</h2>
+<p><em>Books I've read, music I listen to.</em></p>
+<ul>
+<li><a href="books.html">Books</a></li>
+<li><a href="music.html">Music</a></li>
+</ul>
+<h2 id="recipes">Recipes</h2>
+<p><em>This is a collection of recipes I like to cook. Some are my own, most are not. I've tried to credit the original author if I have it.</em></p>
+<ul>
+<li><a href="black-eyed-bean-curry.html">Black-eyed bean curry</a></li>
+<li><a href="borek.html">Borek dough</a></li>
+<li><a href="bread.html">Quick bread</a></li>
+<li><a href="chilli-oil.html">Chilli oil</a></li>
+<li><a href="corn-congee.html">Corn congee</a></li>
+<li><a href="fermented-tomato-soup.html">Fermented tomato soup</a></li>
+<li><a href="lemon-cake.html">Lemon cake</a></li>
+<li><a href="oatmeal-biscuits.html">Oatmeal biscuits</a></li>
+<li><a href="oyakodon.html">Oyakodon</a></li>
+<li><a href="peanut-butter-biscuits.html">Peanut butter biscuits</a></li>
+<li><a href="pretzel-dogs.html">Pretzel dogs</a></li>
+<li><a href="roast-potatoes.html">Roast potatoes</a></li>
+<li><a href="roast-tomato-soup.html">Roast tomato soup</a></li>
+<li><a href="soba.html">Soba</a></li>
+<li><a href="spicy-mushroom-noodle-soup.html">Spicy mushroom noodle soup</a></li>
+<li><a href="steamed-buns.html">Steamed buns</a></li>
+<li><a href="swede-gnocchi.html">Swede gnocchi</a></li>
+<li><a href="sweet-potato-gnocchi.html">Sweet potato gnocchi</a></li>
+<li><a href="tomato-relish.html">Tomato relish</a></li>
+<li><a href="udon.html">Udon</a></li>
+<li><a href="warrigal-greens-pita.html">Warrigal greens 'spanakopita'</a></li>
+</ul>
+<h2 id="research">Research</h2>
+<h3 id="honours-thesis">Honours thesis</h3>
+<p><em>Growing Wireworld circuits with Neural Cellular Automata</em>, supervised by Sebastian Sardiña at RMIT, Melbourne.</p>
+<figure>
+<img src="media/nca.gif" alt="Neural cellular automata growing a discrete Wireworld pattern. The pattern is a Wireworld implementation of a Langton&#x27;s Ant cell.">
+<figcaption>Neural <a href="https://en.wikipedia.org/wiki/Cellular_automaton">cellular automata</a> growing a discrete <a href="https://en.wikipedia.org/wiki/Wireworld">Wireworld</a> pattern. The pattern is a Wireworld implementation of a <a href="https://en.wikipedia.org/wiki/Langton%27s_ant">Langton's Ant</a> cell.</figcaption>
+</figure>
+<h3 id="movememore-vehicle-motion-replay">MoveMemorE vehicle motion replay </h3>
+<p><em>For my Bachelor's capstone project, my team developed VR software that uses GPS and inertial data to replay recorded journeys. The software connects directly to the <a href="https://www.eight360.com/">NOVA motion platform</a> to control its 360° motion, synchronising physical movement with the VR visuals to recreate the sensation of the original journey.</em></p>
+<figure>
+<img src="media/nova.png" alt="Our MoveMemorE simulator running on the NOVA motion platform">
+<figcaption>Our MoveMemorE simulator running on the NOVA motion platform</figcaption>
+</figure>
+<h2 id="games-and-artificial-intelligence-techniques">Games and Artificial Intelligence Techniques</h2>
+<p><em>These pages are content from a university course I tutor.</em></p>
+<ul>
+<li><a href="intro-to-gait.html">Introduction to Games and Artificial Intelligence Techniques</a></li>
+<li><a href="steering-behaviours.html">Steering Behaviours</a></li>
+<li><a href="pathfinding.html">Pathfinding</a></li>
+<li><a href="mcts.html">Monte Carlo Tree Search</a></li>
+<li><a href="decision-making-1.html">Decision Making I</a></li>
+<li><a href="decision-making-2.html">Decision Making II</a></li>
+<li><a href="adversarial-search.html">Adversarial Search</a></li>
+<li><a href="procedural-content.html">Procedural Content</a></li>
+<li><a href="reinforcement-learning-1.html">Tabular Reinforcement Learning</a></li>
+<li><a href="reinforcement-learning-2.html">Neural Networks and Deep RL</a></li>
+<li><a href="reinforcement-learning-3.html">State Representation and Reward Functions</a></li>
+<li><a href="imitation-learning.html">Bonus: Imitation Learning</a></li>
+<li><a href="ai-narrative.html">Bonus: AI and Narrative</a></li>
+</ul>
+<h2 id="palatial">Palatial</h2>
+</article>
+  </main>
+
+  <footer class="row pagefoot">
+    <div class="band" aria-hidden="true"></div>
+    <div class="footinner">
+      <!-- PLACEHOLDER: footer content still to be decided. -->
+      <div class="colophon">gray.land</div>
+      <div class="footlinks">
+        <a href="index.html">Index</a>
+      </div>
+      <div class="totop"><a href="#top">&#8593; Top</a></div>
+    </div>
+  </footer>
+
+</div>
+</body>
 </html>
-    

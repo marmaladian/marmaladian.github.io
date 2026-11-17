@@ -1,0 +1,707 @@
+/* ======
+   FONTS
+   ====== */
+
+/* TeX Gyre Pagella (URW Palladio / Palatino clone), GUST Font License.
+   Paths are relative to this stylesheet: docs/css/ -> docs/fonts/ */
+
+@font-face {
+    font-family: "TeX Gyre Pagella";
+    src: url("../fonts/TeXGyrePagella-Regular.woff2") format("woff2"),
+         url("../fonts/TeXGyrePagella-Regular.woff") format("woff");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "TeX Gyre Pagella";
+    src: url("../fonts/TeXGyrePagella-Italic.woff2") format("woff2"),
+         url("../fonts/TeXGyrePagella-Italic.woff") format("woff");
+    font-weight: normal;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "TeX Gyre Pagella";
+    src: url("../fonts/TeXGyrePagella-Bold.woff2") format("woff2"),
+         url("../fonts/TeXGyrePagella-Bold.woff") format("woff");
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "TeX Gyre Pagella";
+    src: url("../fonts/TeXGyrePagella-BoldItalic.woff2") format("woff2"),
+         url("../fonts/TeXGyrePagella-BoldItalic.woff") format("woff");
+    font-weight: bold;
+    font-style: italic;
+    font-display: swap;
+}
+
+/* Apple Garamond (Apple's customised ITC Garamond), converted from the
+   supplied TTFs. Six faces across two weights: 300 is the Light cut Apple
+   used for display, 400 is the book cut. Body copy is set at 400 — switch
+   `body { font-weight }` to 300 for the lighter, more Apple-like colour.
+   TEMPORARY: set as the default body face. */
+
+@font-face {
+    font-family: "Apple Garamond";
+    src: url("../fonts/AppleGaramond-Light.woff2") format("woff2"),
+         url("../fonts/AppleGaramond-Light.woff") format("woff");
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Apple Garamond";
+    src: url("../fonts/AppleGaramond-LightItalic.woff2") format("woff2"),
+         url("../fonts/AppleGaramond-LightItalic.woff") format("woff");
+    font-weight: 300;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Apple Garamond";
+    src: url("../fonts/AppleGaramond.woff2") format("woff2"),
+         url("../fonts/AppleGaramond.woff") format("woff");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Apple Garamond";
+    src: url("../fonts/AppleGaramond-Italic.woff2") format("woff2"),
+         url("../fonts/AppleGaramond-Italic.woff") format("woff");
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Apple Garamond";
+    src: url("../fonts/AppleGaramond-Bold.woff2") format("woff2"),
+         url("../fonts/AppleGaramond-Bold.woff") format("woff");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Apple Garamond";
+    src: url("../fonts/AppleGaramond-BoldItalic.woff2") format("woff2"),
+         url("../fonts/AppleGaramond-BoldItalic.woff") format("woff");
+    font-weight: 700;
+    font-style: italic;
+    font-display: swap;
+}
+
+:root {
+    /* ---- grid ---- */
+    --col-middle: 70ch;
+    --gap-left: 3rem;
+    --gap-right: 5rem;
+    --col-left-share: 0.3;
+    --col-remaining: calc(100% - var(--col-middle) - var(--gap-left) - var(--gap-right));
+
+    /* ---- spacing scale ---- */
+    --space-xs: 0.5em;
+    --space-sm: 1em;
+    --space-md: 1.5em;
+    --space-lg: 2em;
+    --space-xl: 3em;
+
+    /* ---- font sizes ---- */
+    --font-size-sm: 0.8em;
+
+    /* ---- links ---- */
+    --underline-offset: 0.2em;
+    --underline-thickness: 1px;
+
+    /* ---- raw palette (light/dark pairs; single source of truth for each colour) ---- */
+    --ink-light: #333;
+    --ink-dark: #e5e6e5;
+    --light-ink: #999; /* same in both themes */
+    --link-light: #3366cc;
+    --link-dark: #7fa6ff;
+    --bg-light: #fff;
+    /* --bg-dark: #1b1c1a; */
+    /* --bg-dark: #24355b; */
+    --bg-dark: #241209;
+    --bg-shaded-light: #ebebeb;
+    --bg-shaded-dark: #2d2d2d;
+    --snes-mid-light: #bbb9ba;
+    --snes-mid-dark: #888;
+    --snes-dark-light: #828687;
+    --snes-dark-dark: #ccc;
+    --border-light: #e8e8e4;
+    --border-dark: #3a3a3a;
+
+    /* ---- images ---- */
+    /* In dark mode images are held back so they don't glare against the page.
+       This is opacity rather than a brightness filter so they blend toward
+       whatever --bg sits behind them (navy on the page, the panel colour
+       inside .bg-shaded) instead of simply darkening toward black. */
+    --img-tint: 0.8;
+    --img-tint-fade: 300ms;
+
+    /* ---- active theme tokens (default: light) ---- */
+    --ink: var(--ink-light);
+    --link: var(--link-light);
+    --bg: var(--bg-light);
+    --bg-shaded: var(--bg-shaded-light);
+    --snes-mid: var(--snes-mid-light);
+    --snes-dark: var(--snes-dark-light);
+    --border: var(--border-light);
+}
+
+/* OS-level dark preference — skipped entirely once the toggle sets an
+   explicit [data-theme], so it never has to be un-done, just not matched */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --ink: var(--ink-dark);
+        --link: var(--link-dark);
+        --bg: var(--bg-dark);
+        --bg-shaded: var(--bg-shaded-dark);
+        --snes-mid: var(--snes-mid-dark);
+        --snes-dark: var(--snes-dark-dark);
+        --border: var(--border-dark);
+    }
+}
+
+/* explicit override from the theme-toggle button, regardless of OS pref */
+[data-theme="dark"] {
+    --ink: var(--ink-dark);
+    --link: var(--link-dark);
+    --bg: var(--bg-dark);
+    --bg-shaded: var(--bg-shaded-dark);
+    --snes-mid: var(--snes-mid-dark);
+    --snes-dark: var(--snes-dark-dark);
+    --border: var(--border-dark);
+}
+
+/* The dark-mode image tint is for laptops, desktops and projectors, where a
+   bright photo in a dark room is the thing worth taming — and where there's a
+   pointer that can hover to lift it again. Phones and tablets are gated out by
+   (hover: hover) and (pointer: fine): without a pointer the tint would be
+   permanent, with no way to see the image properly. Deliberately keyed to
+   input rather than viewport width, so a narrow desktop window keeps it. */
+@media (hover: hover) and (pointer: fine) {
+    @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) img { opacity: var(--img-tint); }
+        :root:not([data-theme="light"]) img:hover { opacity: 1; }
+    }
+
+    [data-theme="dark"] img { opacity: var(--img-tint); }
+    [data-theme="dark"] img:hover { opacity: 1; }
+}
+
+#theme-toggle {
+    position: fixed;
+    top: var(--space-lg);
+    right: var(--space-lg);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2em;
+    color: var(--ink);
+    padding: 0;
+    line-height: 1;
+    z-index: 10;
+}
+
+@media (max-width: 600px) {
+    #theme-toggle {
+        top: var(--space-sm);
+        right: var(--space-sm);
+    }
+}
+
+/* ======
+   LAYOUT
+   ====== */
+
+.layout, .content {
+    display: grid;
+    row-gap: 0;
+    column-gap: 0;
+    grid-auto-flow: row dense;
+    align-content: start;
+
+    grid-template-columns:
+        [left-start] minmax(0, calc(var(--col-remaining) * var(--col-left-share)))
+        [left-gap-start] var(--gap-left)
+        [middle-start] var(--col-middle)
+        [middle-end] var(--gap-right)
+        [right-start] minmax(0, calc(var(--col-remaining) * (1 - var(--col-left-share))))
+        [right-end];
+}
+
+.layout {
+    position: relative;
+}
+
+.layout > * {
+    grid-column: middle-start / middle-end;
+}
+
+/* everything after the page title lives in here — it's its own grid (using
+   the same column tracks as .layout) so that .side can be positioned
+   relative to where the body copy actually starts, not the page top */
+.content {
+    position: relative;
+    grid-column: left-start / right-end;
+}
+
+.content > * {
+    grid-column: middle-start / middle-end;
+}
+
+.side {
+    grid-column: unset;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: calc(var(--col-remaining) * (1 - var(--col-left-share)));
+}
+
+.wide {
+    grid-column: middle-start / right-end;
+}
+
+.wide-alt {
+    grid-column: left-start / middle-end;
+}
+
+.full {
+    grid-column: left-start / right-end;
+}
+
+figure.wide, figure.wide-alt, figure.full {
+    width: 100%;
+    max-width: none;
+}
+
+/* .side's box width comes from the .side rule's own calc() above — the
+   image inside just fills whatever width that box ends up being */
+figure.side {
+    max-width: none;
+    margin-top: 0;
+}
+
+figure.side figcaption, figure.wide figcaption, figure.wide-alt figcaption, figure.full figcaption {
+    max-width: 50%;
+}
+
+/* ======
+   GALLERY
+   ====== */
+
+.gallery {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.gallery figure {
+    flex: 1;
+    min-width: 0;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+/* ======
+   KICKER
+   ====== */
+
+.kicker {
+    grid-column: unset;
+    position: absolute;
+    top: 0;
+    left: calc(var(--col-remaining) * var(--col-left-share));
+    transform: translateX(-100%);
+    max-width: 40ch;
+}
+
+/* The logo SVG is inlined in the markup and filled with currentColor, so it
+   takes var(--ink) exactly and follows the theme toggle */
+.kicker #logo {
+    display: block;
+    /* move up 10 px */
+    margin-top: -12px;
+    margin-left: auto;
+    width: 92px;
+    color: var(--ink);
+}
+
+.kicker #logo svg {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+/* ======
+   MEDIA
+   ====== */
+
+figure {
+    margin: var(--space-sm) 0 var(--space-lg) 0;
+    padding: 0;
+    width: fit-content;
+    max-width: 100%;
+}
+
+img {
+    display: block;
+    max-width: 100%;
+    max-height: 90vh;
+    height: auto;
+    /* only ever animates in dark mode, where hover lifts the tint */
+    transition: opacity var(--img-tint-fade) ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    img { transition: none; }
+}
+
+figcaption {
+    margin: var(--space-sm) 0 0 0;
+    padding: 0;
+    max-width: 70%;
+    font-size: var(--font-size-sm);
+    line-height: 1.2;
+    font-family: "Inter", sans-serif;
+    /* color: var(--light-ink); */
+}
+
+/* ======
+   TYPOGRAPHY
+   ====== */
+
+body {
+    margin: 0;
+    padding: 2ch 5ch 5ch 5ch;
+    background: var(--bg);
+    color: var(--ink);
+    /* TEMPORARY: Apple Garamond first, Pagella behind it. To revert, delete
+       this line and uncomment the one below it. */
+    /* font-family: "Apple Garamond", "TeX Gyre Pagella", Palatino, "Palatino Linotype", Georgia, serif; */
+    /* font-family: "TeX Gyre Pagella", Palatino, "Palatino Linotype", Georgia, serif; */
+    /* font-family: "Helvetica", "Inter", sans-serif; */
+    font-family: sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 1.1em;
+    line-height: 1.5;
+}
+
+footer {
+    margin-top: 8em;
+    font-size: 0.9em;
+    color: var(--snes-mid);
+}
+
+footer a {
+    color: var(--snes-mid);
+}
+
+.sc {
+    font-variant-caps: small-caps;
+}
+
+.all-sc {
+    font-variant-caps: all-small-caps;
+}
+
+h1 {
+    font-size: 1em;
+    font-weight: bold;
+    /* text-transform: uppercase; */
+    /* letter-spacing: 0.1em; */
+    font-style: italic;
+    margin: var(--space-xl) 0 var(--space-lg) 0;
+}
+
+h2 {
+    /* font-size: 1.15em; */
+    /* font-variant-caps: all-small-caps; */
+    text-transform: uppercase;
+    /* text-align: center; */
+    /* font spacing 120% */
+    letter-spacing: 0.1em;
+    font-size: 1em;
+    padding-bottom: 0.25rem;
+    /* top margin stays in rem (root-relative), not the em-based scale —
+       h2's own font-size is 1.15em, so an em value here would compound */
+    margin: 1.5rem 0 var(--space-xs) 0;
+    font-weight: normal;
+}
+
+h3 {
+    font-size: .8em;
+    font-weight: normal;
+    /* font-weight: bold; */
+    /* font-style: italic; */
+    font-family: "Inter", sans-serif;
+    /* font-variant-caps: all-small-caps; */
+    /* margin-bottom: 0.75em; */
+    margin-top: var(--space-lg);
+    margin-bottom: var(--space-md);
+
+    display: flex;
+    align-items: baseline;
+    gap: 0.75em;
+}
+
+h3::after {
+    content: "";
+    flex: 1;
+    border-top: 1px solid var(--ink);
+    /* An empty flex item takes its baseline from its bottom margin edge, so
+       the border lands on the text baseline. Half an x-height lifts it to
+       the optical centre of the lowercase letters. */
+    transform: translateY(-0.5ex);
+}
+
+h4 {
+    font-size: small;
+    margin-bottom: 0.25em;
+    margin-top: var(--space-md);
+}
+
+:is(h2, h3, h4, h5, h6) + * {
+    margin-top: var(--space-xs);
+}
+
+p {
+    margin: 0 0 var(--space-sm) 0;
+}
+
+p, li, blockquote {
+    text-align: justify;
+    hyphens: auto;
+    -webkit-hyphens: auto; /* Safari still needs the prefix */
+}
+
+/* At rest a link sits in body colour and is marked only by the dotted rule, so
+   a paragraph full of links keeps an even texture. Hover/focus drops the line
+   and lifts the colour to --link, which reads as the link coming forward. */
+a {
+    color: var(--ink);
+    text-decoration-line: underline;
+    text-decoration-style: dotted;
+    /* Dropped clear of the baseline so the dots don't crowd the descenders.
+       Set in em so the offset tracks font-size — footnote markers and the
+       smaller footer text keep the same visual gap as body copy. */
+    text-underline-offset: var(--underline-offset);
+    text-decoration-thickness: var(--underline-thickness);
+    /* With the underline sitting below the descenders there's nothing left to
+       skip, and skip-ink would only punch uneven gaps in the dot rhythm */
+    text-decoration-skip-ink: none;
+}
+
+/* :focus-visible rides along with :hover so a keyboard user gets the same cue */
+a:hover, a:focus-visible {
+    color: var(--link);
+    text-decoration-line: none;
+}
+
+blockquote {
+    margin: var(--space-sm) 0;
+    font-style: italic;
+}
+
+blockquote p {
+    margin: 0;
+}
+
+/* ======
+   TABLES & CODE
+   ====== */
+
+hr {
+    border: none;
+    border-top: 1px dotted var(--ink);
+    margin: var(--space-sm) 0;
+}
+
+table {
+    border-collapse: collapse;
+    margin: var(--space-sm) 0;
+    width: 100%;
+    background-color: var(--bg);
+}
+
+th,
+td {
+    border: 1px solid var(--border);
+    padding: 0.5em;
+    text-align: left;
+}
+
+pre {
+    color: rgb(154, 125, 189);
+    border-top: 1px dashed rgb(154, 125, 189);
+    border-bottom: 1px dashed rgb(154, 125, 189);
+    font-size: var(--font-size-sm);
+    /* background-color: var(--bg-shaded); */
+    padding: var(--space-lg);
+    margin: var(--space-lg) 0;
+    overflow-x: auto;
+    /* same span as .wide, but sized to content rather than stretched —
+       it only reaches as far right as it needs to, capped at that width.
+       max-width is the hard clamp: without it an unbroken long line would
+       still push the box past right-end since white-space:pre can't wrap.
+       Built from 100vw rather than var(--col-remaining)'s embedded 100% —
+       percentage max-width on a non-stretched grid item spanning a
+       minmax(0, ...) track resolves against the wrong basis in Chrome and
+       clamps far short of the real track width; vw sidesteps that. */
+    grid-column: middle-start / right-end;
+    justify-self: start;
+    max-width: calc(
+        (100vw - 10ch) - var(--gap-left) -
+        ((100vw - 10ch - var(--col-middle) - var(--gap-left) - var(--gap-right)) * var(--col-left-share))
+    );
+}
+
+code {
+    background-color: var(--bg-shaded);
+    padding: 0.15em 0.35em;
+    font-family: ui-monospace, monospace;
+}
+
+pre code {
+    background: none;
+    padding: 0;
+}
+
+/* ======
+   HOME PAGE
+   ====== */
+
+/* Set by `class: hoe` in a page's front-matter, which fold2.py puts on
+   the .content div. The index is a table of contents for the site, so its
+   lists are navigation rather than prose — they stay <ul> for the semantics
+   and the screen-reader item count, but lose the bullets and the indent. */
+.home ul {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 0;
+}
+
+.home h2 {
+    margin-top: var(--space-lg);
+    margin-bottom: 0;
+}
+
+/* ======
+   TABLE OF CONTENTS
+   ====== */
+
+nav.toc {
+    border: 1px solid var(--ink);
+    padding: var(--space-sm) var(--space-xl) var(--space-sm) var(--space-md);
+    margin: var(--space-md) auto;
+    width: fit-content;
+}
+
+nav.toc h2 {
+    margin: 0 0 var(--space-xs) 0;
+    font-size: 1em;
+    font-weight: normal;
+}
+
+nav.toc ul {
+    margin: var(--space-xs) 0;
+    padding-left: var(--space-md);
+    list-style-type: disc;
+}
+
+nav.toc > ul {
+    margin: 0;
+}
+
+nav.toc li {
+    margin: 0.3em 0;
+}
+
+/* No nav.toc link rules — the global a / a:hover pair already gives exactly
+   this treatment, so an override here would only drift out of step with it */
+
+/* ======
+   FOOTNOTES
+   ====== */
+
+.endnotes {
+    margin-top: 3em;
+    font-size: 0.85em;
+    color: var(--light-ink);
+}
+
+.endnotes ol {
+    padding-left: 1.2em;
+}
+
+/* ======
+   RESPONSIVE
+   ====== */
+
+@media (max-width: 1200px) {
+    .side {
+        position: static;
+        width: auto;
+        grid-column: middle-start / middle-end;
+    }
+}
+
+@media (max-width: 900px) {
+    :root {
+        --kicker-width: min(20vw, 10rem);
+    }
+
+    .kicker {
+        left: 0;
+        top: 0;
+        transform: none;
+        width: var(--kicker-width);
+        max-width: none;
+    }
+
+    .layout, .content {
+        display: block;
+    }
+
+    /* h1 lives outside .content (so .side/.kicker can anchor below it),
+       so it needs the same kicker clearance applied separately here.
+       rem here (not the em-based scale) so h1's larger font-size can't
+       throw the two paddings out of alignment with each other */
+    .layout > h1, .content {
+        padding-left: calc(var(--kicker-width) + 1.5rem);
+    }
+
+    .gallery {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 600px) {
+    .kicker {
+        display: none;
+    }
+
+    .layout > h1, .content {
+        padding-left: 0;
+    }
+
+    body {
+        padding: 2ch;
+        margin: 0;
+    }
+}

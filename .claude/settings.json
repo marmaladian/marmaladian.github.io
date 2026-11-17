@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(osascript)",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --no-sandbox --force-device-scale-factor=1 --window-size=390,900 --screenshot=/private/tmp/claude-501/-Users-marmaladian-Documents-Repositories-marmaladian-github-io/9411760f-85b2-4c3b-b176-491ca4bfcec7/scratchpad/shots/debug3.png http://localhost:8934/test.html)",
+      "Bash(sips -g pixelWidth /private/tmp/claude-501/-Users-marmaladian-Documents-Repositories-marmaladian-github-io/9411760f-85b2-4c3b-b176-491ca4bfcec7/scratchpad/shots/debug3.png)",
+      "Bash(git show *)",
+      "Read(//private/tmp/**)"
+    ]
+  }
+}

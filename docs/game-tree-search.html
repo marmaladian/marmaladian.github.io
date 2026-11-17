@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/prototype.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+  <title>Game Tree Search</title>
+  <script>
+    (function () {
+      var THEMES = ['light', 'dark'];
+      var saved = localStorage.getItem('theme');
+      if (THEMES.indexOf(saved) !== -1) {
+        document.documentElement.setAttribute('data-theme', saved);
+      }
+      document.addEventListener('DOMContentLoaded', function () {
+        var button = document.getElementById('theme-toggle');
+        button.addEventListener('click', function () {
+          var root = document.documentElement;
+          // With no attribute set the page is following the operating
+          // system, so resolve that first — otherwise the first click
+          // would move to the theme already on screen.
+          var current = root.getAttribute('data-theme');
+          if (THEMES.indexOf(current) === -1) {
+            current = window.matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark' : 'light';
+          }
+          var next = THEMES[(THEMES.indexOf(current) + 1) % THEMES.length];
+          root.setAttribute('data-theme', next);
+          localStorage.setItem('theme', next);
+        });
+      });
+
+      // The running head: a small copy of the page title that lives in the
+      // sticky bar and only shows once the real h1 has scrolled out from
+      // under it. An IntersectionObserver watches the h1 against a root
+      // shrunk by the bar's own height, so "intersecting" means "still
+      // below the bar" — the moment it isn't, the two swap places. The
+      // fade itself is a CSS transition on .is-faded/.is-visible; this
+      // only flips the classes.
+      document.addEventListener('DOMContentLoaded', function () {
+        var h1 = document.getElementById('page-title');
+        var bar = document.querySelector('.runhead');
+        var label = document.getElementById('runhead-title');
+        if (!h1 || !bar || !label || !('IntersectionObserver' in window)) return;
+        var barHeight = bar.getBoundingClientRect().height;
+        new IntersectionObserver(function (entries) {
+          var past = !entries[0].isIntersecting;
+          h1.classList.toggle('is-faded', past);
+          label.classList.toggle('is-visible', past);
+        }, { rootMargin: -barHeight + 'px 0px 0px 0px', threshold: 0 }).observe(h1);
+      });
+
+      // The folio: a book's running page number, repurposed here as how
+      // far through the page the reader is. 0% at the very top, 100% once
+      // the bottom of the document has scrolled into view — a plain
+      // fraction of scrollable distance covered, not tied to headings, so
+      // it works the same on every page regardless of how it's sectioned.
+      document.addEventListener('DOMContentLoaded', function () {
+        var folio = document.getElementById('runhead-folio');
+        if (!folio) return;
+        var ticking = false;
+        function update() {
+          ticking = false;
+          var scrollable = document.documentElement.scrollHeight - window.innerHeight;
+          var percent = scrollable <= 0 ? 100 : (window.scrollY / scrollable) * 100;
+          percent = Math.max(0, Math.min(100, Math.round(percent)));
+          folio.textContent = percent + '%';
+        }
+        function onScroll() {
+          if (!ticking) {
+            ticking = true;
+            requestAnimationFrame(update);
+          }
+        }
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', onScroll);
+        update();
+      });
+    })();
+  </script>
+</head>
+<body id="top">
+
+<div class="page">
+
+  <div class="row runhead">
+    <a class="runhead-home" href="index.html" aria-label="gray.land — home">g</a>
+    <span class="runhead-title" id="runhead-title" aria-hidden="true">Game Tree Search</span>
+    <span class="runhead-folio" id="runhead-folio" aria-hidden="true"></span>
+    <button id="theme-toggle" class="runhead-toggle" aria-label="Toggle dark and light mode">&#9788;</button>
+  </div>
+
+  <header class="row pagehead">
+    <a class="brand" href="index.html" aria-label="gray.land — home"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="171.667 40.006 168.73 429.5">
+  <g transform="translate(171.667 40.006) scale(15.339)">
+    <path fill="currentColor" fill-rule="evenodd" d="M0 0.12713A0.12713 0.12713 0 0 1 0.12713 0L2.87287 0A0.12713 0.12713 0 0 1 3 0.12713L3 3.87287A0.12713 0.12713 0 0 0 3.12713 4L4.87287 4A0.12713 0.12713 0 0 0 5 3.87287L5 0.12713A0.12713 0.12713 0 0 1 5.12713 0L5.87287 0A0.12713 0.12713 0 0 1 6 0.12713L6 3.87287A0.12713 0.12713 0 0 0 6.12713 4L10.87287 4A0.12713 0.12713 0 0 1 11 4.12713L11 10.87287A0.12713 0.12713 0 0 1 10.87287 11L6.12713 11A0.12713 0.12713 0 0 0 6 11.12713L6 11.87287A0.12713 0.12713 0 0 0 6.12713 12L10.87287 12A0.12713 0.12713 0 0 1 11 12.12713L11 14.87287A0.12713 0.12713 0 0 1 10.87287 15L6.12713 15A0.12713 0.12713 0 0 0 6 15.12713L6 15.87287A0.12713 0.12713 0 0 0 6.12713 16L10.87287 16A0.12713 0.12713 0 0 1 11 16.12713L11 18.87287A0.12713 0.12713 0 0 1 10.87287 19L5.12713 19A0.12713 0.12713 0 0 1 5 18.87287L5 15.12713A0.12713 0.12713 0 0 0 4.87287 15L3.12713 15A0.12713 0.12713 0 0 0 3 15.12713L3 19.87287A0.12713 0.12713 0 0 0 3.12713 20L10.87287 20A0.12713 0.12713 0 0 1 11 20.12713L11 26.87287A0.12713 0.12713 0 0 1 10.87287 27L6.12713 27A0.12713 0.12713 0 0 0 6 27.12713L6 27.87287A0.12713 0.12713 0 0 1 5.87287 28L5.12713 28A0.12713 0.12713 0 0 1 5 27.87287L5 24.12713A0.12713 0.12713 0 0 1 5.12713 24L9.87287 24A0.12713 0.12713 0 0 0 10 23.87287L10 23.12713A0.12713 0.12713 0 0 0 9.87287 23L2.12713 23A0.12713 0.12713 0 0 1 2 22.87287L2 12.12713A0.12713 0.12713 0 0 1 2.12713 12L4.87287 12A0.12713 0.12713 0 0 0 5 11.87287L5 11.12713A0.12713 0.12713 0 0 0 4.87287 11L2.12713 11A0.12713 0.12713 0 0 1 2 10.87287L2 8.12713A0.12713 0.12713 0 0 1 2.12713 8L4.87287 8A0.12713 0.12713 0 0 0 5 7.87287L5 7.12713A0.12713 0.12713 0 0 0 4.87287 7L2.12713 7A0.12713 0.12713 0 0 1 2 6.87287L2 3.12713A0.12713 0.12713 0 0 0 1.87287 3L0.12713 3A0.12713 0.12713 0 0 1 0 2.87287ZM6.12713 7A0.12713 0.12713 0 0 0 6 7.12713L6 7.87287A0.12713 0.12713 0 0 0 6.12713 8L9.87287 8A0.12713 0.12713 0 0 0 10 7.87287L10 7.12713A0.12713 0.12713 0 0 0 9.87287 7Z"/>
+  </g>
+</svg></a>
+    <div class="titleblock">
+      <div class="eyebrow">Test</div>
+      <h1 id="page-title">Game Tree Search</h1>
+    </div>
+  </header>
+
+  <main class="row article">
+<article class="content">
+<p>Game tree search algorithms are at the heart of classical and modern game-playing AI. From the brute-force look-ahead of <strong>alpha-beta pruning</strong> to the simulation-based approach of <strong>Monte Carlo Tree Search</strong>, these methods define how a program decides what move to make.</p>
+<h2 id="monte-carlo-methods">Monte Carlo Methods</h2>
+<p>Monte Carlo methods are a broad family of algorithms that use random sampling to obtain numerical results. The name comes from the Monte Carlo Casino in Monaco — a nod to the role of chance.</p>
+<p>The core idea: instead of computing an exact answer analytically, you run many random experiments and aggregate the results. As the number of samples grows, the estimate converges on the true value.</p>
+<h3 id="applications">Applications</h3>
+<p>Monte Carlo methods appear across many domains:</p>
+<ul>
+<li><strong>Integration</strong> — estimating areas and volumes by sampling random points</li>
+<li><strong>Physics simulation</strong> — particle transport, radiation shielding</li>
+<li><strong>Finance</strong> — pricing derivatives, risk modelling</li>
+<li><strong>Game playing</strong> — evaluating positions by simulating random play-outs</li>
+</ul>
+<figure class="side">
+<img src="https://placecats.com/600/350" alt="Monte Carlo estimation of pi">
+<figcaption>Monte Carlo estimation of pi</figcaption>
+</figure>
+<h3 id="a-simple-example">A Simple Example</h3>
+<p>Estimating π: place a unit circle inside a 2×2 square. Sample random points uniformly in the square. The fraction that fall inside the circle approximates π/4.</p>
+<pre><code class="language-python">import random
+
+def estimate_pi(n):
+    inside = 0
+    for _ in range(n):
+        # extra long lines will cause the code block to extend beyond the width of the centre column. but what if the lines are too long to fit on the page?
+        x, y = random.uniform(-1, 1), random.uniform(-1, 1)
+        if x**2 + y**2 &lt;= 1:
+            inside += 1
+    return 4 * inside / n</code></pre>
+<p>As <em>n</em> increases, the estimate improves — but slowly. Monte Carlo converges at O(1/√n), so doubling precision costs four times as many samples.</p>
+<h2 id="alpha-beta-pruning">Alpha-Beta Pruning</h2>
+<p>Alpha-beta pruning is an optimisation of the <strong>minimax</strong> algorithm, the classical approach to two-player zero-sum games.</p>
+<h3 id="minimax">Minimax</h3>
+<p>Minimax assumes both players play optimally. The maximising player picks the move leading to the best outcome; the minimising player picks the worst outcome for their opponent. The algorithm explores the full game tree to a fixed depth, then evaluates the leaf nodes with a heuristic.</p>
+<p>The problem: the tree is exponential in depth. Chess has a branching factor of roughly 35. At depth 6, that's 35⁶ ≈ 1.8 billion nodes.</p>
+<figure class="wide">
+<img src="https://placecats.com/700/400" alt="A minimax game tree">
+<figcaption>A minimax game tree</figcaption>
+</figure>
+<h3 id="pruning">Pruning</h3>
+<p>Alpha-beta pruning avoids exploring branches that cannot influence the final decision.</p>
+<ul>
+<li><strong>α</strong> — the best value the maximiser is guaranteed so far</li>
+<li><strong>β</strong> — the best value the minimiser is guaranteed so far</li>
+</ul>
+<p>If at any point β ≤ α, we can stop searching the current branch. The subtree is <em>pruned</em> — we already know neither player would choose to go there.</p>
+<pre><code>function alphabeta(node, depth, α, β, maximising):
+    if depth == 0 or node is terminal:
+        return evaluate(node)
+    if maximising:
+        value = -∞
+        for child in node.children:
+            value = max(value, alphabeta(child, depth-1, α, β, false))
+            α = max(α, value)
+            if β &lt;= α:
+                break  # β cutoff
+        return value
+    else:
+        value = +∞
+        for child in node.children:
+            value = min(value, alphabeta(child, depth-1, α, β, true))
+            β = min(β, value)
+            if β &lt;= α:
+                break  # α cutoff
+        return value</code></pre>
+<h3 id="performance">Performance</h3>
+<table>
+<thead><tr><th>Move ordering</th><th>Nodes explored (depth 6, branching 35)</th></tr></thead>
+<tbody>
+<tr><td>No pruning (pure minimax)</td><td>~1.8 billion</td></tr>
+<tr><td>Random ordering</td><td>~35³ ≈ 42,000 (average case)</td></tr>
+<tr><td>Perfect ordering</td><td>~35³ ≈ 42,000 (best case)</td></tr>
+</tbody>
+</table>
+<p>With perfect move ordering, alpha-beta reduces the effective branching factor from <em>b</em> to <em>√b</em>, doubling the searchable depth for the same compute budget.</p>
+<p>Alpha-beta powered the strongest chess programs through the 1990s and 2000s, including Deep Blue.</p>
+<hr>
+<h2 id="monte-carlo-tree-search">Monte Carlo Tree Search</h2>
+<p>Monte Carlo Tree Search (MCTS) takes a different approach. Rather than exploring the tree exhaustively with a heuristic evaluator, it builds the tree <em>selectively</em> using random simulations to estimate node values.</p>
+<p>MCTS became prominent after its success in Go, where the branching factor (~250) makes alpha-beta impractical and good heuristics are notoriously difficult to design.</p>
+<figure class="full">
+<img src="https://placecats.com/700/450" alt="MCTS tree expansion">
+<figcaption>MCTS tree expansion</figcaption>
+</figure>
+<h3 id="the-four-phases">The Four Phases</h3>
+<p>Each iteration of MCTS has four steps:</p>
+<ol>
+<li><strong>Selection</strong> — traverse the tree from the root, choosing nodes using a <em>tree policy</em> (usually UCB1) until reaching an unexpanded node</li>
+<li><strong>Expansion</strong> — add one or more child nodes to the tree</li>
+<li><strong>Simulation</strong> — run a <em>rollout</em> (random playout) from the new node to a terminal state</li>
+<li><strong>Backpropagation</strong> — propagate the result back up through the ancestors, updating visit counts and value estimates</li>
+</ol>
+<pre><code>function mcts(root, budget):
+    for _ in range(budget):
+        node = select(root)         # traverse with UCB1
+        child = expand(node)        # add a new child
+        result = simulate(child)    # random rollout
+        backpropagate(child, result)
+    return best_child(root)</code></pre>
+<h3 id="the-ucb1-formula">The UCB1 Formula</h3>
+<p>The tree policy balances <em>exploration</em> (trying less-visited nodes) against <em>exploitation</em> (favouring nodes with high win rates):</p>
+<p>Where:</p>
+<ul>
+<li><em>w</em> = wins from this node</li>
+<li><em>n</em> = visits to this node</li>
+<li><em>N</em> = visits to the parent</li>
+<li><em>c</em> = exploration constant (typically √2)</li>
+</ul>
+<p>A node with many visits but a mediocre win rate may lose out to a less-visited node with a higher uncertainty bonus.</p>
+<blockquote>
+<p>UCB1 = w/n + c · √(ln N / n)</p>
+</blockquote>
+<h3 id="comparison">Comparison</h3>
+<p>MCTS can be stopped at any time and will return the best move found so far. Alpha-beta must search to a fixed depth before it can give a reliable answer.</p>
+<table>
+<thead><tr><th>Property</th><th>Alpha-Beta</th><th>MCTS</th></tr></thead>
+<tbody>
+<tr><td>Requires heuristic evaluator</td><td>Yes</td><td>No</td></tr>
+<tr><td>Handles large branching factors</td><td>Poorly</td><td>Well</td></tr>
+<tr><td>Anytime behaviour</td><td>No</td><td>Yes</td></tr>
+<tr><td>Deterministic</td><td>Yes</td><td>No (stochastic)</td></tr>
+<tr><td>Best suited for</td><td>Chess, checkers</td><td>Go, general game playing</td></tr>
+</tbody>
+</table>
+<hr>
+<h2 id="modern-developments">Modern Developments</h2>
+<p>Alpha-beta and MCTS are not mutually exclusive. AlphaGo and AlphaZero combine MCTS with deep neural networks that replace both the rollout policy and the evaluation function. The network guides selection toward promising branches, dramatically reducing the number of simulations needed.</p>
+<p>AlphaZero's approach:</p>
+<ul>
+<li>No hand-crafted features or domain knowledge beyond the rules</li>
+<li>A single network outputs both move probabilities and a value estimate</li>
+<li>MCTS uses these to guide search</li>
+<li>Trained entirely by self-play</li>
+</ul>
+<p>This is a link to an <a href="https://gray.land">external site</a> and this is to an <a href="#how-to-do-this-unvisited">internal anchor</a>.</p>
+<blockquote>
+<p>"The game of chess is not won by the player who sees the most moves ahead, but by the one who sees the most <em>relevant</em> moves ahead." — anon</p>
+</blockquote>
+<h2 id="further-reading">Further Reading</h2>
+<ul>
+<li>Claude Shannon, <em>Programming a Computer for Playing Chess</em> (1950)</li>
+<li>Richard Korf, <em>Depth-First Iterative-Deepening</em> (1985)</li>
+<li>Rémi Coulom, <em>Efficient Selectivity and Backup Operators in Monte-Carlo Tree Search</em> (2006)</li>
+<li>Silver et al., <em>Mastering the Game of Go with Deep Neural Networks and Tree Search</em> (2016)</li>
+</ul>
+</article>
+<nav class="toc">
+<h2>Contents</h2>
+<ul>
+<li><a href="#monte-carlo-methods">Monte Carlo Methods</a>
+<ul>
+<li><a href="#applications">Applications</a>
+</li>
+<li><a href="#a-simple-example">A Simple Example</a>
+</li>
+</ul>
+</li>
+<li><a href="#alpha-beta-pruning">Alpha-Beta Pruning</a>
+<ul>
+<li><a href="#minimax">Minimax</a>
+</li>
+<li><a href="#pruning">Pruning</a>
+</li>
+<li><a href="#performance">Performance</a>
+</li>
+</ul>
+</li>
+<li><a href="#monte-carlo-tree-search">Monte Carlo Tree Search</a>
+<ul>
+<li><a href="#the-four-phases">The Four Phases</a>
+</li>
+<li><a href="#the-ucb1-formula">The UCB1 Formula</a>
+</li>
+<li><a href="#comparison">Comparison</a>
+</li>
+</ul>
+</li>
+<li><a href="#modern-developments">Modern Developments</a>
+</li>
+<li><a href="#further-reading">Further Reading</a>
+</li>
+</ul>
+</nav>
+  </main>
+
+  <footer class="row pagefoot">
+    <div class="band" aria-hidden="true"></div>
+    <div class="footinner">
+      <!-- PLACEHOLDER: footer content still to be decided. -->
+      <div class="colophon">gray.land</div>
+      <div class="footlinks">
+        <a href="index.html">Index</a>
+      </div>
+      <div class="totop"><a href="#top">&#8593; Top</a></div>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/prototype.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+  <title>The photocopy effect</title>
+  <script>
+    (function () {
+      var THEMES = ['light', 'dark'];
+      var saved = localStorage.getItem('theme');
+      if (THEMES.indexOf(saved) !== -1) {
+        document.documentElement.setAttribute('data-theme', saved);
+      }
+      document.addEventListener('DOMContentLoaded', function () {
+        var button = document.getElementById('theme-toggle');
+        button.addEventListener('click', function () {
+          var root = document.documentElement;
+          // With no attribute set the page is following the operating
+          // system, so resolve that first — otherwise the first click
+          // would move to the theme already on screen.
+          var current = root.getAttribute('data-theme');
+          if (THEMES.indexOf(current) === -1) {
+            current = window.matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark' : 'light';
+          }
+          var next = THEMES[(THEMES.indexOf(current) + 1) % THEMES.length];
+          root.setAttribute('data-theme', next);
+          localStorage.setItem('theme', next);
+        });
+      });
+
+      // The running head: a small copy of the page title that lives in the
+      // sticky bar and only shows once the real h1 has scrolled out from
+      // under it. An IntersectionObserver watches the h1 against a root
+      // shrunk by the bar's own height, so "intersecting" means "still
+      // below the bar" — the moment it isn't, the two swap places. The
+      // fade itself is a CSS transition on .is-faded/.is-visible; this
+      // only flips the classes.
+      document.addEventListener('DOMContentLoaded', function () {
+        var h1 = document.getElementById('page-title');
+        var bar = document.querySelector('.runhead');
+        var label = document.getElementById('runhead-title');
+        if (!h1 || !bar || !label || !('IntersectionObserver' in window)) return;
+        var barHeight = bar.getBoundingClientRect().height;
+        new IntersectionObserver(function (entries) {
+          var past = !entries[0].isIntersecting;
+          h1.classList.toggle('is-faded', past);
+          label.classList.toggle('is-visible', past);
+        }, { rootMargin: -barHeight + 'px 0px 0px 0px', threshold: 0 }).observe(h1);
+      });
+    })();
+  </script>
+
+<script>
+window.addEventListener('load', function () {
+  window.scrollTo(0, 640);
+});
+</script>
+</head>
+
+<body id="top">
+
+<div class="page">
+
+  <div class="row runhead">
+    <span class="runhead-title" id="runhead-title" aria-hidden="true">The photocopy effect</span>
+    <button id="theme-toggle" class="runhead-toggle" aria-label="Toggle dark and light mode">&#9788;</button>
+  </div>
+
+  <header class="row pagehead">
+    <a class="brand" href="index.html" aria-label="gray.land — home"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="171.667 40.006 168.73 429.5">
+  <g transform="translate(171.667 40.006) scale(15.339)">
+    <path fill="currentColor" fill-rule="evenodd" d="M0 0.12713A0.12713 0.12713 0 0 1 0.12713 0L2.87287 0A0.12713 0.12713 0 0 1 3 0.12713L3 3.87287A0.12713 0.12713 0 0 0 3.12713 4L4.87287 4A0.12713 0.12713 0 0 0 5 3.87287L5 0.12713A0.12713 0.12713 0 0 1 5.12713 0L5.87287 0A0.12713 0.12713 0 0 1 6 0.12713L6 3.87287A0.12713 0.12713 0 0 0 6.12713 4L10.87287 4A0.12713 0.12713 0 0 1 11 4.12713L11 10.87287A0.12713 0.12713 0 0 1 10.87287 11L6.12713 11A0.12713 0.12713 0 0 0 6 11.12713L6 11.87287A0.12713 0.12713 0 0 0 6.12713 12L10.87287 12A0.12713 0.12713 0 0 1 11 12.12713L11 14.87287A0.12713 0.12713 0 0 1 10.87287 15L6.12713 15A0.12713 0.12713 0 0 0 6 15.12713L6 15.87287A0.12713 0.12713 0 0 0 6.12713 16L10.87287 16A0.12713 0.12713 0 0 1 11 16.12713L11 18.87287A0.12713 0.12713 0 0 1 10.87287 19L5.12713 19A0.12713 0.12713 0 0 1 5 18.87287L5 15.12713A0.12713 0.12713 0 0 0 4.87287 15L3.12713 15A0.12713 0.12713 0 0 0 3 15.12713L3 19.87287A0.12713 0.12713 0 0 0 3.12713 20L10.87287 20A0.12713 0.12713 0 0 1 11 20.12713L11 26.87287A0.12713 0.12713 0 0 1 10.87287 27L6.12713 27A0.12713 0.12713 0 0 0 6 27.12713L6 27.87287A0.12713 0.12713 0 0 1 5.87287 28L5.12713 28A0.12713 0.12713 0 0 1 5 27.87287L5 24.12713A0.12713 0.12713 0 0 1 5.12713 24L9.87287 24A0.12713 0.12713 0 0 0 10 23.87287L10 23.12713A0.12713 0.12713 0 0 0 9.87287 23L2.12713 23A0.12713 0.12713 0 0 1 2 22.87287L2 12.12713A0.12713 0.12713 0 0 1 2.12713 12L4.87287 12A0.12713 0.12713 0 0 0 5 11.87287L5 11.12713A0.12713 0.12713 0 0 0 4.87287 11L2.12713 11A0.12713 0.12713 0 0 1 2 10.87287L2 8.12713A0.12713 0.12713 0 0 1 2.12713 8L4.87287 8A0.12713 0.12713 0 0 0 5 7.87287L5 7.12713A0.12713 0.12713 0 0 0 4.87287 7L2.12713 7A0.12713 0.12713 0 0 1 2 6.87287L2 3.12713A0.12713 0.12713 0 0 0 1.87287 3L0.12713 3A0.12713 0.12713 0 0 1 0 2.87287ZM6.12713 7A0.12713 0.12713 0 0 0 6 7.12713L6 7.87287A0.12713 0.12713 0 0 0 6.12713 8L9.87287 8A0.12713 0.12713 0 0 0 10 7.87287L10 7.12713A0.12713 0.12713 0 0 0 9.87287 7Z"/>
+  </g>
+</svg></a>
+    <div class="titleblock">
+      <div class="eyebrow">Meta</div>
+      <h1 id="page-title">The photocopy effect</h1>
+      <dl class="meta">
+        <dt>Date</dt><dd>22/09/2026</dd>
+      </dl>
+    </div>
+  </header>
+
+  <main class="row article">
+<article class="content">
+<p><em>Retired from the live site in the bare-bones pass. Kept here as a build note, in case future me wants it back — the CSS and the filter markup below no longer exist in <code>docs/css/prototype.css</code> or <code>data/includes/header.html</code>.</em></p>
+<p>A few things on this site — the logo mark, the <code>h1</code>/<code>h2</code> headings, and the hairline rules that frame the columns — used to be pushed through an SVG filter before they reached the screen. The filter degraded them the way a few generations through a photocopier degrades a page: the edges wobbled, small marks dropped out, ink bled where it survived, and a layer of toner grain sat over the top.</p>
+<h2 id="why">Why</h2>
+<p>I wanted the handful of elements that carried the most weight on the page — the mark, the headings, the frame lines — to look like they'd come off a photocopier: ink on paper rather than pixels on glass, handled rather than rendered. Everything else on the page was drawn clean, straight vector edges and flat fill, which is what made the contrast work.</p>
+<h2 id="how-it-works">How it works</h2>
+<p>The effect was one SVG filter, <code>#f-photocopy</code>, defined once near the top of <code>&lt;body&gt;</code> in the page header include and referenced from CSS wherever it was needed. It ran in four stages, each one built from a <code>feTurbulence</code> noise field and a threshold that turned the smooth noise into a hard yes/no mask.</p>
+<ol>
+<li><strong>Warp.</strong> A low-frequency turbulence field displaces the whole source graphic by a few pixels with <code>feDisplacementMap</code>. This is the page waviness — the sense that the original sheet wasn't sitting flat under the glass.</li>
+<li><strong>Dropout.</strong> A second, higher-frequency turbulence field is run through <code>feColorMatrix</code> to turn it into a mask: alpha = 14 × R − 2.8, so anything where the noise channel falls below about 0.2 becomes fully transparent. Composited against the warped graphic with <code>operator=&quot;in&quot;</code>, this eats small chunks out of thin strokes — toner running out.</li>
+<li><strong>Bleed.</strong> The eaten result is blurred, then pushed back through another <code>feColorMatrix</code> threshold: alpha = 22 × a − 8.8, so the cut lands at 40% alpha. Anything that doesn't keep at least that much opacity through the blur is erased outright, and everything that survives is pushed back towards full black. This is what gives surviving edges their soft, bled-ink look instead of just a blur.</li>
+<li><strong>Grain.</strong> A final high-frequency field, thresholded the same way as the dropout stage, punches a fine speckle out of what's left — the toner texture.</li>
+</ol>
+<h3 id="one-filter-two-resolutions">One filter, two resolutions</h3>
+<p>The bleed stage only works if the blur it depends on actually runs. Chrome approximates <code>feGaussianBlur</code> with box blurs sized in <em>device</em> pixels, and a box size under 1 device pixel is the identity — it does nothing. A blur radius tuned to look right at 2x (retina) is invisible at 1x, because the same CSS-pixel radius is half the device pixels there.</p>
+<p>Rather than one compromise setting, there are two complete filters: <code>#f-photocopy</code>, tuned for high-density screens, and <code>#f-photocopy-1x</code>, which doubles every spatial value (warp scale, blur radius, noise frequency) and softens the two hard alpha thresholds into gentler ramps, so partial-alpha pixels stand in for the fine detail a coarser raster can't resolve. A media query picks between them:</p>
+<pre><code class="language-css">:root {
+    --photocopy: url(#f-photocopy-1x);
+    --rule-filter: var(--photocopy);
+}
+
+@media (min-resolution: 1.5dppx), (-webkit-min-device-pixel-ratio: 1.5) {
+    :root {
+        --photocopy: url(#f-photocopy);
+        --rule-filter: var(--photocopy);
+    }
+}</code></pre>
+<p><code>--rule-filter</code> is kept as a separate variable from <code>--photocopy</code>, even though it points at the same thing, because it's also the off switch for the page rules alone — set it to <code>none</code> and the hairlines go back to being clean lines while the logo and headings keep the effect.</p>
+<h3 id="where-it-was-applied">Where it was applied</h3>
+<p>Two CSS patterns covered every use on the site.</p>
+<p><strong>Text and the logo</strong> take the filter directly, because a filter on an element with no children of its own can't drag anything unwanted through it:</p>
+<pre><code class="language-css">.ink-copy { filter: var(--photocopy); }
+
+h2 { filter: var(--photocopy); /* plus its other type rules */ }</code></pre>
+<p><strong>Borders</strong> never take the filter directly, because a filter applies to an element <em>and everything inside it</em> — put it on a box that contains text and the warp and dropout stages eat the words along with the border. Instead the border is drawn on a pseudo-element with nothing inside it:</p>
+<pre><code class="language-css">.ink-frame { position: relative; }
+
+.ink-frame::before {
+    content: &quot;&quot;;
+    position: absolute;
+    inset: 0;
+    border: 4px solid currentColor;
+    pointer-events: none;
+    filter: var(--photocopy);
+}</code></pre>
+<p>This is the pattern the page's own hairline rules use, just drawn as a dedicated element (<code>.rule-h</code>, and the vertical rules on <code>.row::before</code> / <code>.row::after</code>) rather than a pseudo-element on a content box, since those rules aren't boxes to begin with.</p>
+<h3 id="two-things-that-catch-people-out">Two things that catch people out</h3>
+<p>The filter was defined inside an <code>&lt;svg&gt;</code> sitting at the top of <code>&lt;body&gt;</code>, sized <code>width=&quot;0&quot; height=&quot;0&quot;</code> and positioned absolutely so it took up no space. That <code>&lt;svg&gt;</code> had to actually be in the DOM and must not be <code>display: none</code> — some browser engines drop the whole filter graph if its host isn't rendered, even though nothing about the filter is visible on its own.</p>
+<p>The other trap was alpha. The bleed stage thresholded at 40% opacity <em>before</em> anything else happened to the colour, so anything drawn at less than full opacity — a translucent rule colour, for instance — could already be under the cut before the filter even started, and got erased outright rather than just faded. Whatever fed this filter had to be opaque.</p>
+</article>
+<nav class="toc">
+<h2>Contents</h2>
+<ul>
+<li><a href="#why">Why</a>
+</li>
+<li><a href="#how-it-works">How it works</a>
+<ul>
+<li><a href="#one-filter-two-resolutions">One filter, two resolutions</a>
+</li>
+<li><a href="#where-it-was-applied">Where it was applied</a>
+</li>
+<li><a href="#two-things-that-catch-people-out">Two things that catch people out</a>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+  </main>
+
+  <footer class="row pagefoot">
+    <div class="band" aria-hidden="true"></div>
+    <div class="footinner">
+      <!-- PLACEHOLDER: footer content still to be decided. -->
+      <div class="colophon">gray.land</div>
+      <div class="footlinks">
+        <a href="index.html">Index</a>
+      </div>
+      <div class="totop"><a href="#top">&#8593; Top</a></div>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>

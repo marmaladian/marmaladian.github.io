@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/prototype.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+  <title>Layout test</title>
+  <script>
+    (function () {
+      var THEMES = ['light', 'dark'];
+      var saved = localStorage.getItem('theme');
+      if (THEMES.indexOf(saved) !== -1) {
+        document.documentElement.setAttribute('data-theme', saved);
+      }
+      document.addEventListener('DOMContentLoaded', function () {
+        var button = document.getElementById('theme-toggle');
+        button.addEventListener('click', function () {
+          var root = document.documentElement;
+          // With no attribute set the page is following the operating
+          // system, so resolve that first — otherwise the first click
+          // would move to the theme already on screen.
+          var current = root.getAttribute('data-theme');
+          if (THEMES.indexOf(current) === -1) {
+            current = window.matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark' : 'light';
+          }
+          var next = THEMES[(THEMES.indexOf(current) + 1) % THEMES.length];
+          root.setAttribute('data-theme', next);
+          localStorage.setItem('theme', next);
+        });
+      });
+
+      // The running head: a small copy of the page title that lives in the
+      // sticky bar and only shows once the real h1 has scrolled out from
+      // under it. An IntersectionObserver watches the h1 against a root
+      // shrunk by the bar's own height, so "intersecting" means "still
+      // below the bar" — the moment it isn't, the two swap places. The
+      // fade itself is a CSS transition on .is-faded/.is-visible; this
+      // only flips the classes.
+      document.addEventListener('DOMContentLoaded', function () {
+        var h1 = document.getElementById('page-title');
+        var bar = document.querySelector('.runhead');
+        var label = document.getElementById('runhead-title');
+        if (!h1 || !bar || !label || !('IntersectionObserver' in window)) return;
+        var barHeight = bar.getBoundingClientRect().height;
+        new IntersectionObserver(function (entries) {
+          var past = !entries[0].isIntersecting;
+          h1.classList.toggle('is-faded', past);
+          label.classList.toggle('is-visible', past);
+        }, { rootMargin: -barHeight + 'px 0px 0px 0px', threshold: 0 }).observe(h1);
+      });
+
+      // The folio: a book's running page number, repurposed here as how
+      // far through the page the reader is. 0% at the very top, 100% once
+      // the bottom of the document has scrolled into view — a plain
+      // fraction of scrollable distance covered, not tied to headings, so
+      // it works the same on every page regardless of how it's sectioned.
+      document.addEventListener('DOMContentLoaded', function () {
+        var folio = document.getElementById('runhead-folio');
+        if (!folio) return;
+        var ticking = false;
+        function update() {
+          ticking = false;
+          var scrollable = document.documentElement.scrollHeight - window.innerHeight;
+          var percent = scrollable <= 0 ? 100 : (window.scrollY / scrollable) * 100;
+          percent = Math.max(0, Math.min(100, Math.round(percent)));
+          folio.textContent = percent + '%';
+        }
+        function onScroll() {
+          if (!ticking) {
+            ticking = true;
+            requestAnimationFrame(update);
+          }
+        }
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', onScroll);
+        update();
+      });
+    })();
+  </script>
+</head>
+<body id="top">
+
+<div class="page">
+
+  <div class="row runhead">
+    <a class="runhead-home" href="index.html" aria-label="gray.land — home">g</a>
+    <span class="runhead-title" id="runhead-title" aria-hidden="true">Layout test</span>
+    <span class="runhead-folio" id="runhead-folio" aria-hidden="true"></span>
+    <button id="theme-toggle" class="runhead-toggle" aria-label="Toggle dark and light mode">&#9788;</button>
+  </div>
+
+  <header class="row pagehead">
+    <a class="brand" href="index.html" aria-label="gray.land — home"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="171.667 40.006 168.73 429.5">
+  <g transform="translate(171.667 40.006) scale(15.339)">
+    <path fill="currentColor" fill-rule="evenodd" d="M0 0.12713A0.12713 0.12713 0 0 1 0.12713 0L2.87287 0A0.12713 0.12713 0 0 1 3 0.12713L3 3.87287A0.12713 0.12713 0 0 0 3.12713 4L4.87287 4A0.12713 0.12713 0 0 0 5 3.87287L5 0.12713A0.12713 0.12713 0 0 1 5.12713 0L5.87287 0A0.12713 0.12713 0 0 1 6 0.12713L6 3.87287A0.12713 0.12713 0 0 0 6.12713 4L10.87287 4A0.12713 0.12713 0 0 1 11 4.12713L11 10.87287A0.12713 0.12713 0 0 1 10.87287 11L6.12713 11A0.12713 0.12713 0 0 0 6 11.12713L6 11.87287A0.12713 0.12713 0 0 0 6.12713 12L10.87287 12A0.12713 0.12713 0 0 1 11 12.12713L11 14.87287A0.12713 0.12713 0 0 1 10.87287 15L6.12713 15A0.12713 0.12713 0 0 0 6 15.12713L6 15.87287A0.12713 0.12713 0 0 0 6.12713 16L10.87287 16A0.12713 0.12713 0 0 1 11 16.12713L11 18.87287A0.12713 0.12713 0 0 1 10.87287 19L5.12713 19A0.12713 0.12713 0 0 1 5 18.87287L5 15.12713A0.12713 0.12713 0 0 0 4.87287 15L3.12713 15A0.12713 0.12713 0 0 0 3 15.12713L3 19.87287A0.12713 0.12713 0 0 0 3.12713 20L10.87287 20A0.12713 0.12713 0 0 1 11 20.12713L11 26.87287A0.12713 0.12713 0 0 1 10.87287 27L6.12713 27A0.12713 0.12713 0 0 0 6 27.12713L6 27.87287A0.12713 0.12713 0 0 1 5.87287 28L5.12713 28A0.12713 0.12713 0 0 1 5 27.87287L5 24.12713A0.12713 0.12713 0 0 1 5.12713 24L9.87287 24A0.12713 0.12713 0 0 0 10 23.87287L10 23.12713A0.12713 0.12713 0 0 0 9.87287 23L2.12713 23A0.12713 0.12713 0 0 1 2 22.87287L2 12.12713A0.12713 0.12713 0 0 1 2.12713 12L4.87287 12A0.12713 0.12713 0 0 0 5 11.87287L5 11.12713A0.12713 0.12713 0 0 0 4.87287 11L2.12713 11A0.12713 0.12713 0 0 1 2 10.87287L2 8.12713A0.12713 0.12713 0 0 1 2.12713 8L4.87287 8A0.12713 0.12713 0 0 0 5 7.87287L5 7.12713A0.12713 0.12713 0 0 0 4.87287 7L2.12713 7A0.12713 0.12713 0 0 1 2 6.87287L2 3.12713A0.12713 0.12713 0 0 0 1.87287 3L0.12713 3A0.12713 0.12713 0 0 1 0 2.87287ZM6.12713 7A0.12713 0.12713 0 0 0 6 7.12713L6 7.87287A0.12713 0.12713 0 0 0 6.12713 8L9.87287 8A0.12713 0.12713 0 0 0 10 7.87287L10 7.12713A0.12713 0.12713 0 0 0 9.87287 7Z"/>
+  </g>
+</svg></a>
+    <div class="titleblock">
+      <div class="eyebrow">Meta</div>
+      <h1 id="page-title">Layout test</h1>
+      <dl class="meta">
+        <dt>Date</dt><dd>10/09/2026</dd>
+      </dl>
+    </div>
+  </header>
+
+  <main class="row article">
+<article class="content">
+<p>This page exercises every part of the page grid. It is source, not hand-written HTML, so the build owns it and it cannot fall out of step with the templates.</p>
+<h2 id="the-shape-of-the-page">The shape of the page</h2>
+<p>The middle track carries the body copy at a fixed measure. The right track carries the contents, and the two of them read as one block with a rule down each side. That block, not the middle track on its own, is what sits on the centre of the screen. The left track is free space for figures to move into, and beyond the right-hand rule there is a matching strip of nothing, which is what puts the block in the middle.</p>
+<p>The two kinds of rule do not behave the same way. The vertical pair is drawn inside the columns and carries on down through the footer, swapping to the page colour as it crosses the band. The horizontal rules, under the navigation and under the header, are borders on the rows themselves, and every row runs the full width of the window, so they carry on past the columns and out to both edges of the screen. There is none above the footer: the band changes colour there, and that edge is boundary enough.</p>
+<h3 id="figures-that-cross-a-rule">Figures that cross a rule</h3>
+<p>A picture that reaches across a vertical rule is painted over it, so the line breaks for the height of the image and picks up below. A caption is not, because words sitting on a hairline are unreadable.</p>
+<figure class="wide-alt">
+<img src="media/test-1.jpg" alt="A figure with wide-alt. It reaches back into the left track and its right edge lands on the column rule.">
+<figcaption>A figure with <code>wide-alt</code>. It reaches back into the left track and its right edge lands on the column rule.</figcaption>
+</figure>
+<p>Figures that cross a rule are subgrids of the page grid, which lets the caption be placed back on the middle column while the picture above it still spans the whole figure.</p>
+<h2 id="the-span-helpers">The span helpers</h2>
+<p>Four classes move a figure out of the middle column. Each keeps at least one edge on the grid, so the body copy still reads as a single column.</p>
+<figure class="side">
+<img src="media/test-5.jpg" alt="side — the right track on its own. This is the slot the contents list takes over when a page has one.">
+<figcaption><code>side</code> — the right track on its own. This is the slot the contents list takes over when a page has one.</figcaption>
+</figure>
+<p>A <code>side</code> figure hangs in the right track and the copy continues past it. It is given no height, so it takes no part in sizing the grid row and cannot open a gap in the middle column beside it. Two side notes close together will overlap, so space them by a screenful of copy.</p>
+<p>On a page that already has a contents list the right track is spoken for, so <code>side</code> and <code>wide</code> step back to the measure and <code>full</code> gives up the right track. That is what has happened here.</p>
+<blockquote>
+<p>The margin is where the reader argues back. Leave room for it.</p>
+</blockquote>
+<figure class="wide">
+<img src="media/test-7.jpg" alt="wide — the middle and right tracks. It fills the centred block exactly, from the rule on its left to the rule on its right.">
+<figcaption><code>wide</code> — the middle and right tracks. It fills the centred block exactly, from the rule on its left to the rule on its right.</figcaption>
+</figure>
+<h3 id="blocks">Blocks</h3>
+<p>A code block bleeds to the column rules while its text stays on the same left edge as the prose above it:</p>
+<pre><code class="language-html">&lt;main class=&quot;row article&quot;&gt;
+  &lt;article class=&quot;content&quot;&gt; ... &lt;/article&gt;
+  &lt;nav class=&quot;toc&quot;&gt; ... &lt;/nav&gt;
+&lt;/main&gt;</code></pre>
+<p>A table sits on the measure like a paragraph:</p>
+<table>
+<thead><tr><th>Token</th><th>Light</th><th>Dark</th><th>Used for</th></tr></thead>
+<tbody>
+<tr><td>ink</td><td>#111111</td><td>#ededed</td><td>Body copy, headings</td></tr>
+<tr><td>ink-mute</td><td>#6b6b6b</td><td>#9a9a9a</td><td>Captions, contents, footer</td></tr>
+<tr><td>panel</td><td>#ffffff</td><td>#141414</td><td>The four page rows</td></tr>
+<tr><td>hair</td><td>#c9c9c9</td><td>#3a3a3a</td><td>Every rule, and the footer band</td></tr>
+<tr><td>border</td><td>#dcdcdc</td><td>#2e2e2e</td><td>Rules inside a panel</td></tr>
+</tbody>
+</table>
+<h2 id="galleries">Galleries</h2>
+<p>A gallery is a band of images cropped to one height, so the row reads as a single block instead of a ragged edge.</p>
+<div class="full">
+<div class="gallery">
+<figure class="gallery">
+<img src="media/test-2.jpg" alt="">
+<figcaption></figcaption>
+</figure>
+<figure class="gallery">
+<img src="media/test-3.jpg" alt="">
+<figcaption></figcaption>
+</figure>
+<figure class="gallery">
+<img src="media/test-4.jpg" alt="">
+<figcaption></figcaption>
+</figure>
+</div>
+</div>
+<h2 id="notes">Notes</h2>
+<p>Footnotes still work.<sup><a href="#fn-one" id="fnref-one">1</a></sup> The contents column stays with you for the length of the article: at rest it lines up with the top of the article, and once the article has scrolled up under the navigation it stops at the lower edge of that row.</p>
+<hr>
+<section class="endnotes">
+<ol>
+<li id="fn-one">The theme toggle writes to <code>localStorage</code> and sets <code>data-theme</code> on the root element, which is read before first paint. <a href="#fnref-one" aria-label="Back to reference">↩</a></li>
+</ol>
+</section>
+</article>
+<nav class="toc">
+<h2>Contents</h2>
+<ul>
+<li><a href="#the-shape-of-the-page">The shape of the page</a>
+<ul>
+<li><a href="#figures-that-cross-a-rule">Figures that cross a rule</a>
+</li>
+</ul>
+</li>
+<li><a href="#the-span-helpers">The span helpers</a>
+<ul>
+<li><a href="#blocks">Blocks</a>
+</li>
+</ul>
+</li>
+<li><a href="#galleries">Galleries</a>
+</li>
+<li><a href="#notes">Notes</a>
+</li>
+</ul>
+</nav>
+  </main>
+
+  <footer class="row pagefoot">
+    <div class="band" aria-hidden="true"></div>
+    <div class="footinner">
+      <!-- PLACEHOLDER: footer content still to be decided. -->
+      <div class="colophon">gray.land</div>
+      <div class="footlinks">
+        <a href="index.html">Index</a>
+      </div>
+      <div class="totop"><a href="#top">&#8593; Top</a></div>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>

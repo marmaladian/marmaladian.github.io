@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/prototype.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+  <title>Personal projects</title>
+  <script>
+    (function () {
+      var THEMES = ['light', 'dark'];
+      var saved = localStorage.getItem('theme');
+      if (THEMES.indexOf(saved) !== -1) {
+        document.documentElement.setAttribute('data-theme', saved);
+      }
+      document.addEventListener('DOMContentLoaded', function () {
+        var button = document.getElementById('theme-toggle');
+        button.addEventListener('click', function () {
+          var root = document.documentElement;
+          // With no attribute set the page is following the operating
+          // system, so resolve that first — otherwise the first click
+          // would move to the theme already on screen.
+          var current = root.getAttribute('data-theme');
+          if (THEMES.indexOf(current) === -1) {
+            current = window.matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark' : 'light';
+          }
+          var next = THEMES[(THEMES.indexOf(current) + 1) % THEMES.length];
+          root.setAttribute('data-theme', next);
+          localStorage.setItem('theme', next);
+        });
+      });
+
+      // The running head: a small copy of the page title that lives in the
+      // sticky bar and only shows once the real h1 has scrolled out from
+      // under it. An IntersectionObserver watches the h1 against a root
+      // shrunk by the bar's own height, so "intersecting" means "still
+      // below the bar" — the moment it isn't, the two swap places. The
+      // fade itself is a CSS transition on .is-faded/.is-visible; this
+      // only flips the classes.
+      document.addEventListener('DOMContentLoaded', function () {
+        var h1 = document.getElementById('page-title');
+        var bar = document.querySelector('.runhead');
+        var label = document.getElementById('runhead-title');
+        if (!h1 || !bar || !label || !('IntersectionObserver' in window)) return;
+        var barHeight = bar.getBoundingClientRect().height;
+        new IntersectionObserver(function (entries) {
+          var past = !entries[0].isIntersecting;
+          h1.classList.toggle('is-faded', past);
+          label.classList.toggle('is-visible', past);
+        }, { rootMargin: -barHeight + 'px 0px 0px 0px', threshold: 0 }).observe(h1);
+      });
+
+      // The folio: a book's running page number, repurposed here as how
+      // far through the page the reader is. 0% at the very top, 100% once
+      // the bottom of the document has scrolled into view — a plain
+      // fraction of scrollable distance covered, not tied to headings, so
+      // it works the same on every page regardless of how it's sectioned.
+      document.addEventListener('DOMContentLoaded', function () {
+        var folio = document.getElementById('runhead-folio');
+        if (!folio) return;
+        var ticking = false;
+        function update() {
+          ticking = false;
+          var scrollable = document.documentElement.scrollHeight - window.innerHeight;
+          var percent = scrollable <= 0 ? 100 : (window.scrollY / scrollable) * 100;
+          percent = Math.max(0, Math.min(100, Math.round(percent)));
+          folio.textContent = percent + '%';
+        }
+        function onScroll() {
+          if (!ticking) {
+            ticking = true;
+            requestAnimationFrame(update);
+          }
+        }
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', onScroll);
+        update();
+      });
+    })();
+  </script>
+</head>
+<body id="top">
+
+<div class="page">
+
+  <div class="row runhead">
+    <a class="runhead-home" href="index.html" aria-label="gray.land — home">g</a>
+    <span class="runhead-title" id="runhead-title" aria-hidden="true">Personal projects</span>
+    <span class="runhead-folio" id="runhead-folio" aria-hidden="true"></span>
+    <button id="theme-toggle" class="runhead-toggle" aria-label="Toggle dark and light mode">&#9788;</button>
+  </div>
+
+  <header class="row pagehead">
+    <a class="brand" href="index.html" aria-label="gray.land — home"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="171.667 40.006 168.73 429.5">
+  <g transform="translate(171.667 40.006) scale(15.339)">
+    <path fill="currentColor" fill-rule="evenodd" d="M0 0.12713A0.12713 0.12713 0 0 1 0.12713 0L2.87287 0A0.12713 0.12713 0 0 1 3 0.12713L3 3.87287A0.12713 0.12713 0 0 0 3.12713 4L4.87287 4A0.12713 0.12713 0 0 0 5 3.87287L5 0.12713A0.12713 0.12713 0 0 1 5.12713 0L5.87287 0A0.12713 0.12713 0 0 1 6 0.12713L6 3.87287A0.12713 0.12713 0 0 0 6.12713 4L10.87287 4A0.12713 0.12713 0 0 1 11 4.12713L11 10.87287A0.12713 0.12713 0 0 1 10.87287 11L6.12713 11A0.12713 0.12713 0 0 0 6 11.12713L6 11.87287A0.12713 0.12713 0 0 0 6.12713 12L10.87287 12A0.12713 0.12713 0 0 1 11 12.12713L11 14.87287A0.12713 0.12713 0 0 1 10.87287 15L6.12713 15A0.12713 0.12713 0 0 0 6 15.12713L6 15.87287A0.12713 0.12713 0 0 0 6.12713 16L10.87287 16A0.12713 0.12713 0 0 1 11 16.12713L11 18.87287A0.12713 0.12713 0 0 1 10.87287 19L5.12713 19A0.12713 0.12713 0 0 1 5 18.87287L5 15.12713A0.12713 0.12713 0 0 0 4.87287 15L3.12713 15A0.12713 0.12713 0 0 0 3 15.12713L3 19.87287A0.12713 0.12713 0 0 0 3.12713 20L10.87287 20A0.12713 0.12713 0 0 1 11 20.12713L11 26.87287A0.12713 0.12713 0 0 1 10.87287 27L6.12713 27A0.12713 0.12713 0 0 0 6 27.12713L6 27.87287A0.12713 0.12713 0 0 1 5.87287 28L5.12713 28A0.12713 0.12713 0 0 1 5 27.87287L5 24.12713A0.12713 0.12713 0 0 1 5.12713 24L9.87287 24A0.12713 0.12713 0 0 0 10 23.87287L10 23.12713A0.12713 0.12713 0 0 0 9.87287 23L2.12713 23A0.12713 0.12713 0 0 1 2 22.87287L2 12.12713A0.12713 0.12713 0 0 1 2.12713 12L4.87287 12A0.12713 0.12713 0 0 0 5 11.87287L5 11.12713A0.12713 0.12713 0 0 0 4.87287 11L2.12713 11A0.12713 0.12713 0 0 1 2 10.87287L2 8.12713A0.12713 0.12713 0 0 1 2.12713 8L4.87287 8A0.12713 0.12713 0 0 0 5 7.87287L5 7.12713A0.12713 0.12713 0 0 0 4.87287 7L2.12713 7A0.12713 0.12713 0 0 1 2 6.87287L2 3.12713A0.12713 0.12713 0 0 0 1.87287 3L0.12713 3A0.12713 0.12713 0 0 1 0 2.87287ZM6.12713 7A0.12713 0.12713 0 0 0 6 7.12713L6 7.87287A0.12713 0.12713 0 0 0 6.12713 8L9.87287 8A0.12713 0.12713 0 0 0 10 7.87287L10 7.12713A0.12713 0.12713 0 0 0 9.87287 7Z"/>
+  </g>
+</svg></a>
+    <div class="titleblock">
+      <div class="eyebrow">Projects</div>
+      <h1 id="page-title">Personal projects</h1>
+    </div>
+  </header>
+
+  <main class="row article">
+<article class="content">
+<p>These are some hobby and experimental projects in various states of completion. I work on them intermittently.</p>
+<h2 id="fantasy-computers">Fantasy computers</h2>
+<p>A series of fictional computers and video game consoles, each with their own unique architecture and instruction set. I'm working on an emulator for the first of these now, Amulet.</p>
+<ul>
+<li><a href="amulet">Amulet</a></li>
+</ul>
+<h2 id="foul-airs">Foul Airs</h2>
+<p>This was made for the {{Merveilles Hyperjam|https://cancel.fm/hyperjam/}}, a {{Hypercard|https://en.wikipedia.org/wiki/HyperCard}} game jam. If you don't have an old Mac or emulator, it's also playable on the Internet Archive (I'm not sure how it wound up there).</p>
+<ul>
+<li><a href="https://marmaladian.itch.io/foul-airs">Foul Airs (itch.io)</a></li>
+<li><a href="https://archive.org/details/hypercard_foul-airs">Foul Airs (Internet Archive)</a></li>
+</ul>
+</article>
+  </main>
+
+  <footer class="row pagefoot">
+    <div class="band" aria-hidden="true"></div>
+    <div class="footinner">
+      <!-- PLACEHOLDER: footer content still to be decided. -->
+      <div class="colophon">gray.land</div>
+      <div class="footlinks">
+        <a href="index.html">Index</a>
+      </div>
+      <div class="totop"><a href="#top">&#8593; Top</a></div>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>
